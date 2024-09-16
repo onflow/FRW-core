@@ -1,5 +1,5 @@
-import { ethErrors } from 'eth-rpc-errors';
-import { EthereumProvider } from './index';
+import { ethErrors } from "eth-rpc-errors";
+import { EthereumProvider } from "../index";
 
 class PushEventHandlers {
   provider: EthereumProvider;
@@ -9,7 +9,7 @@ class PushEventHandlers {
   }
 
   _emit(event, data) {
-    if (this.provider._initialized) {
+    if (this.provider._initialized && this.provider._isReady) {
       this.provider.emit(event, data);
     }
   }
@@ -18,7 +18,7 @@ class PushEventHandlers {
     if (!this.provider._isConnected) {
       this.provider._isConnected = true;
       this.provider._state.isConnected = true;
-      this._emit('connect', data);
+      this._emit("connect", data);
     }
   };
 
@@ -38,9 +38,9 @@ class PushEventHandlers {
     this.provider.selectedAddress = null;
     const disconnectError = ethErrors.provider.disconnected();
 
-    this._emit('accountsChanged', []);
-    this._emit('disconnect', disconnectError);
-    this._emit('close', disconnectError);
+    this._emit("accountsChanged", []);
+    this._emit("disconnect", disconnectError);
+    this._emit("close", disconnectError);
   };
 
   accountsChanged = (accounts) => {
@@ -50,22 +50,31 @@ class PushEventHandlers {
 
     this.provider.selectedAddress = accounts?.[0];
     this.provider._state.accounts = accounts;
-    this._emit('accountsChanged', accounts);
+    this._emit("accountsChanged", accounts);
   };
 
-  // chainChanged = ({ chain, networkVersion }) => {
-  //   this.connect({ chainId: chain });
+  chainChanged = ({ chain, networkVersion }) => {
+    this.connect({ chainId: chain });
 
-  //   if (chain !== this.provider.chainId) {
-  //     this.provider.chainId = chain;
-  //     this._emit('chainChanged', chain);
-  //   }
+    if (chain !== this.provider.chainId) {
+      this.provider.chainId = chain;
+      this._emit("chainChanged", chain);
+    }
 
-  //   if (networkVersion !== this.provider.networkVersion) {
-  //     this.provider.networkVersion = networkVersion;
-  //     this._emit('networkChanged', networkVersion);
-  //   }
-  // };
+    if (networkVersion !== this.provider.networkVersion) {
+      this.provider.networkVersion = networkVersion;
+      this._emit("networkChanged", networkVersion);
+    }
+  };
+
+  "frw:chainChanged" = (chain) => {
+    if (
+      chain &&
+      chain.hex?.toLowerCase() !== this.provider.chainId?.toLowerCase()
+    ) {
+      this._emit("frw:chainChanged", chain);
+    }
+  };
 }
 
 export default PushEventHandlers;
