@@ -1,0 +1,14 @@
+{
+	"name": "FRW-core",
+	"version": "0.0.1",
+	"description": "Flow Wallet core packages",
+	"author": "Flow Foundation",
+	"license": "LGPL-3.0-or-later",
+	"keywords": [
+		"flow",
+		"wallet",
+		"core",
+		"packages"
+	],
+	"packageManager": "pnpm@10.12.4"
+}
