@@ -2,9 +2,7 @@ name: Packages Build & Test
 
 on:
   push:
-    branches: ['**']
-  pull_request:
-    branches: ['**']
+    branches: ['main', 'develop']
   workflow_dispatch:
 
 jobs:
@@ -30,14 +28,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Lint packages
-        run: pnpm lint
-
       - name: Build packages
         run: |
           echo "Building all packages..."
           pnpm build
           echo "All packages built successfully"
+
+      - name: Lint packages
+        run: pnpm lint
 
       - name: Run tests
         run: pnpm test:run

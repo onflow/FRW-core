@@ -32,6 +32,7 @@ export const baseConfig = {
     'import/resolver': {
       typescript: {
         alwaysTryTypes: true,
+        project: ['./tsconfig.json', './packages/*/tsconfig.json'],
       },
       node: true,
     },
