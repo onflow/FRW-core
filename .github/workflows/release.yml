@@ -29,6 +29,8 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install
+        env:
+          HUSKY: 0
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
@@ -37,16 +39,18 @@ jobs:
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
           publish: pnpm release
           version: pnpm changeset version
-          title: "Release packages"
-          commit: "chore: version packages"
+          title: 'Release packages'
+          commit: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          HUSKY: 0
 
       - name: Create GitHub Releases
         if: steps.changesets.outputs.published == 'true'
         uses: changesets/action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: 0
         with:
           createGithubReleases: true
