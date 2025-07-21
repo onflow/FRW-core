@@ -45,28 +45,6 @@ jobs:
           pnpm -r --parallel exec tsc --noEmit || true
           echo "Type check completed"
 
-  publish-check:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build packages
-        run: pnpm build
-
       - name: Check package publishability
         run: |
           echo "Checking if packages can be published..."
