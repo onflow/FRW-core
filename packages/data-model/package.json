@@ -1,6 +1,9 @@
 {
   "name": "@onflow/frw-data-model",
   "version": "0.0.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Data model for Flow Reference Wallet",
   "type": "module",
   "main": "./dist/index.js",
