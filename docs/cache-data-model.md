@@ -2,11 +2,11 @@
 
 ## Overview
 
-The caching system is built specifically for Chrome extensions, implementing a stale-while-revalidate pattern adapted for the unique constraints of extension architecture. Normal react based caching strategies don't work as the react application is destroyed each time the popup is closed.
+The caching system implements a stale-while-revalidate pattern designed for applications with separate frontend and backend contexts. This architecture is particularly useful when the frontend needs to efficiently cache data while the backend handles all data fetching and updates.
 
 The system handles two types of storage:
 
-1. **Session Storage (Cache Data)**: For temporary, refreshable data that needs to be synchronized between the background service worker and UI
+1. **Session Storage (Cache Data)**: For temporary, refreshable data that needs to be synchronized between backend and frontend
 2. **Local Storage (User Data)**: For persistent user preferences and settings
 
 ## Core Components
@@ -37,7 +37,7 @@ The system uses three main patterns:
 
 - Handles data fetching and refreshing
 - Data in the cache is **only ever set in the background**
-- Uses Chrome's storage API to communicate with the UI
+- Uses storage API to communicate with the frontend
 - Implements refresh listeners for automatic data updates
 
 #### C. Frontend Hooks
@@ -229,7 +229,7 @@ This ensures that when the UI displays a list of accounts, all balance requests 
 1. **Minimal Data Transfer**
 
 - Only transfers changed data between background and UI
-- Uses Chrome's built-in storage events for efficient updates
+- Uses storage events for efficient updates
 
 2. **Smart Caching**
 

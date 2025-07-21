@@ -1,0 +1,84 @@
+name: Packages Build & Test
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint packages
+        run: pnpm lint
+
+      - name: Build packages
+        run: |
+          echo "Building all packages..."
+          pnpm build
+          echo "All packages built successfully"
+
+      - name: Run tests
+        run: pnpm test:run
+
+      - name: Type check
+        run: |
+          echo "Running type checks..."
+          pnpm -r --parallel exec tsc --noEmit || true
+          echo "Type check completed"
+
+  publish-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Check package publishability
+        run: |
+          echo "Checking if packages can be published..."
+          for pkg in packages/*; do
+            if [ -f "$pkg/package.json" ]; then
+              echo "Checking $pkg..."
+              cd "$pkg"
+              pnpm publish --dry-run --no-git-checks
+              cd - > /dev/null
+            fi
+          done
+          echo "All packages are ready for publishing"

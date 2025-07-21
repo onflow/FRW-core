@@ -40,11 +40,11 @@
     }
   },
   "dependencies": {
-    "@onflow/frw-shared": "workspace:*",
-    "@onflow/frw-extension-shared": "workspace:*",
-    "@onflow/frw-data-model": "workspace:*",
     "@noble/secp256k1": "^1.7.2",
     "@onflow/fcl": "^1.13.1",
+    "@onflow/frw-data-model": "workspace:*",
+    "@onflow/frw-extension-shared": "workspace:*",
+    "@onflow/frw-shared": "workspace:*",
     "@onflow/typedefs": "^1.4.0",
     "aes-js": "^3.1.2",
     "bignumber.js": "^9.1.2",
@@ -54,6 +54,7 @@
     "dayjs": "^1.11.13",
     "ethereumjs-util": "^7.1.5",
     "firebase": "^10.14.1",
+    "koa-compose": "^4.1.0",
     "lru-cache": "^11.1.0",
     "rlp": "^3.0.0",
     "web3": "^4.0.0"
@@ -67,16 +68,16 @@
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
-    "ethers": "^6.13.4",
-    "@trustwallet/wallet-core": "^4.3.6"
+    "@trustwallet/wallet-core": "^4.3.6",
+    "ethers": "^6.13.4"
   },
   "engines": {
     "node": ">=22.11.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/onflow/FRW-Extension.git",
-    "directory": "packages/shared"
+    "url": "https://github.com/onflow/FRW-core.git",
+    "directory": "packages/core"
   },
   "license": "LGPL-3.0-or-later"
 }

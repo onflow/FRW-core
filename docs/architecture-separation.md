@@ -1,436 +1,286 @@
-# Flow Reference Wallet - Architecture Separation
-
-## Folder Structure & Import Rules
-
-This document outlines the architectural boundaries and import rules enforced by ESLint in the Flow Reference Wallet Chrome extension.
+# Flow Reference Wallet Core - Package Architecture
 
 ## Overview
 
-The codebase is organized into distinct layers with strict import rules to maintain separation of concerns and prevent architectural violations. Each folder has specific responsibilities and controlled dependencies.
+This document outlines the architectural design and dependency rules for the Flow Reference Wallet Core packages. The packages are designed with strict separation of concerns and clear dependency boundaries to ensure maintainability, reusability, and testability.
 
-## Folder Structure
+## Package Structure
 
 ```
-src/
-├── background/          # Chrome extension background scripts
-├── core/               # Core business logic and services
-├── ui/                 # Popup UI components and views
-│   ├── components/     # Reusable UI components
-│   ├── views/         # Page-level components and screens
-│   ├── hooks/         # Custom React hooks
-│   ├── utils/         # UI-specific utilities
-│   ├── assets/        # Static assets (images, fonts, etc.)
-│   └── style/         # Styling and theming
-├── content-script/     # Web page content scripts
-└── packages/          # Workspace packages
-    ├── shared/        # Shared utilities and types
-    └── reducers/      # State management reducers
+packages/
+├── shared/            # @onflow/frw-shared
+├── core/              # @onflow/frw-core
+├── reducers/          # @onflow/frw-reducers
+├── data-model/        # @onflow/frw-data-model
+└── extension-shared/  # @onflow/frw-extension-shared
 ```
 
 ## Architecture Diagram
 
 ```mermaid
 graph TB
-    subgraph "Chrome Extension Context"
-        subgraph "Background Service Worker"
-            BG[background/]
-            CORE[core/]
-            BG --> CORE
-        end
-
-        subgraph "UI Context"
-            UI[ui/]
-            subgraph "UI Internal Structure"
-                VIEWS[views/]
-                COMPONENTS[components/]
-                HOOKS[hooks/]
-                REDUCERS[hooks use reducers package]
-                UI_UTILS[utils/]
-                ASSETS[assets/]
-                STYLE[style/]
-
-                VIEWS --> COMPONENTS
-                VIEWS --> HOOKS
-                COMPONENTS --> HOOKS
-                HOOKS -.->|messaging| BG
-                HOOKS --> SHARED
-            end
-        end
-
-        subgraph "Content Script Context"
-            CS[content-script/]
-        end
-
-        subgraph "Workspace Packages"
-            SHARED[shared/]
-            REDUCERS[reducers/]
-        end
+    subgraph "Core Packages"
+        SHARED[shared/]
+        CORE[core/]
+        REDUCERS[reducers/]
+        DATAMODEL[data-model/]
+        EXTSHARED[extension-shared/]
     end
 
     %% Dependencies
-    UI -.->|messaging| BG
-    CS --> BG
-    BG --> SHARED
     CORE --> SHARED
-    UI --> SHARED
-    UI --> REDUCERS
-    CS --> SHARED
-    HOOKS --> REDUCERS
+    CORE --> DATAMODEL
+    CORE --> EXTSHARED
+    REDUCERS --> SHARED
+    DATAMODEL --> SHARED
+    EXTSHARED --> SHARED
+    EXTSHARED --> CORE
 
     %% Styling
-    classDef background fill:#e1f5fe
-    classDef core fill:#f3e5f5
-    classDef ui fill:#e8f5e8
-    classDef uiInternal fill:#c8e6c9
-    classDef contentScript fill:#fff3e0
     classDef shared fill:#f5f5f5
+    classDef core fill:#e1f5fe
     classDef reducers fill:#e3f2fd
+    classDef datamodel fill:#f3e5f5
+    classDef extshared fill:#fff3e0
 
-    class BG background
-    class CORE core
-    class UI ui
-    class VIEWS,COMPONENTS,HOOKS,UI_UTILS,ASSETS,STYLE uiInternal
-    class CS contentScript
     class SHARED shared
+    class CORE core
     class REDUCERS reducers
+    class DATAMODEL datamodel
+    class EXTSHARED extshared
 ```
 
-## Layer Responsibilities
+## Package Responsibilities
 
-### 1. Background (`src/background/`)
+### 1. Shared Package (`@onflow/frw-shared`)
 
-- **Purpose**: Chrome extension background service worker
+- **Purpose**: Foundation package with common utilities and types
 - **Responsibilities**:
-  - Extension lifecycle management
-  - Message routing between UI and core
-  - Chrome API interactions
-  - Wallet controller coordination
-- **Can import from**: `@onflow/frw-core/*`, `@onflow/frw-shared/*`
-- **Cannot import from**: `@/ui/*`
+  - Type definitions for Flow blockchain entities
+  - Common utility functions
+  - Constants and enums
+  - Shared interfaces
+- **Dependencies**: None (standalone package)
+- **Used by**: All other packages
 
-### 2. Core (`src/core/`)
+### 2. Core Package (`@onflow/frw-core`)
 
 - **Purpose**: Core business logic and services
 - **Responsibilities**:
-  - Wallet services (keyring, transactions, etc.)
-  - Blockchain interactions
-  - Business logic
-  - Data persistence
-- **Can import from**: `@onflow/frw-shared/*`, `@/background/webapi/*`
-- **Cannot import from**: `@/ui/*`, `@/background/*` (except webapi)
+  - Wallet services (keyring, transactions, signing)
+  - Flow blockchain interactions
+  - Account management
+  - Security operations
+  - Business logic implementation
+- **Can import from**: 
+  - `@onflow/frw-shared`
+  - `@onflow/frw-data-model`
+  - `@onflow/frw-extension-shared`
+- **Cannot import from**: UI-specific packages or application code
 
-### 3. UI (`src/ui/`)
+### 3. Reducers Package (`@onflow/frw-reducers`)
 
-- **Purpose**: Popup interface and user interactions
-- **Responsibilities**:
-  - React components and views
-  - User interface logic
-  - State management for display
-  - User input handling
-- **Can import from**: `@onflow/frw-shared/*`
-- **Cannot import from**: `@onflow/frw-core/*`, `@/background/*`
-- **Communication**: Uses messaging to communicate with background/wallet controller
-
-#### UI Internal Structure
-
-##### 3.1. Views (`src/ui/views/`)
-
-- **Purpose**: Page-level components and complete screens
-- **Responsibilities**:
-  - Route components
-  - Page layouts
-  - Screen orchestration
-  - Complex user flows
-- **Can import from**: `@/ui/components/*`, `@/ui/hooks/*`, `@/ui/utils/*`, `@/ui/assets/*`, `@/ui/style/*`, `@onflow/frw-shared/*`, `@onflow/frw-reducers/*`
-- **Import pattern**: Views compose components and use hooks for state management
-
-##### 3.2. Components (`src/ui/components/`)
-
-- **Purpose**: Reusable UI components
-- **Responsibilities**:
-  - Atomic UI elements
-  - Reusable component patterns
-  - Component composition
-  - UI interactions
-- **Can import from**: `@/ui/hooks/*`, `@/ui/utils/*`, `@/ui/assets/*`, `@/ui/style/*`, `@onflow/frw-shared/*`, `@onflow/frw-reducers/*`
-- **Cannot import from**: `@/ui/views/*` (components should not depend on views)
-
-##### 3.3. Hooks (`src/ui/hooks/`)
-
-- **Purpose**: Custom React hooks for state and side effects
-- **Responsibilities**:
-  - State management logic
-  - Background communication
-  - Storage interactions
-  - Custom React patterns
-- **Can import from**: `@/ui/utils/*`, `@onflow/frw-shared/*`, `@onflow/frw-reducers/*`
-- **Special permissions**: Can communicate with background via messaging
-- **Cannot import from**: `@/ui/views/*`, `@/ui/components/*`
-
-##### 3.4. Utils (`src/ui/utils/`)
-
-- **Purpose**: UI-specific utility functions
-- **Responsibilities**:
-  - UI helper functions
-  - Formatting utilities
-  - UI-specific calculations
-  - Browser API wrappers
-- **Can import from**: `@onflow/frw-shared/*`
-- **Cannot import from**: Other UI subfolders (to prevent circular dependencies)
-
-##### 3.5. Assets (`src/ui/assets/`)
-
-- **Purpose**: Static assets for the UI
-- **Responsibilities**:
-  - Images, icons, fonts
-  - Static JSON data
-  - SVG assets
-- **Import pattern**: Imported by other UI components using `@/ui/assets/*`
-
-##### 3.6. Style (`src/ui/style/`)
-
-- **Purpose**: Styling and theming
-- **Responsibilities**:
-  - Theme definitions
-  - CSS utilities
-  - Design tokens
-  - Global styles
-- **Can import from**: `@onflow/frw-shared/*` (for shared constants)
-- **Import pattern**: Imported by components for styling
-
-### 4. Content Script (`src/content-script/`)
-
-- **Purpose**: Web page integration
-- **Responsibilities**:
-  - dApp provider injection
-  - Web page communication
-  - Flow FCL and Ethereum provider interfaces
-- **Can import from**: `@/background/*`, `@onflow/frw-shared/*`
-
-### 5. Reducers Package (`@onflow/frw-reducers`)
-
-- **Purpose**: State management and data transformations (now as a separate workspace package)
+- **Purpose**: Pure state management functions
 - **Responsibilities**:
   - State reduction logic
   - Data transformations
   - Action handling
-  - Pure state functions
-- **Location**: `packages/reducers/`
-- **Import as**: `@onflow/frw-reducers/*`
-- **Can import from**: `@onflow/frw-shared/*` only
-- **Cannot import from**: Any project folders or other packages
-- **Note**: Must remain pure and isolated for predictable state management
+  - Pure state update functions
+- **Can import from**: `@onflow/frw-shared` only
+- **Design principle**: Must remain pure with no side effects
 
-### 6. Shared Package (`@onflow/frw-shared`)
+### 4. Data Model Package (`@onflow/frw-data-model`)
 
-- **Purpose**: Common utilities and types (now as a separate workspace package)
+- **Purpose**: Cache and data management strategies
 - **Responsibilities**:
-  - Type definitions
-  - Utility functions
-  - Constants
-  - Common helpers
-- **Location**: `packages/shared/`
-- **Import as**: `@onflow/frw-shared/*`
-- **Can import from**: Nothing (standalone package)
-- **Cannot import from**: Any project folders
+  - Cache implementation
+  - Data persistence interfaces
+  - Storage abstraction
+  - TTL management
+  - Data synchronization patterns
+- **Can import from**: `@onflow/frw-shared` only
+- **Design principle**: Storage-agnostic implementation
 
-## Import Rules (Simplified)
+### 5. Extension Shared Package (`@onflow/frw-extension-shared`)
 
-### Key Principles
+- **Purpose**: Browser extension specific utilities
+- **Responsibilities**:
+  - Chrome API wrappers
+  - Extension messaging utilities
+  - Browser-specific helpers
+  - Extension lifecycle management
+- **Can import from**: 
+  - `@onflow/frw-shared`
+  - `@onflow/frw-core`
+- **Note**: Contains browser-specific code
 
-1. **Use aliases for cross-folder imports**: Always use `@/folder/*` syntax
-2. **Shared package imports**: Use `@onflow/frw-shared/*`
-3. **Layer boundaries are enforced**: UI ↔ Core/Background separation
-4. **Relative imports allowed within folders**: Use `./` or `../` within the same folder
+## Dependency Rules
 
-### Examples
+### Strict Dependency Hierarchy
 
-```typescript
-// ✅ Correct - importing from shared package
-import { SomeType } from '@onflow/frw-shared/types';
-import { formatAddress } from '@onflow/frw-shared/utils';
+1. **Shared Package**: No dependencies (foundation layer)
+2. **Data Model & Reducers**: Depend only on Shared
+3. **Core Package**: Can use Shared, Data Model, and Extension Shared
+4. **Extension Shared**: Can use Shared and Core
 
-// ✅ Correct - cross-folder imports with aliases
-import { walletService } from '@onflow/frw-core/service/wallet';
-import { Button } from '@/ui/components/Button';
-import { useWallet } from '@/ui/hooks/use-wallet';
-
-// ✅ Correct - relative imports within same folder
-import { helper } from './helper';
-import { utils } from '../utils';
-```
-
-### Relative Imports (Only within same subfolder)
-
-Use relative imports only within the same subfolder:
+### Import Examples
 
 ```typescript
-// ✅ Correct - within same subfolder
-import { helper } from './helper';
-import { Component } from '../SubFolder/Component';
-import { utils } from '../../utils/index';
+// ✅ Correct - Shared has no dependencies
+// In @onflow/frw-shared
+export interface Account {
+  address: string;
+  balance: number;
+}
+
+// ✅ Correct - Core importing from allowed packages
+// In @onflow/frw-core
+import { Account } from '@onflow/frw-shared/types';
+import { CacheModel } from '@onflow/frw-data-model';
+import { messaging } from '@onflow/frw-extension-shared';
+
+// ✅ Correct - Reducers only import from shared
+// In @onflow/frw-reducers
+import { Account } from '@onflow/frw-shared/types';
+
+// ❌ Wrong - Reducers cannot import from core
+import { WalletService } from '@onflow/frw-core'; // Not allowed!
+
+// ❌ Wrong - Shared cannot import from other packages
+// In @onflow/frw-shared
+import { CacheModel } from '@onflow/frw-data-model'; // Not allowed!
 ```
 
-### UI Import Hierarchy
+## Design Principles
 
-```typescript
-// ✅ Views can import components
-import { AccountCard } from '@/ui/components/account/account-card';
+### 1. Zero Platform Dependencies
 
-// ✅ Components can import hooks
-import { useWallet } from '@/ui/hooks/use-wallet';
+Packages should work in any JavaScript environment where possible:
+- No direct browser APIs in core packages
+- Platform-specific code isolated to extension-shared
+- Use dependency injection for platform features
 
-// ✅ Hooks can import reducers from package
-import { accountReducer } from '@onflow/frw-reducers/account-reducer';
+### 2. Type Safety
 
-// ✅ Anyone can import from shared
-import { formatAddress } from '@onflow/frw-shared/utils';
-```
+All packages use TypeScript with strict mode:
+- Full type coverage
+- No implicit any
+- Strict null checks
+- Comprehensive type exports
 
-### Forbidden Patterns
+### 3. Tree Shaking
 
-```typescript
-// ❌ Wrong - UI importing from core
-import { keyringService } from '@onflow/frw-core/service/keyring';
+Packages are optimized for bundle size:
+- ESM exports for tree shaking
+- Granular exports
+- No side effects in module initialization
+- Separate entry points for different features
 
-// ❌ Wrong - Core importing from UI
-import { Button } from '@/ui/components/Button';
+### 4. Pure Functions
 
-// ❌ Wrong - Background importing from UI
-import { useWallet } from '@/ui/hooks/use-wallet';
+Especially important for reducers:
+- No side effects
+- Predictable outputs
+- Immutable updates
+- Testable in isolation
 
-// ❌ Wrong - Components importing reducers from old location
-import { accountReducer } from '@/ui/reducers/account-reducer';
-// ✅ Correct - Import from the package
-import { accountReducer } from '@onflow/frw-reducers/account-reducer';
+## Package Development Guidelines
 
-// ❌ Wrong - Using old shared path
-import { formatAddress } from '@/shared/utils/address';
-// ✅ Correct - Use the package name
-import { formatAddress } from '@onflow/frw-shared/utils';
-```
+### Creating New Functionality
 
-## Communication Patterns
+1. **Determine the appropriate package**:
+   - Common types/utils → `shared`
+   - Business logic → `core`
+   - State transformations → `reducers`
+   - Caching logic → `data-model`
+   - Browser-specific → `extension-shared`
 
-### UI ↔ Background Communication
+2. **Follow the dependency hierarchy**:
+   - Check allowed imports for the package
+   - Don't create circular dependencies
+   - Keep packages focused on their purpose
 
-UI communicates with background through Chrome extension messaging:
+3. **Export patterns**:
+   ```typescript
+   // Package index.ts
+   export * from './types';
+   export * from './utils';
+   export { specificFunction } from './specific-module';
+   ```
 
-```typescript
-// UI hooks
-export const useWallet = () => {
-  const walletController = new WalletController();
+### Testing Strategy
 
-  const getAccounts = async () => {
-    return await walletController.getAccounts();
-  };
+Each package should have:
+- Unit tests for all exported functions
+- Type tests for TypeScript definitions
+- Integration tests where appropriate
+- Mock implementations for testing consumers
 
-  return { getAccounts };
-};
+### Versioning
 
-// Background side
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Handle messages from UI
-});
-```
-
-### UI Internal Communication
-
-```typescript
-// Views use components and hooks
-const Dashboard = () => {
-  const { accounts } = useWallet(); // Hook for data
-
-  return (
-    <div>
-      <AccountCard account={accounts[0]} /> {/* Component for UI */}
-    </div>
-  );
-};
-
-// Hooks use reducers from the package for state management
-import { walletReducer } from '@onflow/frw-reducers/wallet-reducer';
-
-const useWallet = () => {
-  const [state, dispatch] = useReducer(walletReducer, initialState);
-  // ...
-};
-```
-
-### Background ↔ Core Communication
-
-Background directly imports and uses core services:
-
-```typescript
-// Background
-import { keyringService } from '@onflow/frw-core/service/keyring';
-const accounts = await keyringService.getAccounts();
-```
-
-## ESLint Enforcement (Simplified)
-
-The ESLint rules have been simplified to focus on the essential architectural boundaries:
-
-1. **Background folder**:
-   - Cannot import from `@/ui/*`
-   - All other imports allowed
-
-2. **Core folder**:
-   - Cannot import from `@/ui/*`
-   - Can only import `@/background/webapi/*` from background
-   - All other imports allowed
-
-3. **Core services**:
-   - Same as core, plus:
-   - Can only import from `@onflow/frw-core/service/*` or `@onflow/frw-core/utils/*` within core
-
-4. **UI folder**:
-   - Cannot import from `@onflow/frw-core/*` or `@/background/*`
-   - All other imports allowed
-
-5. **Reducers package** (`@onflow/frw-reducers`):
-   - Can only import from `@onflow/frw-shared/*`
-   - Must remain pure (no imports from other layers or packages)
-
-6. **Content script**:
-   - Cannot import from `@/ui/*` or `@onflow/frw-core/*`
-   - Can import from `@/background/*` and shared
+- Follow semantic versioning
+- Maintain backward compatibility
+- Document breaking changes
+- Use workspace protocol for internal dependencies
 
 ## Benefits
 
 This architecture provides:
 
-- **Clear separation of concerns**: Each layer has distinct responsibilities
-- **Maintainable codebase**: Easier to understand and modify
-- **Testable code**: Isolated layers can be tested independently
-- **Chrome extension compliance**: Proper separation between contexts
-- **Security**: Background service worker isolation
-- **Scalability**: Clear boundaries for future development
-- **Predictable state management**: Isolated reducers ensure predictable state changes
-- **Reusable components**: Components can be used across different views
-- **Organized UI structure**: Clear hierarchy from views → components → hooks → reducers
+1. **Reusability**: Packages can be used in different contexts (extension, mobile, web)
+2. **Maintainability**: Clear boundaries and responsibilities
+3. **Testability**: Isolated packages are easier to test
+4. **Type Safety**: Strong typing across package boundaries
+5. **Performance**: Tree-shaking and optimized bundles
+6. **Flexibility**: Easy to add new packages or modify existing ones
 
-## Development Guidelines
+## Common Patterns
 
-1. **Before adding imports**: Check if the import follows the architectural rules
-2. **Use aliases**: Always use `@/folder/*` aliases for cross-folder imports
-3. **Use package imports**: Import from `@onflow/frw-shared/*` and `@onflow/frw-reducers/*`
-4. **Keep layers isolated**: Don't create direct dependencies between UI and core
-5. **Use messaging**: UI should communicate with core through background messaging
-6. **Shared utilities**: Put common code in shared package, not in specific layers
-7. **UI hierarchy**: Follow views → components → hooks pattern (reducers are now separate)
-8. **Pure reducers**: Reducers must remain in the separate package and stay pure
-9. **Reusable components**: Design components to be reusable across different views
+### Service Pattern (Core Package)
 
-## Violations and Fixes
+```typescript
+// In @onflow/frw-core
+export class WalletService {
+  constructor(private storage: StorageInterface) {}
+  
+  async getAccounts(): Promise<Account[]> {
+    // Implementation
+  }
+}
+```
 
-If you encounter ESLint violations:
+### Reducer Pattern (Reducers Package)
 
-1. **"UI cannot import from Core layer"**: Use the wallet controller messaging instead
-2. **"Core cannot import from UI layer"**: Core should not depend on UI components
-3. **"Background cannot import from UI layer"**: Background is a service worker without DOM access
-4. **"Reducers must be pure"**: Reducers are now in a separate package and can only import from shared
-5. **"Core services can only import webapi from background"**: Use the webapi module for browser APIs
-6. **"Cannot import reducers from old location"**: Import from `@onflow/frw-reducers/*` instead
+```typescript
+// In @onflow/frw-reducers
+export function accountReducer(
+  state: AccountState,
+  action: AccountAction
+): AccountState {
+  switch (action.type) {
+    case 'ADD_ACCOUNT':
+      return { ...state, accounts: [...state.accounts, action.payload] };
+    default:
+      return state;
+  }
+}
+```
 
-This architecture ensures a maintainable, secure, and scalable Chrome extension codebase with clear separation of concerns at both the application and UI levels.
+### Cache Pattern (Data Model Package)
+
+```typescript
+// In @onflow/frw-data-model
+export class CacheModel<T> {
+  constructor(private ttl: number) {}
+  
+  async get(key: string): Promise<T | null> {
+    // Implementation
+  }
+  
+  async set(key: string, value: T): Promise<void> {
+    // Implementation
+  }
+}
+```
+
+This architecture ensures a maintainable, scalable, and reusable codebase for the Flow Reference Wallet ecosystem.

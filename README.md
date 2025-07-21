@@ -1,15 +1,28 @@
-## Contribution
+# Flow Reference Wallet Core Packages
 
-If you'd like to contribute to the extension, you'll need to install Node.js, pnpm, and get access to the development environment.
+This repository contains the core packages for the Flow Reference Wallet (FRW) ecosystem. These packages provide shared functionality, types, and utilities used across FRW applications.
 
-### TLDR
+## Packages
+
+- **@onflow/frw-shared** - Common types, constants, and utilities
+- **@onflow/frw-core** - Core business logic and services
+- **@onflow/frw-reducers** - State management reducers
+- **@onflow/frw-data-model** - Cache data model implementation
+- **@onflow/frw-extension-shared** - Extension-specific shared utilities
+
+## Installation
+
+### Prerequisites
+
+1. Node.js version v22.11 or later
+2. pnpm package manager
+
+### Quick Start
 
 1. `npm install --global corepack@latest`
 2. `corepack enable pnpm`
 3. `pnpm i`
-4. Get `.env.dev` from another developer
-5. `pnpm build:dev`
-6. Load Unpacked at `chrome://extensions/` in developer mode and pick the `dist` folder created by build:dev
+4. `pnpm build`
 
 ## Documentation
 
@@ -20,35 +33,28 @@ If you'd like to contribute to the extension, you'll need to install Node.js, pn
 - [Cadence Scripts Usage Analysis](docs/cadence-scripts-usage-analysis.md): Analysis of Cadence script usage in the extension.
 - [Import Profile/Accounts from Mobile](docs/import-from-mobile.md): How to import profiles and accounts from the mobile app using WalletConnect.
 
-### Install Node & Dependencies
+### Detailed Installation
 
-1. Install Node.js version v22.11 or later using a [package manager](https://nodejs.org/en/download/package-manager)
-2. Install pnpm `corepack enable pnpm`
-3. Run `pnpm i` to install dependencies
+#### Mac / Linux
 
-Mac / Linux
-
-```
+```bash
 # install nvm
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
 # Install Node.js version v22.11 or later
 nvm install 22
-
-# Use the version of Node.js specifcied in .nvmrc
 nvm use 22
+
 # install pnpm
 corepack enable pnpm
-
-# checkout dev branch
-git checkout dev
 
 # install dependencies
 pnpm i
 ```
 
-Windows
+#### Windows
 
-```
+```bash
 # installs fnm (Fast Node Manager)
 winget install Schniz.fnm
 
@@ -65,58 +71,59 @@ corepack enable pnpm
 pnpm i
 ```
 
-### Configure Environment Variables
+## Development
 
-Environment variables are needed to interact with certain services. There are two versions of the .env file: one for development, one for release.
+### Building Packages
 
-- .env.dev
-- .env.prd
+```bash
+# Build all packages
+pnpm build
 
-You should only ever need the development version of the .env file as the release version is built using GitHub Actions. The best thing to do is get a copy of the .env.dev file from a developer and add it to the project but **be sure to remove the `DEV_PASSWORD` variable from the file before sharing it.** Never commit the .env.dev file to the repository.
+# Build specific package
+pnpm -F @onflow/frw-shared build
+pnpm -F @onflow/frw-core build
 
-The .env.example file includes all the variables that are needed for the extension to work.
+# Build with watch mode
+pnpm -F <package-name> build:watch
+```
 
-### Building for Development
+### Testing & Development
 
-- (Optional) Run `pnpm react-devtools` to open the React DevTools in your browser. If this is running when you start the development build, the extension will include the React DevTools code. The code is downloaded statically and built into the extension as extensions cannot load external scripts.
-- Run `pnpm build:dev` on Mac / Linux, `pnpm winBuild:dev` on Windows. This will build the extension with file watching and console logging.
-- Open Chrome, go to `chrome://extensions`, enable "Developer mode", click "Load unpacked", and select the `dist` folder.
+```bash
+# Run tests across all packages
+pnpm test
 
-### Wallets
+# Run tests for specific package
+pnpm -F <package-name> test
 
-During development, you'll often be unlocking the wallet. As Chrome extensions cannot use many password managers, we have included a way for developers to set a default password for wallets. This password will be pre-filled in the wallet unlock popup when in development mode.
+# Linting
+pnpm lint
+pnpm lint:fix
 
-In .env.dev, set the `DEV_PASSWORD` variable to the password you want to use. This can be any password you want but it must pass the password policy. DO NOT SHARE THIS PASSWORD WITH ANYONE.
+# Format code
+pnpm format:fix
+```
 
-You can then create a wallet or import an existing wallet to start using the extension. If you go to the settings page in the extension, you can turn on Developer Mode which will allow you to switch between mainnet and testnet chains.
+### Project Structure
 
-### Testing & development
+```
+/
+├── packages/
+│   ├── core/           # Core business logic and services
+│   ├── data-model/     # Cache data model implementation
+│   ├── extension-shared/ # Extension-specific shared utilities
+│   ├── reducers/       # State management reducers
+│   └── shared/         # Common types, constants, and utilities
+├── docs/               # Documentation
+├── scripts/            # Build and development scripts
+└── pnpm-workspace.yaml # Workspace configuration
+```
 
-- `pnpm test` will run the tests in watch mode.
-- As you code, VS Code or Cursor will automatically lint and format your code when you save files.
-- When you check in code using git, the linter will run to check and format your code.
-
-_NOTE: We are working to create a test environment for the extension. This will allow you to test the with emulated transactions and wallets._
-
-### Folder Structure
-
-- `src/` contains the source code for the extension.
-- `_raw/` contains the raw files for the extension.
-- `dist/` contains the built extension.
-- `_locales/` contains the locale files for the extension.
-- `build/` contains the webpack build files for the extension.
-- `__tests__/` contains tests
-
-The source code is written in TypeScript and uses React on the UI. We have separated the code into the following folders:
-
-- `src/ui/` contains the UI code for the extension popup.
-- `src/background/` contains the background code for the extension service worker.
-- `src/content-script/` contains the content scripts for the extension.
-- `src/shared/` contains the shared utils and types between the different parts of the extension.
-
-There are lint rules in place to ensure, the background code never includes any UI code, and that the service worker doesn't directly interact with globals such as `window` or `document`.
-
-The UI communicates with the background service worker using the `chrome.runtime.sendMessage` and `chrome.runtime.onMessage` APIs. There is a WalletController class that handles the communication with the background service worker. This is the main way the UI interacts with the background service worker. The WalletController proxies the wallet methods in the background service worker using messaging to act as controller for the UI.
+Each package follows a standard structure:
+- `src/` - TypeScript source code
+- `lib/` - Compiled JavaScript output
+- `tsconfig.json` - TypeScript configuration
+- `package.json` - Package configuration
 
 ### Workflow
 
@@ -129,20 +136,20 @@ We work on the `dev` branch of the repository. Before you start working on the e
 5. When the pull request is approved, merge it into the `master` branch.
 6. When the release is ready to be built, the `master` branch will be built and released to the Chrome Web Store.
 
-### Language
+## Publishing
 
-The extension supports multiple languages. The language files are stored in the `_raw/_locales/` folder. You should put any new strings into these files.
+Packages are published to npm under the @onflow organization scope.
 
-1. Copy `_raw/_locales/en/messages.json` to `_raw/_locales/${localCode}/messages.json` (Find your locale code in [https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes))
-2. Replace content in `message` property to appropriate locale language
+```bash
+# Build all packages
+pnpm build
 
-ATTENTION: When you create a new key, make sure the key doesen't include space and not duplicated with existing phrase (case insensitive).
+# Run tests
+pnpm test
 
-## Test Environment Variables
-
-Setup the following environment variables in .env.dev file:
-
-- TEST_PASSWORD: The password for the test wallet
+# Publish packages (requires npm publish permissions)
+pnpm publish -r
+```
 
 ## Analyzing High Priority Issues
 

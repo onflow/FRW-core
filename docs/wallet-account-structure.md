@@ -237,8 +237,8 @@ It is only possible to have one password in Flow Wallet. This is used to access 
 The Flow chain is designed to support multiple signers. However, we don’t yet support this in the wallet. This works using a signing weight.
 
 1. Signing a transaction requires the total weight to be over 1000, if the key is lower, it requires an additional co-signer to sign the transaction. For example, It it is possibly to have 2 keys required to sign a transaction both with 500 weight. All sorts of signing combinations could be possible with these weights.
-2. Only public key that weight is above or equal to 1000 are allowed to sign in to the extension
-3. Register or importing from extension set the weight as 1000 in default
+2. Only public keys with weight above or equal to 1000 are allowed for wallet authentication
+3. New wallet accounts set the weight as 1000 by default
 
 ## Mainnet and Testnet
 
