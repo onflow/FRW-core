@@ -6,10 +6,12 @@ fi
 # Get the current branch name
 BRANCH_NAME=$(git symbolic-ref --short HEAD)
 
-# Skip if branch name starts with "cursor". These are created by background agents.
+# Skip if branch name starts with "cursor" or "changeset-release". 
+# cursor branches are created by background agents
+# changeset-release branches are created by changesets for automated releases
 case "$BRANCH_NAME" in
-  cursor*)
-    echo "Skipping commit message for cursor branch"
+  cursor* | changeset-release*)
+    echo "Skipping commit message for $BRANCH_NAME branch"
     exit 0
     ;;
 esac
