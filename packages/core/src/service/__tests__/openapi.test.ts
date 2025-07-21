@@ -127,7 +127,7 @@ describe('OpenApiService', () => {
     network: 'testnet',
     username: 'coolpanda',
     token: 'flow',
-    password: process.env.TEST_PASSWORD || '',
+    password: 'some-password',
     mnemonicExisting: 'test test test test test test test test test test test junk',
     mnemonicGenerated: 'test test test test test test test test test test test junk',
     publicKey: {

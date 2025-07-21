@@ -14,7 +14,7 @@ import { type FlowNetwork, type Currency } from '@onflow/frw-shared/types';
 
 import createPersistStore from '../utils/persistStore';
 
-const version = process.env.release || '0';
+const version = '0';
 export interface PreferenceAccount {
   type: string;
   address: string;
