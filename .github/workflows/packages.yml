@@ -34,7 +34,7 @@ jobs:
           echo "All packages built successfully"
 
       - name: Lint packages
-        run: pnpm lint
+        run: pnpm lint:quiet
 
       - name: Run tests
         run: pnpm test:run

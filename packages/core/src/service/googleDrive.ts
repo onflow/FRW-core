@@ -1,7 +1,7 @@
 import aesjs from 'aes-js';
 import * as bip39 from 'bip39';
 
-import { consoleError, consoleWarn } from '@onflow/frw-shared/utils';
+import { consoleError, consoleWarn, getErrorMessage } from '@onflow/frw-shared/utils';
 
 interface GoogleDriveFileModel {
   kind: string;
@@ -84,7 +84,7 @@ class GoogleDriveService {
       const parsedData = JSON.parse(sanitizedData);
       encryptedHex = parsedData?.hex || parsedData;
     } catch (error) {
-      consoleWarn('JSON parsing failed, checking if raw hex string:', error.message);
+      consoleWarn('JSON parsing failed, checking if raw hex string:', getErrorMessage(error));
 
       const rawHex = encryptedData.replace(/\s+/g, '');
       if (/^[0-9a-fA-F]+$/.test(rawHex)) {
@@ -177,7 +177,7 @@ class GoogleDriveService {
     return null;
   };
 
-  listFiles = async (): Promise<GoogleDriveFileModel> => {
+  listFiles = async (): Promise<GoogleDriveFileModel | undefined> => {
     const { files } = (await this.sendRequest('drive/v3/files/', 'GET', {
       spaces: 'appDataFolder',
     }).then((response) => response.json())) as { files: GoogleDriveFileModel[] };

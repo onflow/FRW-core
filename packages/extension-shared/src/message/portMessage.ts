@@ -30,7 +30,7 @@ class PortMessage extends Message {
     return this;
   };
 
-  listen = (listenCallback: any) => {
+  listen = (listenCallback: (data: any) => void) => {
     if (!this.port) return;
     this.listenCallback = listenCallback;
     this.port.onMessage.addListener(({ _type_, data }) => {
@@ -41,7 +41,7 @@ class PortMessage extends Message {
     return this;
   };
 
-  send = (type, data) => {
+  send = (type: string, data: any) => {
     if (!this.port) return;
     try {
       this.port.postMessage({ _type_: `${this._EVENT_PRE}${type}`, data });

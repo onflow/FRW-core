@@ -1,6 +1,7 @@
 import { ethers, HDNodeWallet } from 'ethers';
 
 import { FLOW_BIP44_PATH } from '@onflow/frw-shared/constant';
+import { getErrorMessage } from '@onflow/frw-shared/utils';
 
 export type HDKeyringSerializedData = {
   mnemonic?: string;
@@ -128,7 +129,7 @@ export class HDKeyring {
       const hdNode = baseNode.derivePath(flowPath);
       return hdNode.privateKey;
     } catch (err) {
-      throw new Error(`Failed to derive private key: ${err.message}`);
+      throw new Error(`Failed to derive private key: ${getErrorMessage(err)}`);
     }
   }
 }
