@@ -1,5 +1,15 @@
 # @onflow/frw-core
 
+## 0.1.1
+
+### Patch Changes
+
+- 05d877d: Removed dependency on environment variables
+- Updated dependencies [05d877d]
+  - @onflow/frw-extension-shared@0.1.1
+  - @onflow/frw-shared@0.1.1
+  - @onflow/frw-data-model@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes

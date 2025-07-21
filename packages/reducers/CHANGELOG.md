@@ -1,5 +1,12 @@
 # @onflow/frw-reducers
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [05d877d]
+  - @onflow/frw-shared@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
