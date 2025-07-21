@@ -19,16 +19,39 @@ interface DriveItem {
 
 // https://developers.google.com/drive/api/v3/reference/files/list
 class GoogleDriveService {
-  baseURL = 'https://www.googleapis.com/';
-  backupName = process.env.GD_BACKUP_NAME!;
-  appDataFolder = process.env.GD_FOLDER!;
-  scope = 'https://www.googleapis.com/auth/drive.appdata';
-  AES_KEY = process.env.GD_AES_KEY!;
-  IV = aesjs.utils.utf8.toBytes(process.env.GD_IV!);
+  baseURL?: string;
+  backupName?: string;
+  appDataFolder?: string;
+  scope?: string;
+  AES_KEY?: string;
+  IV?: Uint8Array;
   version = '1.0';
 
   fileList: DriveItem[] | null = null;
   fileId: string | null = null;
+
+  init = async ({
+    baseURL,
+    backupName,
+    appDataFolder,
+    scope,
+    AES_KEY,
+    IV,
+  }: {
+    baseURL: string;
+    backupName: string;
+    appDataFolder: string;
+    scope: string;
+    AES_KEY: string;
+    IV: string;
+  }) => {
+    this.baseURL = baseURL;
+    this.backupName = backupName;
+    this.appDataFolder = appDataFolder;
+    this.scope = scope;
+    this.AES_KEY = AES_KEY;
+    this.IV = aesjs.utils.utf8.toBytes(IV);
+  };
 
   hasBackup = async () => {
     const files = await this.listFiles();
@@ -51,6 +74,12 @@ class GoogleDriveService {
   };
 
   deleteUserBackup = async (username: string) => {
+    if (!this.AES_KEY) {
+      throw new Error('Delete backup failed, missing AES_KEY');
+    }
+    if (!this.fileId) {
+      throw new Error('Delete backup failed, missing fileId');
+    }
     const backups: DriveItem[] = await this.loadBackup();
     const newBackups = backups.filter((item) => item.username !== username);
     const updateContent = this.encrypt(JSON.stringify(newBackups), this.AES_KEY);
@@ -102,6 +131,9 @@ class GoogleDriveService {
     uid: string,
     password: string
   ) => {
+    if (!this.AES_KEY) {
+      throw new Error('Upload backup failed, missing AES_KEY');
+    }
     const item = this.encodeToDriveItem(mnemonic, username, uid, password);
     const files = await this.listFiles();
     if (!files) {
@@ -122,6 +154,9 @@ class GoogleDriveService {
   };
 
   loadBackup = async (): Promise<DriveItem[]> => {
+    if (!this.AES_KEY) {
+      throw new Error('Load backup failed, missing AES_KEY');
+    }
     const files = await this.listFiles();
     if (!files) {
       return [];
@@ -220,6 +255,9 @@ class GoogleDriveService {
   };
 
   updateFile = async (fileId: string, content: string, isDelete = false) => {
+    if (!this.AES_KEY) {
+      throw new Error('Update backup failed, missing AES_KEY');
+    }
     // Check the content is valid
     const decodeContent = await this.decrypt(content, this.AES_KEY);
     const items: DriveItem[] = JSON.parse(decodeContent);
@@ -386,6 +424,12 @@ class GoogleDriveService {
     newPassword: string,
     profileUsernames: string[]
   ): Promise<boolean> => {
+    if (!this.AES_KEY) {
+      throw new Error('Set new password failed, missing AES_KEY');
+    }
+    if (!this.fileId) {
+      throw new Error('Set new password failed, missing fileId');
+    }
     try {
       if (!(await this.hasGooglePermission())) {
         throw new Error('Not authorized to update password on google backups');
