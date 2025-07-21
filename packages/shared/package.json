@@ -1,6 +1,9 @@
 {
   "name": "@onflow/frw-shared",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Shared types and utilities for Flow Reference Wallet",
   "type": "module",
   "main": "./dist/index.js",

@@ -1,0 +1,21 @@
+# @onflow/frw-core
+
+## 0.1.0
+
+### Minor Changes
+
+- 791b085: Initial release of Flow Reference Wallet Core packages
+
+  This is the first public release of the FRW core packages:
+  - `@onflow/frw-shared` - Shared types, constants, and utilities
+  - `@onflow/frw-core` - Core business logic and services
+  - `@onflow/frw-reducers` - State management reducers
+  - `@onflow/frw-data-model` - Cache data model implementation
+  - `@onflow/frw-extension-shared` - Extension-specific shared utilities
+
+### Patch Changes
+
+- Updated dependencies [791b085]
+  - @onflow/frw-data-model@0.1.0
+  - @onflow/frw-extension-shared@0.1.0
+  - @onflow/frw-shared@0.1.0

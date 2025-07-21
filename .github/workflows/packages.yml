@@ -2,9 +2,6 @@ name: Packages Build & Test
 
 on:
   push:
-    branches: ['**']
-  pull_request:
-    branches: ['**']
   workflow_dispatch:
 
 jobs:
@@ -30,14 +27,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Lint packages
-        run: pnpm lint
-
       - name: Build packages
         run: |
           echo "Building all packages..."
           pnpm build
           echo "All packages built successfully"
+
+      - name: Lint packages
+        run: pnpm lint
 
       - name: Run tests
         run: pnpm test:run
@@ -47,28 +44,6 @@ jobs:
           echo "Running type checks..."
           pnpm -r --parallel exec tsc --noEmit || true
           echo "Type check completed"
-
-  publish-check:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build packages
-        run: pnpm build
 
       - name: Check package publishability
         run: |
