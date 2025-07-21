@@ -108,16 +108,7 @@ class UserInfoService {
   setCurrentUserInfo = async (userInfo: UserInfoResponse) => {
     const currentId = await getCurrentProfileId();
 
-    let avatar = userInfo.avatar;
-    const url = new URL(userInfo.avatar);
-
-    if (url.host === 'firebasestorage.googleapis.com') {
-      url.searchParams.append('alt', 'media');
-      url.searchParams.append('token', process.env.FB_TOKEN!);
-      avatar = url.toString();
-    }
-
-    const userInfoWithAvatar: UserInfoResponse = { ...userInfo, avatar };
+    const userInfoWithAvatar: UserInfoResponse = { ...userInfo };
 
     if (this.store[currentId]) {
       // Assign so that it maintains the reference
