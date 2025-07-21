@@ -161,7 +161,7 @@ export const createTestResults = (
       functionName: 'unlock',
       functionGroup: 'authentication',
       functionParams: {
-        password: process.env.TEST_PASSWORD,
+        password: 'some-password',
       },
       fetchDetails: [
         {

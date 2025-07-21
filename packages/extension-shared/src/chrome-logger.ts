@@ -2,6 +2,7 @@ import { type ConsoleTracker, setConsoleTracker } from '@onflow/frw-shared/utils
 
 const DEPLOYMENT_ENV = process.env.DEPLOYMENT_ENV;
 const IS_BETA = process.env.IS_BETA === 'true';
+const IS_PROD = process.env.NODE_ENV === 'production' || DEPLOYMENT_ENV === 'production' || IS_BETA;
 
 const extensionId =
   chrome?.runtime?.id || IS_BETA
@@ -32,5 +33,5 @@ export const chromeConsoleTracker: ConsoleTracker = (type, message, stack, code)
  * Call this once at extension startup
  */
 export function initializeChromeLogging() {
-  setConsoleTracker(chromeConsoleTracker);
+  setConsoleTracker(chromeConsoleTracker, IS_PROD);
 }

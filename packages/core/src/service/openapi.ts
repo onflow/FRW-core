@@ -131,6 +131,7 @@ export interface OpenApiStore {
   webNextUrl: string;
   functionsUrl: string;
   isDevServer: boolean;
+  scriptsPublicKey: string;
   config: Record<string, OpenApiConfigValue>;
 }
 
@@ -360,6 +361,7 @@ export class OpenApiService {
     registrationUrl: '',
     functionsUrl: '',
     webNextUrl: '',
+    scriptsPublicKey: '',
     isDevServer: false,
     config: dataConfig,
   };
@@ -372,11 +374,13 @@ export class OpenApiService {
     registrationUrl: string,
     webNextUrl: string,
     functionsUrl: string,
+    scriptsPublicKey: string,
     isDevServer: boolean
   ) => {
     this.store.registrationUrl = registrationUrl;
     this.store.webNextUrl = webNextUrl;
     this.store.functionsUrl = functionsUrl;
+    this.store.scriptsPublicKey = scriptsPublicKey;
     this.store.isDevServer = isDevServer;
     // Set up fcl
     await userWalletService.setupFcl();
@@ -458,7 +462,11 @@ export class OpenApiService {
     try {
       const xsignature = response?.headers?.get('X-Signature');
       if (xsignature) {
-        const isValid = await verifySignature(xsignature, responseData);
+        const isValid = await verifySignature(
+          xsignature,
+          responseData,
+          this.store.scriptsPublicKey
+        );
         if (!isValid) {
           throw new Error('Invalid signature in response');
         }

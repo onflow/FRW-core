@@ -270,14 +270,9 @@ const signWithKey = async (
   }
 };
 
-const verifySignature = async (signature: string, message: unknown) => {
+const verifySignature = async (signature: string, message: unknown, scriptsPublicKey: string) => {
   try {
     const { PublicKey, PublicKeyType, Hash } = await initWasm();
-    const scriptsPublicKey = process.env.SCRIPTS_PUBLIC_KEY;
-    if (!scriptsPublicKey) {
-      throw new Error('SCRIPTS_PUBLIC_KEY is not set');
-    }
-
     const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
 
     const messageHash = Hash.sha256(Buffer.from(messageStr, 'utf8'));
