@@ -13,12 +13,18 @@ interface GoogleSafeHostStore {
 // https://transparencyreport.google.com/safe-browsing/search
 class GoogleSafeHost {
   baseURL = 'https://safebrowsing.googleapis.com';
-  key = process.env.GOOGLE_API;
+  key?: string;
   version = '1.0';
 
   store!: GoogleSafeHostStore;
 
-  init = async () => {
+  init = async ({
+    baseURL = 'https://safebrowsing.googleapis.com',
+    key,
+  }: {
+    baseURL: string;
+    key: string;
+  }) => {
     this.store = await createPersistStore<GoogleSafeHostStore>({
       name: 'nft',
       template: {
