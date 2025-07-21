@@ -19,9 +19,9 @@
     "rootDir": "./",
     "composite": true,
     "paths": {
-      "@onflow/frw-shared/*": ["../shared/src/*"],
-      "@onflow/frw-extension-shared/*": ["../extension-shared/src/*"],
-      "@onflow/frw-data-model/*": ["../data-model/src/*"],
+      "@onflow/frw-shared/*": ["../shared/dist/*"],
+      "@onflow/frw-extension-shared/*": ["../extension-shared/dist/*"],
+      "@onflow/frw-data-model/*": ["../data-model/dist/*"],
       "@/*": ["./src/*"]
     }
   },
