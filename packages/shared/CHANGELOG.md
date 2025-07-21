@@ -1,5 +1,11 @@
 # @onflow/frw-shared
 
+## 0.1.1
+
+### Patch Changes
+
+- 05d877d: Removed dependency on environment variables
+
 ## 0.1.0
 
 ### Minor Changes
