@@ -1,0 +1,34 @@
+{
+    "name": "@onflow/flow-wallet-cadence",
+    "version": "0.0.1",
+    "description": "Package for flow wallet cadence",
+    "type": "module",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "files": [
+        "src",
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup",
+        "build:watch": "tsup --watch",
+        "type-check": "tsc --noEmit",
+        "clean": "rm -rf dist",
+        "test": "vitest",
+        "test:run": "vitest --run",
+        "test:coverage": "vitest --coverage",
+        "prepublishOnly": "pnpm build"
+    },
+    "exports": {
+        ".": {
+            "types": "./src/index.ts",
+            "default": "./src/index.ts"
+        },
+        "./*": {
+            "types": "./src/*.ts",
+            "default": "./src/*.ts"
+        }
+    },
+    "dependencies": {
+    }
+}
