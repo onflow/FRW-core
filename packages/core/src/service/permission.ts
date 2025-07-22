@@ -1,7 +1,6 @@
-import { permissionKey, permissionKeyV1 } from '@onflow/frw-data-model';
+import { permissionKey, permissionKeyV1, storage } from '@onflow/frw-data-model';
 import { LRUCache } from 'lru-cache';
 
-import storage from '@onflow/frw-extension-shared/storage'; // Import storage for direct access
 import { INTERNAL_REQUEST_ORIGIN, MAINNET_CHAIN_ID } from '@onflow/frw-shared/constant';
 import { consoleInfo, consoleWarn } from '@onflow/frw-shared/utils';
 

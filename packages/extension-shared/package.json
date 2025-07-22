@@ -29,7 +29,6 @@
     "./chrome-logger": "./src/chrome-logger.ts",
     "./message": "./src/message/index.ts",
     "./messaging": "./src/messaging.ts",
-    "./storage": "./src/storage.ts",
     "./contact-utils": "./src/contact-utils.ts"
   },
   "publishConfig": {
@@ -55,11 +54,6 @@
       "types": "./dist/messaging.d.ts",
       "import": "./dist/messaging.js",
       "default": "./dist/messaging.js"
-    },
-    "./storage": {
-      "types": "./dist/storage.d.ts",
-      "import": "./dist/storage.js",
-      "default": "./dist/storage.js"
     },
     "./contact-utils": {
       "types": "./dist/contact-utils.d.ts",

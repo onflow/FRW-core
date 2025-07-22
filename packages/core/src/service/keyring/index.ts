@@ -7,13 +7,13 @@ import {
   KEYRING_STATE_V1_KEY,
   KEYRING_STATE_V2_KEY,
   KEYRING_STATE_V3_KEY,
+  storage,
 } from '@onflow/frw-data-model';
 import * as bip39 from 'bip39';
 import encryptor from 'browser-passworder';
 import * as ethUtil from 'ethereumjs-util';
 import { EventEmitter } from 'events';
 
-import storage from '@onflow/frw-extension-shared/storage';
 import {
   FLOW_BIP44_PATH,
   SIGN_ALGO_NUM_ECDSA_P256,

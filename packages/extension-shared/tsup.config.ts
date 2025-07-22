@@ -5,7 +5,6 @@ export default defineConfig({
     'chrome-logger': 'src/chrome-logger.ts',
     message: 'src/message/index.ts',
     messaging: 'src/messaging.ts',
-    storage: 'src/storage.ts',
     retryOperation: 'src/retryOperation.ts',
     'contact-utils': 'src/contact-utils.ts',
   },

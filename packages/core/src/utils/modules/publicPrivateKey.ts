@@ -1,7 +1,6 @@
-import { CURRENT_ID_KEY } from '@onflow/frw-data-model';
+import { CURRENT_ID_KEY, storage } from '@onflow/frw-data-model';
 import { initWasm } from '@trustwallet/wallet-core';
 
-import storage from '@onflow/frw-extension-shared/storage';
 import {
   FLOW_BIP44_PATH,
   HASH_ALGO_NUM_SHA2_256,
