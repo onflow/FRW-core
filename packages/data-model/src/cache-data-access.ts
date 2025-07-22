@@ -1,7 +1,9 @@
-import storage, { type StorageChange } from '@onflow/frw-extension-shared/storage';
 import { consoleError } from '@onflow/frw-shared/utils';
 
 import { type CacheDataItem } from './data-cache-types';
+import { storage } from './storage';
+import { type StorageChange } from './storage/storage-types';
+
 
 // The listeners object is used to store a reference to the listener function that is created by _updateCaller.
 // This is necessary because chrome.storage.onChanged.removeListener requires the exact same function instance

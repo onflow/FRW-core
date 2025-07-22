@@ -1,7 +1,7 @@
 import { consoleError } from '@onflow/frw-shared/utils';
 
 import { type CacheDataItem } from './data-cache-types';
-import { storage } from '@onflow/frw-extension-shared/storage';
+import { storage } from './storage';
 
 /**
  * Get valid data from session storage

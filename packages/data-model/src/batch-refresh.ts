@@ -1,7 +1,7 @@
-import storage from '@onflow/frw-extension-shared/storage';
 import { consoleError } from '@onflow/frw-shared/utils';
 
 import { setCachedData } from './data-cache';
+import { storage } from './storage';
 
 type BatchItem = {
   key: string;

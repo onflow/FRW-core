@@ -1,4 +1,5 @@
-import storage, { type StorageChange } from '@onflow/frw-extension-shared/storage';
+import { storage } from './storage';
+import { type StorageChange } from './storage/storage-types';
 
 /**
  * Get user data from local storage

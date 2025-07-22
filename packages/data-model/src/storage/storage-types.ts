@@ -1,5 +1,9 @@
-export type StorageChange = chrome.storage.StorageChange;
-export type AreaName = chrome.storage.AreaName;
+export type StorageChange = {
+  oldValue?: unknown;
+  newValue?: unknown;
+};
+
+export type AreaName = 'local' | 'sync' | 'session' | 'managed';
 
 /**
  * Storage interface
