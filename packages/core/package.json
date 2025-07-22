@@ -1,13 +1,8 @@
 {
   "name": "@onflow/frw-core",
   "version": "0.1.1",
-  "publishConfig": {
-    "access": "public"
-  },
   "description": "Core services for Flow Reference Wallet",
   "type": "module",
-  "main": "./dist/service/index.js",
-  "types": "./dist/service/index.d.ts",
   "files": [
     "dist",
     "src"
@@ -31,6 +26,13 @@
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --write"
   },
   "exports": {
+    ".": "./src/index.ts",
+    "./utils": "./src/utils/index.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/service/index.js",
+    "types": "./dist/service/index.d.ts",
     ".": {
       "types": "./dist/service/index.d.ts",
       "import": "./dist/service/index.js",

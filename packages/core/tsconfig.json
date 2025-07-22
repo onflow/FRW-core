@@ -1,33 +1,8 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "lib": ["ES2022", "DOM"],
-    "moduleResolution": "bundler",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "strict": true,
-    "checkJs": true,
-    "noImplicitAny": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "outDir": "./dist",
-    "rootDir": "./",
-    "composite": true,
-    "paths": {
-      "@onflow/frw-shared/*": ["../shared/dist/*"],
-      "@onflow/frw-extension-shared/*": ["../extension-shared/dist/*"],
-      "@onflow/frw-data-model/*": ["../data-model/dist/*"],
-      "@/*": ["./src/*"]
-    }
+    "lib": ["ES2022", "DOM"]
   },
-  "include": ["src/**/*", "tsup.config.ts", "vitest.config.ts", "vitest.init.ts", "build/**/*"],
-  "exclude": ["node_modules", "dist"],
-
   "references": [
     {
       "path": "../shared"

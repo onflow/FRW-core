@@ -1,19 +1,11 @@
 {
   "name": "@onflow/frw-shared",
   "version": "0.1.1",
-  "publishConfig": {
-    "access": "public"
-  },
   "description": "Shared types and utilities for Flow Reference Wallet",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "src",
-    "src/types/index.ts",
-    "src/constant/index.ts",
-    "src/utils/index.ts"
+    "src"
   ],
   "scripts": {
     "build": "tsup",
@@ -35,6 +27,14 @@
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --write"
   },
   "exports": {
+    "./types": "./src/types/index.ts",
+    "./constant": "./src/constant/index.ts",
+    "./utils": "./src/utils/index.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "./types": {
       "types": "./dist/types/index.d.ts",
       "import": "./dist/types/index.js",
