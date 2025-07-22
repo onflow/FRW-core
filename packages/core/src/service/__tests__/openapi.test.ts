@@ -104,15 +104,14 @@ vi.stubGlobal('fetch', mockFetch);
 
 import { type FlowNetwork } from '@onflow/frw-shared/types';
 
+import openApiService from '../openapi';
+import userWalletService from '../userWallet';
+import { createTestResults } from './test-data/api-test-results';
 import {
   type CommonParams,
   createTestGroups,
   updateTestParamsFromResults,
-} from '@/service/__tests__/test-data/test-groups';
-
-import openApiService from '../openapi';
-import userWalletService from '../userWallet';
-import { createTestResults } from './test-data/api-test-results';
+} from './test-data/test-groups';
 
 const API_TEST_RESULTS = createTestResults(
   'https://INITIAL_OPENAPI_URL.com',

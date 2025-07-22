@@ -1,17 +1,12 @@
 {
   "name": "@onflow/frw-extension-shared",
   "version": "0.1.1",
-  "publishConfig": {
-    "access": "public"
-  },
   "description": "Shared code for Flow Reference Wallet Extension",
   "type": "module",
   "files": [
     "src",
     "dist"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup",
     "build:watch": "tsup --watch",
@@ -30,6 +25,17 @@
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --write"
   },
   "exports": {
+    ".": "./src/index.ts",
+    "./chrome-logger": "./src/chrome-logger.ts",
+    "./message": "./src/message/index.ts",
+    "./messaging": "./src/messaging.ts",
+    "./storage": "./src/storage.ts",
+    "./contact-utils": "./src/contact-utils.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
