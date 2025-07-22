@@ -10,6 +10,8 @@
     "src",
     "dist"
   ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup",
     "build:watch": "tsup --watch",
@@ -28,35 +30,35 @@
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --write"
   },
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
     "./chrome-logger": {
       "types": "./dist/chrome-logger.d.ts",
       "import": "./dist/chrome-logger.js",
       "default": "./dist/chrome-logger.js"
     },
-    "./message/eventBus": {
-      "types": "./dist/message/eventBus.d.ts",
-      "import": "./dist/message/eventBus.js",
-      "default": "./dist/message/eventBus.js"
+    "./message": {
+      "types": "./dist/message/index.d.ts",
+      "import": "./dist/message/index.js",
+      "default": "./dist/message/index.js"
     },
-    "./message/messaging": {
-      "types": "./dist/message/messaging.d.ts",
-      "import": "./dist/message/messaging.js",
-      "default": "./dist/message/messaging.js"
+    "./messaging": {
+      "types": "./dist/messaging.d.ts",
+      "import": "./dist/messaging.js",
+      "default": "./dist/messaging.js"
     },
-    "./message/storage": {
-      "types": "./dist/message/storage.d.ts",
-      "import": "./dist/message/storage.js",
-      "default": "./dist/message/storage.js"
+    "./storage": {
+      "types": "./dist/storage.d.ts",
+      "import": "./dist/storage.js",
+      "default": "./dist/storage.js"
     },
     "./contact-utils": {
       "types": "./dist/contact-utils.d.ts",
       "import": "./dist/contact-utils.js",
       "default": "./dist/contact-utils.js"
-    },
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.js",
-      "default": "./dist/*.js"
     }
   },
   "dependencies": {
