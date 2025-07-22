@@ -1,121 +1,56 @@
-import { consoleError } from '@onflow/frw-shared/utils';
+import { chromeStorage } from './chrome-storage';
+import { type Storage, type StorageConfig } from './storage-types';
 
-export type StorageChange = chrome.storage.StorageChange;
-export type AreaName = chrome.storage.AreaName;
+/**
+ * Global storage manager
+ */
+class StorageManager {
+  private static instance: StorageManager;
+  private storageImplementation: Storage;
 
-const get = async (prop: string) => {
-  const result = await chrome.storage.local.get(prop);
-
-  return prop ? result[prop] : result;
-};
-
-const getSession = async (prop: string) => {
-  // @ts-ignore
-
-  const result = await chrome.storage.session?.get(prop);
-
-  return prop ? result[prop] : result;
-};
-
-const getExpiry = async (prop: string) => {
-  const result = await chrome.storage.local.get(prop);
-
-  const data = result[prop];
-
-  const storageData = checkExpiry(data, prop);
-  return storageData;
-};
-
-const set = (prop: string, value: unknown): Promise<void> => {
-  return chrome.storage.local.set({ [prop]: value });
-};
-
-const setSession = (prop: string, value: unknown): Promise<void> => {
-  return chrome.storage.session?.set({ [prop]: value });
-};
-
-const setExpiry = async (prop: string, value: unknown, ttl: number): Promise<void> => {
-  const now = new Date();
-
-  // `item` is an object which contains the original value
-  // as well as the time when it's supposed to expire
-  const item = {
-    value: value,
-    expiry: now.getTime() + ttl,
-  };
-  const newValue = JSON.stringify(item);
-
-  return await chrome.storage.local.set({ [prop]: newValue });
-};
-
-const checkExpiry = async (value: string, prop: string) => {
-  if (!value) {
-    return null;
+  private constructor() {
+    // Default to Chrome storage if no implementation is provided
+    this.storageImplementation = chromeStorage;
   }
-  // Put this in a try catch to avoid breaking the extension
-  // If the data is not in the correct format, catching the error will return null
-  try {
-    const item = JSON.parse(value);
-    const now = new Date();
-    // compare the expiry time of the item with the current time
-    if (now.getTime() > item.expiry) {
-      // If the item is expired, delete the item from storage
-      // and return null
-      await remove(prop);
-      return null;
+
+  static getInstance(): StorageManager {
+    if (!StorageManager.instance) {
+      StorageManager.instance = new StorageManager();
     }
-    return item.value;
-  } catch (error) {
-    consoleError('Error parsing storage data', error);
-    try {
-      await remove(prop);
-    } catch (error) {
-      consoleError('Error removing expired storage data', error);
-    }
-    return null;
+    return StorageManager.instance;
   }
-};
 
-const remove = async (prop: string) => {
-  await chrome.storage.local.remove(prop);
-};
+  /**
+   * Initialize the storage system with a custom implementation
+   */
+  initialize(config: StorageConfig): void {
+    this.storageImplementation = config.implementation;
+  }
 
-const removeSession = async (prop: string) => {
-  // @ts-ignore
-  await chrome.storage.session?.remove(prop);
-};
+  /**
+   * Get the current storage implementation
+   */
+  getStorage(): Storage {
+    return this.storageImplementation;
+  }
+}
 
-const clear = async () => {
-  await chrome.storage.local.clear();
-};
+// Initialize storage system
+export function initializeStorage(config: StorageConfig): void {
+  StorageManager.getInstance().initialize(config);
+}
 
-const clearSession = async () => {
-  await chrome.storage.session.clear();
-};
+// Get the current storage instance
+export function getStorage(): Storage {
+  return StorageManager.getInstance().getStorage();
+}
 
-const addStorageListener = (
-  callback: (changes: { [key: string]: StorageChange }, namespace: AreaName) => void
-) => {
-  chrome.storage.onChanged.addListener(callback);
-};
+// Default storage instance
+export const storage: Storage = new Proxy({} as Storage, {
+  get(_, prop) {
+    return getStorage()[prop as keyof Storage];
+  },
+});
 
-const removeStorageListener = (
-  callback: (changes: { [key: string]: StorageChange }, namespace: AreaName) => void
-) => {
-  chrome.storage.onChanged.removeListener(callback);
-};
-
-export default {
-  get,
-  getSession,
-  set,
-  setSession,
-  getExpiry,
-  setExpiry,
-  remove,
-  removeSession,
-  clear,
-  clearSession,
-  addStorageListener,
-  removeStorageListener,
-};
+// Re-export main types that are part of the public API
+export type { Storage, StorageConfig };

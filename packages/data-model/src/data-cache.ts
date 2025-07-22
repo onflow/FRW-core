@@ -1,7 +1,7 @@
-import storage from '@onflow/frw-extension-shared/storage';
 import { consoleError } from '@onflow/frw-shared/utils';
 
 import { type CacheDataItem } from './data-cache-types';
+import { storage } from '@onflow/frw-extension-shared/storage';
 
 /**
  * Get valid data from session storage
@@ -45,7 +45,7 @@ export const registerRefreshListener = (
   keyRegex: RegExp,
   loader: (...args: string[]) => Promise<unknown>
 ) => {
-  chrome.storage.onChanged.addListener(async (changes, namespace) => {
+  storage.addStorageListener(async (changes, namespace) => {
     // Filter out timestamp changes
     const changedKeys = Object.keys(changes).filter((key) => key.includes('-refresh'));
     if (changedKeys.length === 0) {
