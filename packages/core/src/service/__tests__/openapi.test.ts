@@ -168,6 +168,7 @@ describe('OpenApiService', () => {
       'https://INITIAL_OPENAPI_URL.com',
       'https://WEB_NEXT_URL.com',
       'https://functions.com',
+      'https://api.onflow.org',
       false
     );
 
