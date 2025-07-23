@@ -48,7 +48,7 @@ export const registerBatchRefreshListener = (
     });
   }
 
-  chrome.storage.onChanged.addListener(async (changes, namespace) => {
+  storage.addStorageListener(async (changes, namespace) => {
     // Filter out non-refresh changes
     const changedKeys = Object.keys(changes).filter((key) => key.includes('-refresh'));
     if (changedKeys.length === 0) {

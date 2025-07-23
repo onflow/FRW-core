@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import storage from '@onflow/frw-extension-shared/storage';
+import { storage } from '@onflow/frw-data-model';
 
 import { getCachedData } from './cache-data-access';
 import { accountBalanceKey, accountBalanceRefreshRegex } from './cache-data-keys';
 
 // Mock the storage module
-vi.mock('@onflow/frw-extension-shared/storage', () => ({
+vi.mock('@onflow/frw-data-model', () => ({
   default: {
     setSession: vi.fn().mockResolvedValue(undefined),
     getSession: vi.fn().mockResolvedValue(undefined),

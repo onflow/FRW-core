@@ -7,6 +7,7 @@ import { type Storage, type StorageConfig } from './storage-types';
 class StorageManager {
   private static instance: StorageManager;
   private storageImplementation: Storage;
+  private initialized = false;
 
   private constructor() {
     // Default to in-memory storage for platform independence
@@ -25,30 +26,42 @@ class StorageManager {
    */
   initialize(config: StorageConfig): void {
     this.storageImplementation = config.implementation;
+    this.initialized = true;
+  }
+
+  /**
+   * Auto-initialize storage (uses memory storage by default)
+   * Only switches to Chrome storage if explicitly configured via initialize()
+   */
+  autoInitialize(): void {
+    if (this.initialized) {
+      return;
+    }
+    // Use memory storage by default - no automatic Chrome detection
+    this.storageImplementation = memoryStorage;
   }
 
   /**
    * Get the current storage implementation
    */
   getStorage(): Storage {
+    // Auto-initialize if not already done
+    if (!this.initialized) {
+      this.autoInitialize();
+    }
     return this.storageImplementation;
   }
 }
 
-// Initialize storage system
+// Manual initialization with custom implementation
 export function initializeStorage(config: StorageConfig): void {
   StorageManager.getInstance().initialize(config);
-}
-
-// Get the current storage instance
-export function getStorage(): Storage {
-  return StorageManager.getInstance().getStorage();
 }
 
 // Default storage instance
 export const storage: Storage = new Proxy({} as Storage, {
   get(_, prop) {
-    return getStorage()[prop as keyof Storage];
+    return StorageManager.getInstance().getStorage()[prop as keyof Storage];
   },
 });
 

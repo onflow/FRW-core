@@ -51,7 +51,7 @@ export const addUserDataListener = (
   key: string,
   updateCallback: (key: string, data: unknown) => void
 ) => {
-  chrome.storage.onChanged.addListener(_updateCaller(key, updateCallback));
+  storage.addStorageListener(_updateCaller(key, updateCallback));
 };
 
 /**
@@ -63,5 +63,5 @@ export const removeUserDataListener = (
   key: string,
   updateCallback: (key: string, data: unknown) => void
 ) => {
-  chrome.storage.onChanged.removeListener(_updateCaller(key, updateCallback));
+  storage.removeStorageListener(_updateCaller(key, updateCallback));
 };

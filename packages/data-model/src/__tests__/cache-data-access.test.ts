@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 
-import storage from '@onflow/frw-extension-shared/storage';
+import { storage } from '@onflow/frw-data-model';
 
 import {
   getCachedData,
@@ -10,7 +10,7 @@ import {
 } from '../cache-data-access';
 import { type CacheDataItem } from '../data-cache-types';
 
-vi.mock('@onflow/frw-extension-shared/storage', () => ({
+vi.mock('@onflow/frw-data-model', () => ({
   default: {
     getSession: vi.fn(),
     setSession: vi.fn(),
@@ -94,10 +94,10 @@ describe('cache-data-access', () => {
       const callback = vi.fn();
 
       addCachedDataListener(key, callback);
-      expect(chrome.storage.onChanged.addListener).toHaveBeenCalledTimes(1);
+      expect(storage.addStorageListener).toHaveBeenCalledTimes(1);
 
       removeCachedDataListener(key, callback);
-      expect(chrome.storage.onChanged.removeListener).toHaveBeenCalledTimes(1);
+      expect(storage.removeStorageListener).toHaveBeenCalledTimes(1);
     });
 
     it('should call update callback when relevant change occurs', () => {

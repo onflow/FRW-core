@@ -1710,7 +1710,7 @@ class KeyringService extends EventEmitter {
       // Can't translate until unlocked
       return await this.loadKeyringStateV2();
     }
-    return keyringState;
+    return keyringState as KeyringState;
   }
 
   // Version 2
@@ -1719,7 +1719,7 @@ class KeyringService extends EventEmitter {
     if (!keyringState) {
       return await this.translateFromKeyringStateV1();
     }
-    return keyringState;
+    return keyringState as KeyringState;
   }
 
   // Version 1
@@ -1745,13 +1745,15 @@ class KeyringService extends EventEmitter {
     if (!keyringState) {
       return null;
     }
-    if (!keyringState.vault) {
+    const typedKeyringState = keyringState as KeyringStateV1;
+    if (!typedKeyringState.vault) {
+      const deepVault = await this.translateFromDeepVault();
       return {
-        ...keyringState,
-        vault: await this.translateFromDeepVault(),
+        ...typedKeyringState,
+        vault: deepVault || [],
       };
     }
-    return keyringState;
+    return typedKeyringState;
   }
 
   // Version 0
@@ -1761,7 +1763,7 @@ class KeyringService extends EventEmitter {
     if (!deepVault) {
       return null;
     }
-    return deepVault;
+    return deepVault as CompatibleVaultEntry[];
   }
 
   // Vault Translation
