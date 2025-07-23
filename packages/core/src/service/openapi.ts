@@ -5,7 +5,8 @@ import {
   type RemoteConfig,
   getValidData,
   setCachedData,
-  storage,
+  getLocalData,
+  setLocalData,
 } from '@onflow/frw-data-model';
 import type { Account as FclAccount } from '@onflow/typedefs';
 import BigNumber from 'bignumber.js';
@@ -716,7 +717,7 @@ export class OpenApiService {
   private _loginWithToken = async (userId: string, token: string) => {
     // we shouldn't need to clear storage here anymore
     await authenticationService.signInWithCustomToken(token);
-    await storage.set(CURRENT_ID_KEY, userId);
+    await setLocalData(CURRENT_ID_KEY, userId);
   };
 
   /**
@@ -1805,13 +1806,13 @@ export class OpenApiService {
     wallet,
     isChild: ActiveAccountType
   ) => {
-    const loggedInAccounts: LoggedInAccount[] = (await storage.get('loggedInAccounts')) || [];
+    const loggedInAccounts: LoggedInAccount[] = (await getLocalData('loggedInAccounts')) || [];
 
     if (!isChild) {
-      await storage.set('keyIndex', '');
-      await storage.set('hashAlgoString', '');
-      await storage.set('signAlgoString', '');
-      await storage.set('pubKey', '');
+      await setLocalData('keyIndex', '');
+      await setLocalData('hashAlgoString', '');
+      await setLocalData('signAlgoString', '');
+      await setLocalData('pubKey', '');
 
       const { P256, SECP256K1 } = pubKTuple;
 
@@ -1824,10 +1825,10 @@ export class OpenApiService {
           hashAlgoString: keys.keys[0].hashAlgoString,
           publicKey: keys.keys[0].publicKey,
         };
-      await storage.set('keyIndex', keyInfo.index);
-      await storage.set('signAlgoString', keyInfo.signAlgoString);
-      await storage.set('hashAlgoString', keyInfo.hashAlgoString);
-      await storage.set('pubKey', keyInfo.publicKey);
+      await setLocalData('keyIndex', keyInfo.index);
+      await setLocalData('signAlgoString', keyInfo.signAlgoString);
+      await setLocalData('hashAlgoString', keyInfo.hashAlgoString);
+      await setLocalData('pubKey', keyInfo.publicKey);
       // Make sure the address is a FlowAddress
 
       if (!isValidFlowAddress(mainAddress)) {
@@ -1854,7 +1855,7 @@ export class OpenApiService {
       } else {
         loggedInAccounts[accountIndex] = updatedWallet;
       }
-      await storage.set('loggedInAccounts', loggedInAccounts);
+      await setLocalData('loggedInAccounts', loggedInAccounts);
     }
 
     const otherAccounts: LoggedInAccountWithIndex[] = loggedInAccounts

@@ -7,7 +7,9 @@ import {
   KEYRING_STATE_V1_KEY,
   KEYRING_STATE_V2_KEY,
   KEYRING_STATE_V3_KEY,
-  storage,
+  getLocalData,
+  setLocalData,
+  removeLocalData,
 } from '@onflow/frw-data-model';
 import * as bip39 from 'bip39';
 import encryptor from 'browser-passworder';
@@ -1442,7 +1444,7 @@ class KeyringService extends EventEmitter {
   private loadStore(initState) {
     this.store = new SimpleStore(initState || { booted: false });
     // Any changes to the store will be saved to storage
-    return this.store.subscribe((value) => storage.set(KEYRING_STATE_CURRENT_KEY, value));
+    return this.store.subscribe((value) => setLocalData(KEYRING_STATE_CURRENT_KEY, value));
   }
 
   async loadKeyringStore() {
@@ -1607,8 +1609,8 @@ class KeyringService extends EventEmitter {
   }
 
   private async checkVaultId(vaultArray: CompatibleVaultEntry[]): Promise<VaultEntryV2[]> {
-    const deepVault: CompatibleVaultEntry[] = (await storage.get(KEYRING_DEEP_VAULT_KEY)) || [];
-    const loggedInAccounts: LoggedInAccount[] = (await storage.get('loggedInAccounts')) || [];
+    const deepVault: CompatibleVaultEntry[] = (await getLocalData(KEYRING_DEEP_VAULT_KEY)) || [];
+    const loggedInAccounts: LoggedInAccount[] = (await getLocalData('loggedInAccounts')) || [];
 
     // Process vault entries to fix missing IDs
     const updatedVaultArray = vaultArray.map((entry, index): VaultEntryV2 | null => {
@@ -1675,7 +1677,7 @@ class KeyringService extends EventEmitter {
     const foundEntry = vaultArray.find((entry) => entry.id === currentId);
 
     if (foundEntry) {
-      await storage.set(CURRENT_ID_KEY, currentId);
+      await setLocalData(CURRENT_ID_KEY, currentId);
       try {
         const encryptedDataString = foundEntry[currentId];
         const encryptedData = JSON.parse(encryptedDataString) as EncryptedData;
@@ -1705,7 +1707,7 @@ class KeyringService extends EventEmitter {
 
   // Current version
   private async loadKeyringStateV3(): Promise<KeyringState | null> {
-    const keyringState = await storage.get(KEYRING_STATE_V3_KEY);
+    const keyringState = await getLocalData(KEYRING_STATE_V3_KEY);
     if (!keyringState) {
       // Can't translate until unlocked
       return await this.loadKeyringStateV2();
@@ -1715,7 +1717,7 @@ class KeyringService extends EventEmitter {
 
   // Version 2
   private async loadKeyringStateV2(): Promise<KeyringState | null> {
-    const keyringState = await storage.get(KEYRING_STATE_V2_KEY);
+    const keyringState = await getLocalData(KEYRING_STATE_V2_KEY);
     if (!keyringState) {
       return await this.translateFromKeyringStateV1();
     }
@@ -1741,7 +1743,7 @@ class KeyringService extends EventEmitter {
   }
   // Version 1
   private async loadKeyringStateV1(): Promise<KeyringStateV1 | null> {
-    const keyringState = await storage.get(KEYRING_STATE_V1_KEY);
+    const keyringState = await getLocalData(KEYRING_STATE_V1_KEY);
     if (!keyringState) {
       return null;
     }
@@ -1759,7 +1761,7 @@ class KeyringService extends EventEmitter {
   // Version 0
   private async translateFromDeepVault(): Promise<CompatibleVaultEntry[] | null> {
     // Version 1 - if nothing exists in the store, use deepVault
-    const deepVault = await storage.get(KEYRING_DEEP_VAULT_KEY);
+    const deepVault = await getLocalData(KEYRING_DEEP_VAULT_KEY);
     if (!deepVault) {
       return null;
     }
@@ -1804,7 +1806,7 @@ class KeyringService extends EventEmitter {
     keyringDataV1: DecryptedKeyringV2
   ): Promise<DecryptedKeyringV2> {
     // Get the logged in accounts
-    const loggedInAccounts: LoggedInAccount[] = (await storage.get('loggedInAccounts')) || [];
+    const loggedInAccounts: LoggedInAccount[] = (await getLocalData('loggedInAccounts')) || [];
 
     const keyringId = keyringDataV1.id;
     const keyringDataV2: DecryptedKeyDataV2[] = await Promise.all(
@@ -1819,8 +1821,8 @@ class KeyringService extends EventEmitter {
           let derivationPath = FLOW_BIP44_PATH;
           let passphrase = '';
           if (accountIndex !== -1) {
-            derivationPath = (await storage.get(`user${accountIndex}_path`)) ?? FLOW_BIP44_PATH;
-            passphrase = (await storage.get(`user${accountIndex}_phrase`)) ?? '';
+            derivationPath = (await getLocalData(`user${accountIndex}_path`)) ?? FLOW_BIP44_PATH;
+            passphrase = (await getLocalData(`user${accountIndex}_phrase`)) ?? '';
           }
           return {
             type: keyringDataType,
@@ -1873,7 +1875,7 @@ class KeyringService extends EventEmitter {
       // Update the memory store
       this.memStore.updateState({ isUnlocked: false });
       this.emit('lock');
-      await storage.remove(CURRENT_ID_KEY);
+      await removeLocalData(CURRENT_ID_KEY);
       this.store.updateState({ booted: '' });
       return true;
     }
@@ -1894,7 +1896,7 @@ class KeyringService extends EventEmitter {
       if (nextProfileId && nextProfileId !== profileId) {
         // Ensure we found a valid *different* ID
         // Update the current profile ID in storage immediately
-        await storage.set(CURRENT_ID_KEY, nextProfileId);
+        await setLocalData(CURRENT_ID_KEY, nextProfileId);
         needToSwitchKeyring = true;
       } else {
         // We thought about handling defensively here, but it's better to throw to stop the operation

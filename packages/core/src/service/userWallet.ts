@@ -22,14 +22,14 @@ import {
   registerBatchRefreshListener,
   registerRefreshListener,
   setCachedData,
-  removeUserData,
-  setUserData,
+  getLocalData,
+  removeLocalData,
+  setLocalData,
   activeAccountsKey,
   type ActiveAccountsStore,
   getActiveAccountsData,
   userWalletsKey,
   type UserWalletStore,
-  storage,
 } from '@onflow/frw-data-model';
 import type { Account as FclAccount } from '@onflow/typedefs';
 import * as ethUtil from 'ethereumjs-util';
@@ -275,8 +275,8 @@ class UserWallet {
   // Moved from WalletController to UserWallet
   allowFreeGas = async (): Promise<boolean> => {
     const isFreeGasFeeKillSwitch = await remoteConfigService.getFeatureFlag('free_gas');
-    const isFreeGasFeeEnabled = await storage.get('lilicoPayer');
-    return isFreeGasFeeKillSwitch && isFreeGasFeeEnabled;
+    const isFreeGasFeeEnabled = await getLocalData<boolean>('lilicoPayer');
+    return isFreeGasFeeKillSwitch && !!isFreeGasFeeEnabled;
   };
 
   /**
@@ -346,7 +346,7 @@ class UserWallet {
       const mainAccounts = await this.getMainAccounts();
       if (mainAccounts.length === 0) {
         // If the parent address is null, we need to reset to the first parent account
-        await removeUserData(activeAccountsKey(network, pubkey));
+        await removeLocalData(activeAccountsKey(network, pubkey));
         return {
           parentAddress: null,
           currentAddress: null,
@@ -359,7 +359,7 @@ class UserWallet {
         validatedActiveAccounts.currentAddress !== activeAccounts?.currentAddress)
     ) {
       // Only update the active accounts if they have changed and the addresses are not null
-      await setUserData<ActiveAccountsStore>(
+      await setLocalData<ActiveAccountsStore>(
         activeAccountsKey(network, pubkey),
         validatedActiveAccounts
       );
@@ -426,7 +426,7 @@ class UserWallet {
     }
 
     // Save the data in storage
-    await setUserData<ActiveAccountsStore>(activeAccountsKey(network, pubkey), newActiveAccounts);
+    await setLocalData<ActiveAccountsStore>(activeAccountsKey(network, pubkey), newActiveAccounts);
   };
   /**
    * Set the current account - the actively selected account

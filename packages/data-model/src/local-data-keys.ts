@@ -11,7 +11,7 @@ import {
   type EvmCustomTokenInfo,
 } from '@onflow/frw-shared/types';
 
-import { getUserData } from './user-data-access';
+import { getLocalData } from './storage';
 
 // Keyring Keys
 export const KEYRING_STATE_V1_KEY = 'keyringState';
@@ -40,7 +40,7 @@ export type UserWalletStore = {
 };
 
 export const getUserWalletsData = async (): Promise<UserWalletStore | undefined> => {
-  return await getUserData<UserWalletStore>(userWalletsKey);
+  return await getLocalData<UserWalletStore>(userWalletsKey);
 };
 // Profile Current Account - the user selected account on a given network
 export const activeAccountsKey = (network: string, publicKey: string) =>
@@ -59,7 +59,7 @@ export type ActiveAccountsStore = {
 };
 
 export const getActiveAccountsData = async (network: string, publicKey: string) => {
-  const activeAccounts = await getUserData<ActiveAccountsStore>(
+  const activeAccounts = await getLocalData<ActiveAccountsStore>(
     activeAccountsKey(network, publicKey)
   );
   return activeAccounts;
@@ -68,7 +68,7 @@ export const getActiveAccountsData = async (network: string, publicKey: string) 
 export const getActiveAccountsByUserWallet = async (): Promise<ActiveAccountsStore | undefined> => {
   const userWallet = await getUserWalletsData();
   const activeAccounts = userWallet
-    ? await getUserData<ActiveAccountsStore>(
+    ? await getLocalData<ActiveAccountsStore>(
         activeAccountsKey(userWallet.network, userWallet.currentPubkey)
       )
     : undefined;
@@ -83,12 +83,12 @@ export type PreferencesStore = {
 };
 
 export const getPreferencesData = async (): Promise<PreferencesStore | undefined> => {
-  return await getUserData<PreferencesStore>(preferencesKey);
+  return await getLocalData<PreferencesStore>(preferencesKey);
 };
 
 export const evmCustomTokenKey = (network: string) => `${network}evmCustomToken`;
 export const getEvmCustomTokenData = async (network: string): Promise<EvmCustomTokenInfo[]> => {
-  const data = await getUserData<EvmCustomTokenInfo[]>(evmCustomTokenKey(network));
+  const data = await getLocalData<EvmCustomTokenInfo[]>(evmCustomTokenKey(network));
   return data || [];
 };
 
@@ -101,7 +101,7 @@ export type ReadAndDismissedNewsStore = {
 export const getReadAndDismissedNewsData = async (): Promise<
   ReadAndDismissedNewsStore | undefined
 > => {
-  return await getUserData<ReadAndDismissedNewsStore>(readAndDismissedNewsKey());
+  return await getLocalData<ReadAndDismissedNewsStore>(readAndDismissedNewsKey());
 };
 
 export const permissionKeyV1 = 'permission';

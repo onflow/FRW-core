@@ -1,7 +1,12 @@
 import { consoleError } from '@onflow/frw-shared/utils';
 
 import { type CacheDataItem } from './data-cache-types';
-import { storage } from './storage';
+import {
+  getSessionData,
+  setSessionData,
+  addStorageListener,
+  removeStorageListener,
+} from './storage';
 import { type StorageChange } from './storage/storage-types';
 
 // The listeners object is used to store a reference to the listener function that is created by _updateCaller.
@@ -20,13 +25,13 @@ const listeners: {
  * @returns The cached data or undefined if it doesn't exist or is expired
  */
 export const getCachedData = async <T>(key: string): Promise<T | undefined> => {
-  const sessionData: CacheDataItem | undefined = await storage.getSession(key);
+  const sessionData: CacheDataItem | undefined = await getSessionData(key);
   if (!sessionData || sessionData.expiry < Date.now()) {
     // Data is not there or expired, trigger a background event to refresh the data
     // We do this by setting a key in session storage that the background script will pick up
 
     // Note this is async but don't await it as we don't need the result
-    storage.setSession(`${key}-refresh`, Date.now());
+    setSessionData(`${key}-refresh`, Date.now());
   }
   return sessionData?.value as T | undefined;
 };
@@ -37,7 +42,7 @@ export const getCachedData = async <T>(key: string): Promise<T | undefined> => {
  * @param key - The key to trigger a refresh for
  */
 export const triggerRefresh = (key: string) => {
-  storage.setSession(`${key}-refresh`, Date.now());
+  setSessionData(`${key}-refresh`, Date.now());
 };
 /**
  * Internal function to call the update callback
@@ -67,7 +72,7 @@ export const addCachedDataListener = (
   updateCallback: (key: string, data: unknown) => void
 ) => {
   listeners[key] = _updateCaller(key, updateCallback);
-  storage.addStorageListener(listeners[key]);
+  addStorageListener(listeners[key]);
 };
 
 /**
@@ -79,6 +84,6 @@ export const removeCachedDataListener = (
   key: string,
   _updateCallback: (key: string, data: unknown) => void
 ) => {
-  storage.removeStorageListener(listeners[key]);
+  removeStorageListener(listeners[key]);
   delete listeners[key];
 };
