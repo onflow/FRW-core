@@ -3,11 +3,11 @@ import {
   KEYRING_STATE_CURRENT_KEY,
   KEYRING_STATE_V1_KEY,
   KEYRING_STATE_V2_KEY,
+  storage,
 } from '@onflow/frw-data-model';
 import encryptor from 'browser-passworder';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import storage from '@onflow/frw-extension-shared/storage';
 // Internal imports - after all mocks are defined
 import {
   FLOW_BIP44_PATH,

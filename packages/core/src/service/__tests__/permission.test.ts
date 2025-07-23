@@ -1,7 +1,7 @@
+import { storage } from '@onflow/frw-data-model';
 import { LRUCache } from 'lru-cache';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import storage from '@onflow/frw-extension-shared/storage';
 import { INTERNAL_REQUEST_ORIGIN, MAINNET_CHAIN_ID } from '@onflow/frw-shared/constant';
 
 import permissionService, { type ConnectedSite } from '../permission';

@@ -1,4 +1,5 @@
-import storage from '@onflow/frw-extension-shared/storage';
+import { storage } from '@onflow/frw-data-model';
+
 import { type LoggedInAccount } from '@onflow/frw-shared/types';
 
 import { getCurrentProfileId } from './current-id';

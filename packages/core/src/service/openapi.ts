@@ -5,12 +5,12 @@ import {
   type RemoteConfig,
   getValidData,
   setCachedData,
+  storage,
 } from '@onflow/frw-data-model';
 import type { Account as FclAccount } from '@onflow/typedefs';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 
-import storage from '@onflow/frw-extension-shared/storage';
 import {
   DEFAULT_CURRENCY,
   Period,

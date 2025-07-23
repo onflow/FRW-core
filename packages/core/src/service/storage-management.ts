@@ -1,4 +1,4 @@
-import storage from '@onflow/frw-extension-shared/storage';
+import { storage } from '@onflow/frw-data-model';
 
 import addressBookService from './addressBook';
 import coinListService from './coinList';

@@ -1,4 +1,5 @@
-import storage from '@onflow/frw-extension-shared/storage';
+import { storage } from '@onflow/frw-data-model';
+
 import { consoleError } from '@onflow/frw-shared/utils';
 
 import { jsonToString } from './utils';

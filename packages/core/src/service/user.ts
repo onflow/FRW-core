@@ -5,9 +5,9 @@ import {
   getValidData,
   registerRefreshListener,
   setCachedData,
+  storage,
 } from '@onflow/frw-data-model';
 
-import storage from '@onflow/frw-extension-shared/storage';
 import { type UserInfoResponse, type LoggedInAccount } from '@onflow/frw-shared/types';
 import { consoleError } from '@onflow/frw-shared/utils';
 

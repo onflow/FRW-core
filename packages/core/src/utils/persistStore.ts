@@ -1,4 +1,4 @@
-import storage from '@onflow/frw-extension-shared/storage';
+import { storage } from '@onflow/frw-data-model';
 
 const persistStorage = (name: string, obj: object) => {
   storage.set(name, obj);
