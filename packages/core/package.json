@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsup",
     "build:watch": "NODE_ENV=development tsup --watch",
-    "type-check": "tsc --noEmit",
+    "typecheck": "pnpm exec tsc --build --force",
     "clean": "rm -rf dist",
     "test": "vitest",
     "test:run": "vitest --run",

@@ -275,8 +275,8 @@ class UserWallet {
   // Moved from WalletController to UserWallet
   allowFreeGas = async (): Promise<boolean> => {
     const isFreeGasFeeKillSwitch = await remoteConfigService.getFeatureFlag('free_gas');
-    const isFreeGasFeeEnabled = await getLocalData<boolean>('lilicoPayer');
-    return isFreeGasFeeKillSwitch && !!isFreeGasFeeEnabled;
+    const isFreeGasFeeEnabled = (await getLocalData<boolean>('lilicoPayer')) ?? false;
+    return isFreeGasFeeKillSwitch && isFreeGasFeeEnabled;
   };
 
   /**

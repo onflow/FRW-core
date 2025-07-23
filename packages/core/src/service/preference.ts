@@ -95,7 +95,7 @@ class PreferenceService {
         firstOpen: false,
         pinnedChain: [],
         // addedToken: {},
-        isDeveloperModeEnabled: isDeveloperModeEnabled || false,
+        isDeveloperModeEnabled: isDeveloperModeEnabled ?? false,
         network: MAINNET_NETWORK,
         isFreeGasFeeEnabled: false,
         displayCurrency: DEFAULT_CURRENCY,
