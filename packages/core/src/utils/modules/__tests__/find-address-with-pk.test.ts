@@ -16,7 +16,7 @@ vi.mock('../../service', () => ({
   userWalletService: {
     setupFcl: vi.fn(),
   },
-  mixpanelTrack: {
+  analyticsService: {
     identify: vi.fn(),
   },
   openapiService: {

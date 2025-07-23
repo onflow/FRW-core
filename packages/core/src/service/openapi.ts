@@ -62,7 +62,7 @@ import {
 import { findKeyAndInfo } from '../utils';
 import {
   googleSafeHostService,
-  mixpanelTrack,
+  analyticsService,
   userWalletService,
   authenticationService,
   versionService,
@@ -775,7 +775,7 @@ export class OpenApiService {
 
   register = async (account_key: AccountKeyRequest, username: string) => {
     // Track the time until account_created is called
-    mixpanelTrack.time('account_created');
+    analyticsService.time('account_created');
 
     const config = this.store.config.register;
     const data = await this.sendRequest(
@@ -790,7 +790,7 @@ export class OpenApiService {
     await this._loginWithToken(data.data.id, data.data.custom_token);
 
     // Track the registration
-    mixpanelTrack.track('account_created', {
+    analyticsService.track('account_created', {
       public_key: account_key.public_key,
       sign_algo: getStringFromSignAlgo(account_key.sign_algo),
       hash_algo: getStringFromHashAlgo(account_key.hash_algo),
@@ -2042,7 +2042,7 @@ export const getScripts = async (network: string, category: string, scriptName: 
     return modifiedScriptString;
   } catch (error) {
     if (error instanceof Error) {
-      mixpanelTrack.track('script_error', {
+      analyticsService.track('script_error', {
         script_id: scriptName,
         error: error.message,
       });

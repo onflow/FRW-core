@@ -29,7 +29,7 @@ const EXCLUDE_PATTERNS = ['__tests__', '.test.', '.spec.', 'index.ts', '.d.ts'];
 
 // Map of import aliases to actual service names
 const IMPORT_ALIASES: Record<string, string> = {
-  mixpanelTrack: 'mixpanel',
+  analyticsService: 'analytics',
   keyringService: 'keyring',
   openapiService: 'openapi',
   userInfoService: 'user',

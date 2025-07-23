@@ -141,8 +141,8 @@ vi.mock('@onflow/frw-extension-shared', () => ({
 }));
 
 // Mock MixpanelService
-vi.mock('./service/mixpanel', () => ({
-  mixpanelTrack: {
+vi.mock('./service/analytics', () => ({
+  analyticsService: {
     track: vi.fn(),
     identify: vi.fn(),
     reset: vi.fn(),
@@ -152,7 +152,7 @@ vi.mock('./service/mixpanel', () => ({
     init: vi.fn(),
     getIdInfo: vi.fn().mockResolvedValue({ $device_id: 'mock-device-id' }),
   },
-  MixpanelService: {
+  AnalytcsService: {
     instance: {
       track: vi.fn(),
       identify: vi.fn(),

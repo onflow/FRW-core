@@ -19,7 +19,7 @@ import {
 } from '@onflow/frw-shared/utils';
 
 import { tokenListService } from '.';
-import { mixpanelTrack } from './mixpanel';
+import { analyticsService } from './analytics';
 import { getScripts } from './openapi';
 import userWalletService from './userWallet';
 import { replaceNftKeywords } from '../utils';
@@ -173,7 +173,7 @@ export class TransactionService {
       fcl.arg(gasLimit, fcl.t.UInt64),
     ]);
 
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: (await userWalletService.getCurrentAddress()) || '',
       to_address: recipientEVMAddressHex,
       amount: amount,
@@ -212,7 +212,7 @@ export class TransactionService {
       fcl.arg(regularArray, fcl.t.Array(fcl.t.UInt8)),
       fcl.arg(gasLimit, fcl.t.UInt64),
     ]);
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: (await userWalletService.getCurrentAddress()) || '',
       to_address: tokenContractAddress,
       amount: amount,
@@ -239,7 +239,7 @@ export class TransactionService {
       fcl.arg(recipient, fcl.t.String),
     ]);
 
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: (await userWalletService.getCurrentAddress()) || '',
       to_address: recipient,
       amount: amount,
@@ -275,7 +275,7 @@ export class TransactionService {
       fcl.arg(receiver, fcl.t.Address),
     ]);
 
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: (await userWalletService.getCurrentAddress()) || '',
       to_address: receiver,
       amount: amount,
@@ -316,7 +316,7 @@ export class TransactionService {
     ]);
 
     const evmAddress = await userWalletService.getCurrentEvmAddress();
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: (await userWalletService.getCurrentAddress()) || '',
       to_address: evmAddress ?? '',
       amount: amount,
@@ -349,7 +349,7 @@ export class TransactionService {
       fcl.arg(integerAmountStr, fcl.t.UInt256),
     ]);
 
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: (await userWalletService.getCurrentEvmAddress()) ?? '',
       to_address: (await userWalletService.getCurrentAddress()) || '',
       amount: amount,
@@ -401,7 +401,7 @@ export class TransactionService {
       fcl.arg(gasLimit, fcl.t.UInt64),
     ]);
 
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: (await userWalletService.getCurrentEvmAddress()) ?? '',
       to_address: to,
       amount: value,
@@ -465,7 +465,7 @@ export class TransactionService {
       throw new Error('EVM address not found');
     }
 
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: evmAddress,
       to_address: to,
       amount: transactionValue.toString(),
@@ -550,7 +550,7 @@ export class TransactionService {
       [fcl.arg(amount, fcl.t.UFix64), fcl.arg(address, fcl.t.Address)]
     );
 
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: (await userWalletService.getCurrentAddress()) || '',
       to_address: address,
       amount: amount,
@@ -597,7 +597,7 @@ export class TransactionService {
       fcl.arg(path, fcl.t.String),
       fcl.arg(amount, fcl.t.UFix64),
     ]);
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: childAddress,
       to_address: receiver,
       amount: amount,
@@ -629,7 +629,7 @@ export class TransactionService {
       fcl.arg(path, fcl.t.String),
       fcl.arg(amount, fcl.t.UFix64),
     ]);
-    mixpanelTrack.track('ft_transfer', {
+    analyticsService.track('ft_transfer', {
       from_address: (await userWalletService.getCurrentAddress()) || '',
       to_address: childAddress,
       amount: amount,
@@ -656,7 +656,7 @@ export class TransactionService {
       fcl.arg(nftContractName, fcl.t.String),
       fcl.arg(ids, fcl.t.UInt64),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: nftContractAddress,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -687,7 +687,7 @@ export class TransactionService {
       fcl.arg(nftContractName, fcl.t.String),
       fcl.arg(ids, fcl.t.UInt64),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: linkedAddress,
       to_address: receiverAddress,
@@ -718,7 +718,7 @@ export class TransactionService {
       fcl.arg(id, fcl.t.UInt64),
       fcl.arg(receiverAddress, fcl.t.String),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: linkedAddress,
       to_address: receiverAddress,
@@ -752,7 +752,7 @@ export class TransactionService {
       fcl.arg(ids, fcl.t.UInt64),
     ]);
 
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: linkedAddress,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -775,7 +775,7 @@ export class TransactionService {
       fcl.arg(flowIdentifier, fcl.t.String),
       fcl.arg(ids, fcl.t.Array(fcl.t.UInt64)),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: flowIdentifier,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -798,7 +798,7 @@ export class TransactionService {
       fcl.arg(flowIdentifier, fcl.t.String),
       fcl.arg(ids, fcl.t.Array(fcl.t.UInt256)),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: flowIdentifier,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -828,7 +828,7 @@ export class TransactionService {
       fcl.arg(identifier, fcl.t.String),
       fcl.arg(ids, fcl.t.Array(fcl.t.UInt64)),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: childAddr,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -858,7 +858,7 @@ export class TransactionService {
       fcl.arg(identifier, fcl.t.String),
       fcl.arg(ids, fcl.t.Array(fcl.t.UInt64)),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: childAddr,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -890,7 +890,7 @@ export class TransactionService {
       fcl.arg(identifier, fcl.t.String),
       fcl.arg(ids, fcl.t.Array(fcl.t.UInt64)),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: childAddr,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -919,7 +919,7 @@ export class TransactionService {
       fcl.arg(childAddr, fcl.t.Address),
       fcl.arg(ids, fcl.t.Array(fcl.t.UInt64)),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: childAddr,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -947,7 +947,7 @@ export class TransactionService {
       fcl.arg(childAddr, fcl.t.Address),
       fcl.arg(ids, fcl.t.Array(fcl.t.UInt256)),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: childAddr,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -979,7 +979,7 @@ export class TransactionService {
       fcl.arg(ids, fcl.t.UInt64),
       fcl.arg(recipientEvmAddress, fcl.t.String),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: flowIdentifier,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -1007,7 +1007,7 @@ export class TransactionService {
       fcl.arg(ids, fcl.t.UInt256),
       fcl.arg(receiver, fcl.t.Address),
     ]);
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: flowIdentifier,
       to_address: (await userWalletService.getCurrentAddress()) || '',
@@ -1031,7 +1031,7 @@ export class TransactionService {
         .replaceAll('<CollectionPublicPath>', token.path.public),
       [fcl.arg(recipient, fcl.t.Address), fcl.arg(id, fcl.t.UInt64)]
     );
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: (await userWalletService.getCurrentAddress()) || '',
       to_address: recipient,
@@ -1055,7 +1055,7 @@ export class TransactionService {
         .replaceAll('<CollectionPublicPath>', token.path.public),
       [fcl.arg(recipient, fcl.t.Address), fcl.arg(id, fcl.t.UInt64)]
     );
-    mixpanelTrack.track('nft_transfer', {
+    analyticsService.track('nft_transfer', {
       tx_id: txID,
       from_address: (await userWalletService.getCurrentAddress()) || '',
       to_address: recipient,
@@ -1242,7 +1242,7 @@ export class TransactionService {
   }
 
   async trackCoaCreation(txID: string, errorMessage?: string): Promise<void> {
-    mixpanelTrack.track('coa_creation', {
+    analyticsService.track('coa_creation', {
       tx_id: txID,
       flow_address: (await userWalletService.getCurrentAddress()) || '',
       error_message: errorMessage,
