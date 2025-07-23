@@ -7,12 +7,12 @@ import { INTERNAL_REQUEST_ORIGIN, MAINNET_CHAIN_ID } from '@onflow/frw-shared/co
 import permissionService, { type ConnectedSite } from '../permission';
 
 // Mock dependencies
-vi.mock('@onflow/frw-extension-shared/storage', () => ({
-  default: {
-    get: vi.fn(),
-    set: vi.fn(),
-    remove: vi.fn(),
-  },
+vi.mock('@onflow/frw-data-model', () => ({
+  getLocalData: vi.fn(),
+  setLocalData: vi.fn(),
+  removeLocalData: vi.fn(),
+  permissionKey: 'permission',
+  permissionKeyV1: 'permissionV1',
 }));
 
 vi.mock('../../utils/persistStore', () => ({
@@ -43,6 +43,9 @@ describe('PermissionService', () => {
       // Return template by default (empty cache)
       return template || {};
     });
+
+    // Reset getLocalData mock to return null by default
+    vi.mocked(getLocalData).mockResolvedValue(null);
   });
 
   describe('init', () => {
@@ -74,9 +77,9 @@ describe('PermissionService', () => {
         ],
       };
 
-      // Mock storage.get to return old cache data when asked for 'permission' key
+      // Mock storage.get to return old cache data when asked for 'permissionV1' key
       vi.mocked(getLocalData).mockImplementation(async (key) => {
-        if (key === 'permission') {
+        if (key === 'permissionV1') {
           return oldCacheData;
         }
         return null;
@@ -122,9 +125,9 @@ describe('PermissionService', () => {
         ],
       };
 
-      // Mock storage.get to return old cache data when asked for 'permission' key
+      // Mock storage.get to return old cache data when asked for 'permissionV1' key
       vi.mocked(getLocalData).mockImplementation(async (key) => {
-        if (key === 'permission') {
+        if (key === 'permissionV1') {
           return oldCacheData;
         }
         return null;

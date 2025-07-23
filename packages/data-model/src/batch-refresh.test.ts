@@ -13,7 +13,7 @@ vi.mock('./storage', () => ({
   setSessionData: vi.fn(),
   getSessionData: vi.fn(),
   removeSessionData: vi.fn().mockResolvedValue(undefined),
-  addStorageListener: vi.fn(),
+  addStorageListener,
   removeStorageListener: vi.fn(),
 }));
 
@@ -25,16 +25,16 @@ vi.mock('./data-cache', () => ({
 // Store registered listeners
 const storageListeners: ((changes: any, namespace: string) => void)[] = [];
 
-// Mock chrome.storage.onChanged
-global.chrome = {
-  storage: {
-    onChanged: {
-      addListener: vi.fn((listener) => {
-        storageListeners.push(listener);
-      }),
-    },
-  },
-} as any;
+// Mock the storage listener functions
+const { addStorageListener } = vi.hoisted(() => ({
+  addStorageListener: vi.fn((listener) => {
+    storageListeners.push(listener);
+  }),
+}));
+
+vi.mocked(addStorageListener).mockImplementation((listener) => {
+  storageListeners.push(listener);
+});
 
 describe('Batch Refresh Mechanism', () => {
   beforeEach(() => {

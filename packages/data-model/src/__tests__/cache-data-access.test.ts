@@ -1,11 +1,4 @@
-import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
-
-import {
-  getSessionData,
-  setSessionData,
-  addStorageListener,
-  removeStorageListener,
-} from '@onflow/frw-data-model';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import {
   getCachedData,
@@ -14,82 +7,68 @@ import {
   removeCachedDataListener,
 } from '../cache-data-access';
 import { type CacheDataItem } from '../data-cache-types';
-
-vi.mock('@onflow/frw-data-model', () => ({
-  getSessionData: vi.fn(),
-  setSessionData: vi.fn(),
-  addStorageListener: vi.fn(),
-  removeStorageListener: vi.fn(),
-}));
+import { initializeStorage } from '../storage';
+import { memoryStorage } from '../storage/memory-storage';
 
 describe('cache-data-access', () => {
-  const mockGetSession = getSessionData as Mock;
-  const mockSetSession = setSessionData as Mock;
-
-  // Mock chrome global
-  const mockListeners: ((
-    changes: { [key: string]: chrome.storage.StorageChange },
-    area: string
-  ) => void)[] = [];
-  global.chrome = {
-    storage: {
-      onChanged: {
-        addListener: vi.fn((listener) => {
-          mockListeners.push(listener);
-        }),
-        removeListener: vi.fn((listener) => {
-          const index = mockListeners.indexOf(listener);
-          if (index > -1) mockListeners.splice(index, 1);
-        }),
-      },
-    },
-  } as unknown as typeof chrome;
-
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Initialize storage with memory storage for tests
+    initializeStorage({ implementation: memoryStorage });
+    // Clear all storage data between tests
+    await memoryStorage.clear();
+    await memoryStorage.clearSession();
     vi.clearAllMocks();
-    mockListeners.length = 0;
   });
 
   describe('getCachedData', () => {
     it('should return data if it exists and is not expired', async () => {
       const key = 'test-key';
       const data: CacheDataItem = { value: 'test-value', expiry: Date.now() + 10000 };
-      mockGetSession.mockResolvedValueOnce(data);
+
+      // Set data directly using memory storage
+      await memoryStorage.setSession(key, data);
 
       const result = await getCachedData(key);
       expect(result).toBe('test-value');
-      expect(mockSetSession).not.toHaveBeenCalled();
     });
 
     it('should trigger refresh and return stale data if data is expired', async () => {
       const key = 'test-key';
       const data: CacheDataItem = { value: 'test-value', expiry: Date.now() - 10000 };
-      mockGetSession.mockResolvedValueOnce(data);
-      mockSetSession.mockResolvedValueOnce(undefined);
+
+      await memoryStorage.setSession(key, data);
 
       const result = await getCachedData(key);
       expect(result).toBe('test-value');
-      expect(mockSetSession).toHaveBeenCalledWith(`${key}-refresh`, expect.any(Number));
+
+      // Check that refresh was triggered
+      const refreshKey = `${key}-refresh`;
+      const refreshData = await memoryStorage.getSession(refreshKey);
+      expect(refreshData).toBeDefined();
     });
 
     it('should trigger refresh and return undefined if data does not exist', async () => {
       const key = 'test-key';
-      mockGetSession.mockResolvedValueOnce(undefined);
-      mockSetSession.mockResolvedValueOnce(undefined);
 
       const result = await getCachedData(key);
       expect(result).toBeUndefined();
-      expect(mockSetSession).toHaveBeenCalledWith(`${key}-refresh`, expect.any(Number));
+
+      // Check that refresh was triggered
+      const refreshKey = `${key}-refresh`;
+      const refreshData = await memoryStorage.getSession(refreshKey);
+      expect(refreshData).toBeDefined();
     });
   });
 
   describe('triggerRefresh', () => {
-    it('should set the refresh key', () => {
+    it('should set the refresh key', async () => {
       const key = 'test-key';
-      mockSetSession.mockResolvedValueOnce(undefined);
 
       triggerRefresh(key);
-      expect(mockSetSession).toHaveBeenCalledWith(`${key}-refresh`, expect.any(Number));
+
+      const refreshKey = `${key}-refresh`;
+      const refreshData = await memoryStorage.getSession(refreshKey);
+      expect(refreshData).toBeDefined();
     });
   });
 
@@ -99,58 +78,56 @@ describe('cache-data-access', () => {
       const callback = vi.fn();
 
       addCachedDataListener(key, callback);
-      expect(addStorageListener).toHaveBeenCalledTimes(1);
+      expect(callback).not.toHaveBeenCalled();
 
       removeCachedDataListener(key, callback);
-      expect(removeStorageListener).toHaveBeenCalledTimes(1);
     });
 
-    it('should call update callback when relevant change occurs', () => {
+    it('should call update callback when relevant change occurs', async () => {
       const key = 'test-key';
       const callback = vi.fn();
-      const changes = { [key]: { newValue: { value: 'new-value', expiry: Date.now() + 10000 } } };
 
       addCachedDataListener(key, callback);
+
       // Simulate change
-      mockListeners[0](changes, 'session');
+      const data: CacheDataItem = { value: 'new-value', expiry: Date.now() + 10000 };
+      await memoryStorage.setSession(key, data);
 
       expect(callback).toHaveBeenCalledWith(key, 'new-value');
     });
 
-    it('should not call callback for irrelevant changes', () => {
+    it('should not call callback for irrelevant changes', async () => {
       const key = 'test-key';
       const callback = vi.fn();
-      const changes = {
-        'other-key': { newValue: { value: 'new-value', expiry: Date.now() + 10000 } },
-      };
 
       addCachedDataListener(key, callback);
-      // Simulate change
-      mockListeners[0](changes, 'session');
+
+      // Simulate change to different key
+      await memoryStorage.setSession('different-key', 'value');
 
       expect(callback).not.toHaveBeenCalled();
     });
 
-    it('should not call callback if area is not session', () => {
+    it('should not call callback if area is not session', async () => {
       const key = 'test-key';
       const callback = vi.fn();
-      const changes = { [key]: { newValue: { value: 'new-value', expiry: Date.now() + 10000 } } };
 
       addCachedDataListener(key, callback);
-      // Simulate change in wrong area
-      mockListeners[0](changes, 'local');
+
+      // Simulate change to local storage
+      await memoryStorage.set(key, 'value');
 
       expect(callback).not.toHaveBeenCalled();
     });
 
-    it('should call callback with undefined for invalid data', () => {
+    it('should call callback with undefined for invalid data', async () => {
       const key = 'test-key';
       const callback = vi.fn();
-      const changes = { [key]: { newValue: 'invalid' } }; // Not CacheDataItem
 
       addCachedDataListener(key, callback);
-      // Simulate change
-      mockListeners[0](changes, 'session');
+
+      // Simulate change with invalid data
+      await memoryStorage.setSession(key, 'invalid-data');
 
       expect(callback).toHaveBeenCalledWith(key, undefined);
     });

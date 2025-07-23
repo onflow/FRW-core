@@ -16,11 +16,14 @@ import keyringService from '../keyring';
 import { MOCK_KEYS, MOCK_MNEMONIC, MOCK_PASSWORD } from './keyring-mock-data';
 
 // Mock dependencies
-vi.mock('@onflow/frw-extension-shared/storage', () => ({
-  default: {
-    get: vi.fn(),
-    set: vi.fn(),
-  },
+vi.mock('@onflow/frw-data-model', () => ({
+  getLocalData: vi.fn(),
+  setLocalData: vi.fn(),
+  removeLocalData: vi.fn(),
+  CURRENT_ID_KEY: 'currentId',
+  KEYRING_STATE_CURRENT_KEY: 'keyringState',
+  KEYRING_STATE_V2_KEY: 'keyringStateV2',
+  KEYRING_STATE_V3_KEY: 'keyringStateV3',
 }));
 
 vi.mock('../../utils/key-indexer', () => ({
