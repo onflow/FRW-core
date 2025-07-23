@@ -1,4 +1,4 @@
-import { storage } from '@onflow/frw-data-model';
+import { clearLocalData } from '@onflow/frw-data-model';
 
 import addressBookService from './addressBook';
 import coinListService from './coinList';
@@ -30,7 +30,7 @@ class StorageService {
   };
 
   clearLocalStorage = async () => {
-    await storage.clear();
+    await clearLocalData();
   };
 }
 

@@ -1,4 +1,4 @@
-import { storage } from '@onflow/frw-data-model';
+import { getLocalData } from '@onflow/frw-data-model';
 import { LRUCache } from 'lru-cache';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -47,7 +47,7 @@ describe('PermissionService', () => {
 
   describe('init', () => {
     it('should initialize with empty cache when no data exists', async () => {
-      vi.mocked(storage.get).mockResolvedValue(null);
+      vi.mocked(getLocalData).mockResolvedValue(null);
 
       await permissionService.init();
 
@@ -75,7 +75,7 @@ describe('PermissionService', () => {
       };
 
       // Mock storage.get to return old cache data when asked for 'permission' key
-      vi.mocked(storage.get).mockImplementation(async (key) => {
+      vi.mocked(getLocalData).mockImplementation(async (key) => {
         if (key === 'permission') {
           return oldCacheData;
         }
@@ -123,7 +123,7 @@ describe('PermissionService', () => {
       };
 
       // Mock storage.get to return old cache data when asked for 'permission' key
-      vi.mocked(storage.get).mockImplementation(async (key) => {
+      vi.mocked(getLocalData).mockImplementation(async (key) => {
         if (key === 'permission') {
           return oldCacheData;
         }

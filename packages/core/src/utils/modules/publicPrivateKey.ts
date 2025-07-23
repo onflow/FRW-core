@@ -1,4 +1,4 @@
-import { CURRENT_ID_KEY, storage } from '@onflow/frw-data-model';
+import { CURRENT_ID_KEY, getLocalData } from '@onflow/frw-data-model';
 import { initWasm } from '@trustwallet/wallet-core';
 
 import {
@@ -149,11 +149,11 @@ const seedWithPathAndPhrase2PublicPrivateKey = async (
  * @deprecated use seedWithPathAndPhrase2PublicPrivateKey instead
  */
 const seed2PublicPrivateKey_depreciated = async (seed: string): Promise<PublicPrivateKeyTuple> => {
-  const currentId = (await storage.get(CURRENT_ID_KEY)) ?? 0;
+  const currentId = (await getLocalData<number>(CURRENT_ID_KEY)) ?? 0;
 
   // Note that currentAccountIndex is only used in keyring for old accounts that don't have an id stored in the keyring
   // currentId always takes precedence
-  const accountIndex = (await storage.get('currentAccountIndex')) ?? 0;
+  const accountIndex = (await getLocalData<number>('currentAccountIndex')) ?? 0;
   const pathKeyIndex = `user${accountIndex}_path`;
   const phraseKeyIndex = `user${accountIndex}_phrase`;
 
@@ -161,9 +161,12 @@ const seed2PublicPrivateKey_depreciated = async (seed: string): Promise<PublicPr
   const phraseKeyId = `user${currentId}_phrase`;
 
   const derivationPath =
-    (await storage.get(pathKeyId)) ?? (await storage.get(pathKeyIndex)) ?? FLOW_BIP44_PATH;
+    (await getLocalData<string>(pathKeyId)) ??
+    (await getLocalData<string>(pathKeyIndex)) ??
+    FLOW_BIP44_PATH;
 
-  const passphrase = (await storage.get(phraseKeyId)) ?? (await storage.get(phraseKeyIndex)) ?? '';
+  const passphrase =
+    (await getLocalData<string>(phraseKeyId)) ?? (await getLocalData<string>(phraseKeyIndex)) ?? '';
 
   return seedWithPathAndPhrase2PublicPrivateKey(seed, derivationPath, passphrase);
 };
@@ -171,8 +174,8 @@ const seed2PublicPrivateKey_depreciated = async (seed: string): Promise<PublicPr
 const seed2PublicPrivateKeyTemp = async (seed: string): Promise<PublicPrivateKeyTuple> => {
   const { HDWallet, Curve } = await initWasm();
 
-  const path = (await storage.get('temp_path')) || FLOW_BIP44_PATH;
-  const passphrase = (await storage.get('temp_phrase')) || '';
+  const path = (await getLocalData<string>('temp_path')) || FLOW_BIP44_PATH;
+  const passphrase = (await getLocalData<string>('temp_phrase')) || '';
   const wallet = HDWallet.createWithMnemonic(seed, passphrase);
   const p256PK = wallet.getKeyByCurve(Curve.nist256p1, path);
   const p256PubK = Buffer.from(p256PK.getPublicKeyNist256p1().uncompressed().data())

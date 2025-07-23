@@ -1,4 +1,4 @@
-import { storage } from '@onflow/frw-data-model';
+import { getLocalData, setLocalData, removeLocalData } from '@onflow/frw-data-model';
 
 import { consoleError } from '@onflow/frw-shared/utils';
 
@@ -60,7 +60,7 @@ export async function readSettings(): Promise<Settings> {
   let settings: Settings = {
     credentials: {},
   };
-  const s = await storage.get('passkey-settings');
+  const s = await getLocalData<string>('passkey-settings');
   if (!s) {
     return settings;
   }
@@ -86,8 +86,8 @@ export async function readSettings(): Promise<Settings> {
 
 export function saveSettings(settings: Settings) {
   if (settings) {
-    storage.set('passkey-settings', jsonToString(settings));
+    setLocalData('passkey-settings', jsonToString(settings));
   } else {
-    storage.remove('passkey-settings');
+    removeLocalData('passkey-settings');
   }
 }

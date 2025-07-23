@@ -1,4 +1,4 @@
-import { storage } from '@onflow/frw-data-model';
+import { getLocalData, setLocalData, removeLocalData } from '@onflow/frw-data-model';
 
 import type { TrackingEvents } from '@onflow/frw-shared/types';
 
@@ -78,7 +78,7 @@ class MixpanelService {
   }
 
   async getIdInfo(): Promise<IDInfo | undefined> {
-    const res = await storage.get(DISTINCT_ID_KEY);
+    const res = await getLocalData<Record<string, IDInfo>>(DISTINCT_ID_KEY);
     const idInfo = res?.[DISTINCT_ID_KEY] as IDInfo | undefined;
     return idInfo;
   }
@@ -89,7 +89,7 @@ class MixpanelService {
       ...(_info ? _info : {}),
       ...info,
     };
-    await storage.set(DISTINCT_ID_KEY, newInfo);
+    await setLocalData(DISTINCT_ID_KEY, newInfo);
   }
 
   private constructor() {}
@@ -228,7 +228,7 @@ class MixpanelService {
     if (!this.initialized) return;
     this.distinctId = undefined;
 
-    return storage.remove(DISTINCT_ID_KEY).then(() => {
+    return removeLocalData(DISTINCT_ID_KEY).then(() => {
       return this.setIdInfo({ $device_id: UUID() });
     });
   }

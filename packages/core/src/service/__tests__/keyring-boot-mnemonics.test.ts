@@ -1,5 +1,10 @@
 // Testing imports
-import { CURRENT_ID_KEY, KEYRING_STATE_V2_KEY, storage } from '@onflow/frw-data-model';
+import {
+  CURRENT_ID_KEY,
+  KEYRING_STATE_V2_KEY,
+  getLocalData,
+  setLocalData,
+} from '@onflow/frw-data-model';
 import encryptor from 'browser-passworder';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -68,8 +73,8 @@ describe('Keyring Boot and Mnemonics Test', () => {
     memoryStore.set(CURRENT_ID_KEY, 'testId1');
 
     // Mock storage
-    vi.mocked(storage.get).mockImplementation((key) => memoryStore.get(key));
-    vi.mocked(storage.set).mockImplementation((key, value) => {
+    vi.mocked(getLocalData).mockImplementation((key) => memoryStore.get(key));
+    vi.mocked(setLocalData).mockImplementation((key, value) => {
       memoryStore.set(key, value);
       return Promise.resolve();
     });

@@ -1,17 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { storage } from '@onflow/frw-data-model';
+import { getSessionData } from '@onflow/frw-data-model';
 
 import { getCachedData } from './cache-data-access';
 import { accountBalanceKey, accountBalanceRefreshRegex } from './cache-data-keys';
 
 // Mock the storage module
 vi.mock('@onflow/frw-data-model', () => ({
-  default: {
-    setSession: vi.fn().mockResolvedValue(undefined),
-    getSession: vi.fn().mockResolvedValue(undefined),
-    removeSession: vi.fn().mockResolvedValue(undefined),
-  },
+  getSessionData: vi.fn().mockResolvedValue(undefined),
+  setSessionData: vi.fn().mockResolvedValue(undefined),
+  removeSessionData: vi.fn().mockResolvedValue(undefined),
 }));
 
 // Mock getCachedData
@@ -59,7 +57,7 @@ describe('Batch Refresh Integration', () => {
     const mockGetCachedData = vi.mocked(getCachedData);
 
     // Mock the session storage to return undefined (expired data)
-    vi.mocked(storage.getSession).mockResolvedValue(undefined);
+    vi.mocked(getSessionData).mockResolvedValue(undefined);
 
     // Simulate multiple components requesting account balances
     const promises = [
