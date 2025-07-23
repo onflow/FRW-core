@@ -78,8 +78,7 @@ class MixpanelService {
   }
 
   async getIdInfo(): Promise<IDInfo | undefined> {
-    const res = await getLocalData<Record<string, IDInfo>>(DISTINCT_ID_KEY);
-    const idInfo = res?.[DISTINCT_ID_KEY] as IDInfo | undefined;
+    const idInfo = await getLocalData<IDInfo>(DISTINCT_ID_KEY);
     return idInfo;
   }
 
