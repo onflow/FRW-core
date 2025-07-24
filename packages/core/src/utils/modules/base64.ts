@@ -1,4 +1,17 @@
-import { toUint8Array } from './WebAuthnDecoder';
+/**
+ * Convert to Uint8Array
+ * @param {Uint8Array|ArrayBuffer} data
+ * @returns {Uint8Array}
+ */
+export function toUint8Array(data) {
+  if (data instanceof Uint8Array) {
+    return data;
+  }
+  if (data instanceof ArrayBuffer) {
+    return new Uint8Array(data);
+  }
+  throw new Error('invalid argument');
+}
 
 function atobUrlSafe(text: string): string {
   text = text

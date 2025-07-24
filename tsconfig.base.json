@@ -21,10 +21,6 @@
       "@onflow/frw-shared/types": ["./packages/shared/src/types/index.ts"],
       "@onflow/frw-shared/constant": ["./packages/shared/src/constant/index.ts"],
       "@onflow/frw-shared/utils": ["./packages/shared/src/utils/index.ts"],
-      "@onflow/frw-extension-shared/storage": ["./packages/extension-shared/src/storage.ts"],
-      "@onflow/frw-extension-shared/retryOperation": [
-        "./packages/extension-shared/src/retryOperation.ts"
-      ],
       "@onflow/frw-data-model": ["./packages/data-model/src/index.ts"]
     }
   },

@@ -15,14 +15,12 @@ export default defineConfig({
       allowJs: true,
       paths: {
         '@onflow/frw-shared/*': ['../shared/dist/*'],
-        '@onflow/frw-extension-shared/*': ['../extension-shared/dist/*'],
         '@onflow/frw-data-model/*': ['../data-model/dist/*'],
       },
     },
   },
   external: [
     '@onflow/frw-shared',
-    '@onflow/frw-extension-shared',
     '@onflow/frw-data-model',
     '@onflow/frw-reducers',
     '@trustwallet/wallet-core',

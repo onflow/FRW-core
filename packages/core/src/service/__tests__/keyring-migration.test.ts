@@ -362,6 +362,9 @@ describe('Keyring Migration Tests', () => {
 
     // Verify we can directly access the derivation path and passphrase
     // This tests that the translation from V1 to V2 correctly added the derivation path and passphrase
+    if (!keyringStateCurrent) {
+      throw new Error('Keyring state current is undefined');
+    }
     const decryptedVaultData = await Promise.all(
       keyringStateCurrent!.vault.map(async (entry) => {
         return encryptor.decrypt(TEST_PASSWORD, entry.encryptedData);
@@ -475,7 +478,7 @@ describe('Keyring Migration Tests', () => {
     // Check keyringStateV3 was updated
     const keyringStateCurrent = (await getLocalData(KEYRING_STATE_CURRENT_KEY)) as any;
     expect(keyringStateCurrent).toBeDefined();
-    expect(keyringStateCurrent.vault.length).toBeGreaterThan(0);
+    expect(keyringStateCurrent?.vault.length).toBeGreaterThan(0);
 
     // Verify public key can be retrieved
     const publicKeyTuple = await keyringService.getCurrentPublicKeyTuple();
@@ -520,12 +523,12 @@ describe('Keyring Migration Tests', () => {
     // Check keyringStateCurrent was updated
     const keyringStateCurrent = (await getLocalData(KEYRING_STATE_CURRENT_KEY)) as any;
     expect(keyringStateCurrent).toBeDefined();
-    expect(keyringStateCurrent.vault.length).toBe(1);
-    expect(keyringStateCurrent.vault[0].id).toBe(importedKeyringId);
-    expect(keyringStateCurrent.vault[0].publicKey).toBe(
+    expect(keyringStateCurrent?.vault.length).toBe(1);
+    expect(keyringStateCurrent?.vault[0].id).toBe(importedKeyringId);
+    expect(keyringStateCurrent?.vault[0].publicKey).toBe(
       SIMPLE_KEYRING_PUBLIC_KEY_TUPLE.SECP256K1.pubK
     );
-    expect(keyringStateCurrent.vault[0].signAlgo).toBe(SIGN_ALGO_NUM_DEFAULT);
+    expect(keyringStateCurrent?.vault[0].signAlgo).toBe(SIGN_ALGO_NUM_DEFAULT);
 
     // Verify public key can be retrieved
     const publicKeyTuple = await keyringService.getCurrentPublicKeyTuple();

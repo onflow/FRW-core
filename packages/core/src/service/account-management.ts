@@ -31,9 +31,9 @@ import {
 } from '@onflow/frw-shared/utils';
 
 import { authenticationService, preferenceService } from '.';
+import { analyticsService } from './analytics';
 import googleDriveService from './googleDrive';
 import keyringService, { type Keyring } from './keyring';
-import { mixpanelTrack } from './mixpanel';
 import openapiService from './openapi';
 import userInfoService from './user';
 import userWalletService, {
@@ -431,12 +431,12 @@ export class AccountManagement {
     try {
       // This would need to be imported from googleDriveService
       await googleDriveService.uploadMnemonicToGoogleDrive(mnemonic, username, user!.uid, password);
-      mixpanelTrack.track('multi_backup_created', {
+      analyticsService.track('multi_backup_created', {
         address: (await userWalletService.getCurrentAddress()) || '',
         providers: ['GoogleDrive'],
       });
     } catch {
-      mixpanelTrack.track('multi_backup_creation_failed', {
+      analyticsService.track('multi_backup_creation_failed', {
         address: (await userWalletService.getCurrentAddress()) || '',
         providers: ['GoogleDrive'],
       });
@@ -631,7 +631,7 @@ export class AccountManagement {
         }
 
         // Track successful password change
-        mixpanelTrack.track('password_updated', {
+        analyticsService.track('password_updated', {
           address: (await userWalletService.getCurrentAddress()) || '',
           success: true,
           profilesUpdated: selectedProfiles.length,
@@ -644,7 +644,7 @@ export class AccountManagement {
 
         if (success) {
           // Track successful password change
-          mixpanelTrack.track('password_updated', {
+          analyticsService.track('password_updated', {
             address: (await userWalletService.getCurrentAddress()) || '',
             success: true,
             profilesUpdated: 0,
@@ -655,7 +655,7 @@ export class AccountManagement {
       }
     } catch (err) {
       consoleError('Error changing password with backups:', err);
-      mixpanelTrack.track('password_update_failed', {
+      analyticsService.track('password_update_failed', {
         address: (await userWalletService.getCurrentAddress()) || '',
         error: (err as Error).message,
       });

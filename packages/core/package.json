@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsup",
     "build:watch": "NODE_ENV=development tsup --watch",
-    "type-check": "tsc --noEmit",
+    "typecheck": "pnpm exec tsc --build --force",
     "clean": "rm -rf dist",
     "test": "vitest",
     "test:run": "vitest --run",
@@ -48,7 +48,6 @@
     "@noble/secp256k1": "^1.7.2",
     "@onflow/fcl": "^1.13.1",
     "@onflow/frw-data-model": "workspace:*",
-    "@onflow/frw-extension-shared": "workspace:*",
     "@onflow/frw-shared": "workspace:*",
     "@onflow/typedefs": "^1.4.0",
     "aes-js": "^3.1.2",
@@ -58,8 +57,6 @@
     "compare-versions": "^4.1.4",
     "dayjs": "^1.11.13",
     "ethereumjs-util": "^7.1.5",
-    "firebase": "^10.14.1",
-    "koa-compose": "^4.1.0",
     "lru-cache": "^11.1.0",
     "rlp": "^3.0.0",
     "web3": "^4.0.0"
@@ -74,7 +71,8 @@
   },
   "peerDependencies": {
     "@trustwallet/wallet-core": "^4.3.6",
-    "ethers": "^6.13.4"
+    "ethers": "^6.13.4",
+    "firebase": "^10.14.1"
   },
   "engines": {
     "node": ">=22.11.0"

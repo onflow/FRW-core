@@ -57,12 +57,13 @@ import {
   consoleLog,
   getPeriodFrequency,
   getPriceProvider,
+  consoleInfo,
 } from '@onflow/frw-shared/utils';
 
 import { findKeyAndInfo } from '../utils';
 import {
   googleSafeHostService,
-  mixpanelTrack,
+  analyticsService,
   userWalletService,
   authenticationService,
   versionService,
@@ -345,12 +346,7 @@ const _recordFetch = async (response, responseData, ...args: Parameters<typeof f
       // Note: functionParams and functionResponse will be added by the calling function
     };
 
-    consoleLog('fetchCallRecorder - response & messageData', response, messageData);
-
-    chrome.runtime.sendMessage({
-      type: 'API_CALL_RECORDED',
-      data: messageData,
-    });
+    consoleInfo('fetchCallRecorder - response & messageData', response, messageData);
   } catch (err) {
     consoleError('Error sending message to UI:', err);
   }
@@ -775,7 +771,7 @@ export class OpenApiService {
 
   register = async (account_key: AccountKeyRequest, username: string) => {
     // Track the time until account_created is called
-    mixpanelTrack.time('account_created');
+    analyticsService.time('account_created');
 
     const config = this.store.config.register;
     const data = await this.sendRequest(
@@ -790,7 +786,7 @@ export class OpenApiService {
     await this._loginWithToken(data.data.id, data.data.custom_token);
 
     // Track the registration
-    mixpanelTrack.track('account_created', {
+    analyticsService.track('account_created', {
       public_key: account_key.public_key,
       sign_algo: getStringFromSignAlgo(account_key.sign_algo),
       hash_algo: getStringFromHashAlgo(account_key.hash_algo),
@@ -1533,7 +1529,7 @@ export class OpenApiService {
     try {
       const response = await fetch(`https://rest-${network}.onflow.org/v1/blocks?height=sealed`);
       const result = await response.json();
-      return result[0].header !== null && result[0].header !== undefined;
+      return Array.isArray(result) && result[0].header !== null && result[0].header !== undefined;
     } catch (err) {
       return false;
     }
@@ -2042,7 +2038,7 @@ export const getScripts = async (network: string, category: string, scriptName: 
     return modifiedScriptString;
   } catch (error) {
     if (error instanceof Error) {
-      mixpanelTrack.track('script_error', {
+      analyticsService.track('script_error', {
         script_id: scriptName,
         error: error.message,
       });

@@ -95,7 +95,7 @@ class PreferenceService {
         firstOpen: false,
         pinnedChain: [],
         // addedToken: {},
-        isDeveloperModeEnabled: isDeveloperModeEnabled || false,
+        isDeveloperModeEnabled: isDeveloperModeEnabled ?? false,
         network: MAINNET_NETWORK,
         isFreeGasFeeEnabled: false,
         displayCurrency: DEFAULT_CURRENCY,
@@ -180,14 +180,6 @@ class PreferenceService {
   setHasOtherProvider = (val: boolean) => {
     this.hasOtherProvider = val;
   };
-
-  // getAcceptLanguages = async () => {
-  //   let langs = await chrome.i18n.getAcceptLanguages();
-  //   if (!langs) langs = [];
-  //   return langs
-  //     .map((lang) => lang.replace(/-/g, '_'))
-  //     .filter((lang) => SUPPORT_LOCALES.includes(lang));
-  // };
 
   getHiddenAddresses = (): PreferenceAccount[] => {
     return structuredClone(this.store.hiddenAddresses);
