@@ -1,5 +1,11 @@
 # @onflow/frw-extension-shared
 
+## 0.2.2
+
+### Patch Changes
+
+- 9c75c07: Updated chrome storage export
+
 ## 0.2.1
 
 ### Patch Changes
