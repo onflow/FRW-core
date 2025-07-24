@@ -1,19 +1,27 @@
 import type { TrackingEvents } from '@onflow/frw-shared/types';
 
-export class AnalyticsService {
-  private static instance: AnalyticsService;
+export interface AnalyticsServiceInterface {
+  time: <T extends keyof TrackingEvents>(eventName: T) => Promise<void>;
+  track: <T extends keyof TrackingEvents>(
+    eventName: T,
+    properties: TrackingEvents[T]
+  ) => Promise<void>;
+  trackPageView: (pathname: string) => Promise<void>;
+  identify: (userId: string, name?: string) => Promise<void>;
+  reset: () => Promise<void>;
+}
+
+class AnalyticsService implements AnalyticsServiceInterface {
+  protected static instance: AnalyticsServiceInterface;
   private initialized = false;
 
-  private constructor() {}
-
-  static getInstance(): AnalyticsService {
+  static getInstance(): AnalyticsServiceInterface {
     if (!AnalyticsService.instance) {
-      AnalyticsService.instance = new AnalyticsService();
+      AnalyticsService.instance = baseAnalyticsService;
     }
     return AnalyticsService.instance;
   }
-
-  async init(analyticsService?: AnalyticsService) {
+  async init(analyticsService?: AnalyticsServiceInterface) {
     if (this.initialized) return;
 
     if (analyticsService) {
@@ -21,7 +29,6 @@ export class AnalyticsService {
       this.initialized = true;
     }
   }
-
   async time<T extends keyof TrackingEvents>(eventName: T) {
     if (!this.initialized) return;
 
@@ -52,4 +59,5 @@ export class AnalyticsService {
   }
 }
 
+export const baseAnalyticsService = new AnalyticsService();
 export const analyticsService = AnalyticsService.getInstance();

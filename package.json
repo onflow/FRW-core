@@ -5,6 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "dev": "pnpm -r --parallel build:watch",
     "build": "pnpm -r build",
     "build:packages": "pnpm -F './packages/**' build",
     "build:parallel": "pnpm -r --parallel build",

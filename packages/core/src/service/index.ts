@@ -16,7 +16,11 @@ export { default as signTextHistoryService } from './signTextHistory';
 export { default as newsService } from './news';
 export { default as tokenListService } from './token-list';
 export { default as remoteConfigService } from './remoteConfig';
-export { analyticsService, AnalyticsService } from './analytics';
+export {
+  analyticsService,
+  baseAnalyticsService,
+  type AnalyticsServiceInterface,
+} from './analytics';
 export { default as transactionService } from './transactions';
 export { default as transactionActivityService } from './transaction-activity';
 export { default as accountManagementService } from './account-management';

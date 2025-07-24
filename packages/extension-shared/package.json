@@ -37,12 +37,6 @@
       "import": "./dist/chrome-logger.js",
       "default": "./dist/chrome-logger.js"
     },
-    "./message": {
-      "@onflow/source": "./src/message/index.ts",
-      "types": "./dist/message/index.d.ts",
-      "import": "./dist/message/index.js",
-      "default": "./dist/message/index.js"
-    },
     "./messaging": {
       "@onflow/source": "./src/messaging.ts",
       "types": "./dist/messaging.d.ts",
