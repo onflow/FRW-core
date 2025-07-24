@@ -7,6 +7,3 @@ export type { Storage, StorageConfig, StorageChange, AreaName } from '@onflow/fr
 // Export for manual initialization
 export { initializeStorage, memoryStorage } from '@onflow/frw-data-model';
 export { chromeStorage };
-
-// Default export for backward compatibility
-export { storage as default } from '@onflow/frw-data-model';
