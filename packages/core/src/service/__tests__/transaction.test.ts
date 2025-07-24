@@ -63,7 +63,7 @@ const chrome = {
     getMessage: vi.fn((msg) => {
       const messages = {
         PENDING: 'PENDING',
-        SEALED: 'SEALED',
+        Sealed: 'Sealed',
         FAILED: 'FAILED',
       };
       return messages[msg] || msg;
@@ -129,7 +129,7 @@ describe('Transaction Service', () => {
           sender: '0x1234567890abcdef',
           receiver: '0x2234567890abcdef',
           time: '123456789',
-          status: 'SEALED',
+          status: 'Sealed',
           txid: '0x1234567890abcdef1234567890abcdef',
           error: false,
           image: 'test-image',
@@ -220,7 +220,7 @@ describe('Transaction Service', () => {
       const status: TransactionStatus = {
         blockId: '123',
         status: 4 as TransactionExecutionStatus,
-        statusString: 'SEALED',
+        statusString: 'Sealed',
         statusCode: 0,
         errorMessage: '',
         events: [
@@ -242,7 +242,7 @@ describe('Transaction Service', () => {
       await transaction.updatePending(network, address, txId, status);
 
       const pendingItems = await transaction.listPending(network, address);
-      expect(pendingItems[0].status).toBe('SEALED');
+      expect(pendingItems[0].status).toBe('Sealed');
       expect(pendingItems[0].error).toBe(false);
       expect(pendingItems[0].cadenceTxId).toBe(txId);
       expect(pendingItems[0].evmTxIds).toHaveLength(1);
@@ -259,7 +259,7 @@ describe('Transaction Service', () => {
       const status: TransactionStatus = {
         blockId: '123',
         status: 4 as TransactionExecutionStatus,
-        statusString: 'SEALED',
+        statusString: 'Sealed',
         statusCode: 0,
         errorMessage: '',
         events: [
@@ -294,7 +294,7 @@ describe('Transaction Service', () => {
 
       const pendingItems = await transaction.listPending(network, address);
       expect(pendingItems[0].evmTxIds).toHaveLength(1);
-      expect(pendingItems[0].status).toBe('SEALED');
+      expect(pendingItems[0].status).toBe('Sealed');
     });
 
     test('should mark transaction as error when status code is 1', async () => {
@@ -370,7 +370,7 @@ describe('Transaction Service', () => {
       const status: TransactionStatus = {
         blockId: '123',
         status: 4 as TransactionExecutionStatus,
-        statusString: 'SEALED',
+        statusString: 'Sealed',
         statusCode: 0,
         errorMessage: '',
         events: [
@@ -434,7 +434,7 @@ describe('Transaction Service', () => {
       const status: TransactionStatus = {
         blockId: '123',
         status: 4 as TransactionExecutionStatus,
-        statusString: 'SEALED',
+        statusString: 'Sealed',
         statusCode: 0,
         errorMessage: '',
         events,
@@ -445,7 +445,7 @@ describe('Transaction Service', () => {
       const pendingItems = await transaction.listPending(network, address);
       expect(pendingItems[0].evmTxIds).toHaveLength(numEvmTxs);
       expect(pendingItems[0].cadenceTxId).toBe(cadenceTxId);
-      expect(pendingItems[0].status).toBe('SEALED');
+      expect(pendingItems[0].status).toBe('Sealed');
 
       // Verify we can still remove it using any of the IDs
       await transaction.removePending(network, address, pendingItems[0].evmTxIds![25]); // Try removing using a middle EVM tx ID
