@@ -48,7 +48,6 @@
     "@noble/secp256k1": "^1.7.2",
     "@onflow/fcl": "^1.13.1",
     "@onflow/frw-data-model": "workspace:*",
-    "@onflow/frw-extension-shared": "workspace:*",
     "@onflow/frw-shared": "workspace:*",
     "@onflow/typedefs": "^1.4.0",
     "aes-js": "^3.1.2",

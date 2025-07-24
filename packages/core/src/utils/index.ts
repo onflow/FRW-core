@@ -14,6 +14,7 @@ export * from './random-id';
 export * from './modules/findAddressWithPubKey';
 export * from './modules/findAddressWithPK';
 export * from './fclConfig';
+export * from './retryOperation';
 // {a:{b: string}} => {1: 'a.b'}
 // later same [source] value will override [result] key generated before
 const retrieveValuePath = (obj) => {

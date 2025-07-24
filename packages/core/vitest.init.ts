@@ -130,16 +130,6 @@ vi.mock('firebase/auth/web-extension', () => ({
   signOut: vi.fn(),
 }));
 
-// Mock storage utility
-vi.mock('@onflow/frw-extension-shared', () => ({
-  storage: {
-    get: vi.fn().mockResolvedValue({}),
-    set: vi.fn().mockResolvedValue(undefined),
-    getExpiry: vi.fn().mockResolvedValue(null),
-    setExpiry: vi.fn().mockResolvedValue(undefined),
-  },
-}));
-
 // Mock MixpanelService
 vi.mock('./service/analytics', () => ({
   analyticsService: {

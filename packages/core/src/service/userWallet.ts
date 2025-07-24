@@ -36,7 +36,6 @@ import * as ethUtil from 'ethereumjs-util';
 import { signInAnonymously } from 'firebase/auth/web-extension';
 import { TransactionError } from 'web3';
 
-import { retryOperation } from '@onflow/frw-extension-shared/retryOperation';
 import { DEFAULT_WEIGHT, FLOW_BIP44_PATH } from '@onflow/frw-shared/constant';
 import {
   type PublicPrivateKeyTuple,
@@ -87,6 +86,7 @@ import {
   signWithKey,
 } from '../utils/modules/publicPrivateKey';
 import createPersistStore from '../utils/persistStore';
+import { retryOperation } from '../utils/retryOperation';
 
 interface TransactionNotification {
   url: string;

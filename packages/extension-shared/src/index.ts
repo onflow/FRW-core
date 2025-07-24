@@ -3,4 +3,3 @@ export * from './message';
 export * from './messaging';
 export * from './chrome-storage';
 export * from './contact-utils';
-export * from './retryOperation';
