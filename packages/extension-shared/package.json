@@ -37,6 +37,12 @@
       "import": "./dist/chrome-logger.js",
       "default": "./dist/chrome-logger.js"
     },
+    "./chrome-storage": {
+      "@onflow/source": "./src/chrome-storage.ts",
+      "types": "./dist/chrome-storage.d.ts",
+      "import": "./dist/chrome-storage.js",
+      "default": "./dist/chrome-storage.js"
+    },
     "./messaging": {
       "@onflow/source": "./src/messaging.ts",
       "types": "./dist/messaging.d.ts",
