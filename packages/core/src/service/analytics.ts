@@ -1,23 +1,23 @@
 import type { TrackingEvents } from '@onflow/frw-shared/types';
 
-export class AnalytcsService {
-  private static instance: AnalytcsService;
+export class AnalyticsService {
+  private static instance: AnalyticsService;
   private initialized = false;
 
   private constructor() {}
 
-  static getInstance(): AnalytcsService {
-    if (!AnalytcsService.instance) {
-      AnalytcsService.instance = new AnalytcsService();
+  static getInstance(): AnalyticsService {
+    if (!AnalyticsService.instance) {
+      AnalyticsService.instance = new AnalyticsService();
     }
-    return AnalytcsService.instance;
+    return AnalyticsService.instance;
   }
 
-  async init(analyticsService?: AnalytcsService) {
+  async init(analyticsService?: AnalyticsService) {
     if (this.initialized) return;
 
     if (analyticsService) {
-      AnalytcsService.instance = analyticsService;
+      AnalyticsService.instance = analyticsService;
       this.initialized = true;
     }
   }
@@ -25,31 +25,31 @@ export class AnalytcsService {
   async time<T extends keyof TrackingEvents>(eventName: T) {
     if (!this.initialized) return;
 
-    return AnalytcsService.instance.time<T>(eventName);
+    return AnalyticsService.instance.time<T>(eventName);
   }
 
   async track<T extends keyof TrackingEvents>(eventName: T, properties: TrackingEvents[T]) {
     if (!this.initialized) return;
 
-    return AnalytcsService.instance.track<T>(eventName, properties);
+    return AnalyticsService.instance.track<T>(eventName, properties);
   }
   async trackPageView(pathname: string) {
     if (!this.initialized) return;
 
-    return AnalytcsService.instance.trackPageView(pathname);
+    return AnalyticsService.instance.trackPageView(pathname);
   }
 
   async identify(userId: string, name?: string) {
     if (!this.initialized) return;
 
-    return AnalytcsService.instance.identify(userId, name);
+    return AnalyticsService.instance.identify(userId, name);
   }
 
   async reset() {
     if (!this.initialized) return;
 
-    return AnalytcsService.instance.reset();
+    return AnalyticsService.instance.reset();
   }
 }
 
-export const analyticsService = AnalytcsService.getInstance();
+export const analyticsService = AnalyticsService.getInstance();
