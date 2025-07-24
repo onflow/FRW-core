@@ -156,9 +156,6 @@ importers:
 
   packages/data-model:
     dependencies:
-      '@onflow/frw-extension-shared':
-        specifier: workspace:*
-        version: link:../extension-shared
       '@onflow/frw-shared':
         specifier: workspace:*
         version: link:../shared
