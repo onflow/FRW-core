@@ -38,8 +38,7 @@
     }
   },
   "dependencies": {
-    "@onflow/frw-shared": "workspace:*",
-    "@onflow/frw-extension-shared": "workspace:*"
+    "@onflow/frw-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
