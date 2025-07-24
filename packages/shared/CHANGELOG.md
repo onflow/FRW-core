@@ -1,5 +1,11 @@
 # @onflow/frw-shared
 
+## 0.2.0
+
+### Minor Changes
+
+- 1d87bbf: Removed all chrome refrerences and updated data model
+
 ## 0.1.1
 
 ### Patch Changes
