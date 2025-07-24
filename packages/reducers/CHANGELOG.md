@@ -1,5 +1,13 @@
 # @onflow/frw-reducers
 
+## 0.2.1
+
+### Patch Changes
+
+- 32eb4bf: Updated exports to work properly on npm
+- Updated dependencies [32eb4bf]
+  - @onflow/frw-shared@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
