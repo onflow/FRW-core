@@ -30,7 +30,6 @@ export const fclConfig = async (network: FlowNetwork, emulatorMode?: boolean) =>
     await fclMainnetConfig(emulatorMode);
   }
 };
-
 export const fclEnsureNetwork = async (network: string) => {
   if (!isValidNetwork(network)) {
     throw new Error(`Invalid network: ${network}`);

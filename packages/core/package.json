@@ -58,8 +58,6 @@
     "compare-versions": "^4.1.4",
     "dayjs": "^1.11.13",
     "ethereumjs-util": "^7.1.5",
-    "firebase": "^10.14.1",
-    "koa-compose": "^4.1.0",
     "lru-cache": "^11.1.0",
     "rlp": "^3.0.0",
     "web3": "^4.0.0"
@@ -74,7 +72,8 @@
   },
   "peerDependencies": {
     "@trustwallet/wallet-core": "^4.3.6",
-    "ethers": "^6.13.4"
+    "ethers": "^6.13.4",
+    "firebase": "^10.14.1"
   },
   "engines": {
     "node": ">=22.11.0"

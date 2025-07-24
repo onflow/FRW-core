@@ -13,6 +13,7 @@ export * from './modules/publicPrivateKey';
 export * from './random-id';
 export * from './modules/findAddressWithPubKey';
 export * from './modules/findAddressWithPK';
+export * from './fclConfig';
 // {a:{b: string}} => {1: 'a.b'}
 // later same [source] value will override [result] key generated before
 const retrieveValuePath = (obj) => {
@@ -44,7 +45,6 @@ export const underline2Camelcase = (str: string) => {
   return str.replace(/_(.)/g, (m, p1) => p1.toUpperCase());
 };
 
-export { default as PromiseFlow } from './promiseFlow';
 export { retrieveValuePath };
 
 export function normalizeAddress(input: number | string): string {
