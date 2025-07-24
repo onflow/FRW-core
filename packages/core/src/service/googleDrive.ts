@@ -26,6 +26,9 @@ class GoogleDriveService {
   AES_KEY?: string;
   IV?: Uint8Array;
   version = '1.0';
+  getAuthTokenWrapper: (interactive?: boolean) => Promise<string> = async () => {
+    throw new Error('getAuthTokenWrapper not implemented');
+  };
 
   fileList: DriveItem[] | null = null;
   fileId: string | null = null;
@@ -37,6 +40,7 @@ class GoogleDriveService {
     scope,
     AES_KEY,
     IV,
+    getAuthTokenWrapper,
   }: {
     baseURL: string;
     backupName: string;
@@ -44,6 +48,7 @@ class GoogleDriveService {
     scope: string;
     AES_KEY: string;
     IV: string;
+    getAuthTokenWrapper: (interactive?: boolean) => Promise<string>;
   }) => {
     this.baseURL = baseURL;
     this.backupName = backupName;
@@ -51,6 +56,7 @@ class GoogleDriveService {
     this.scope = scope;
     this.AES_KEY = AES_KEY;
     this.IV = aesjs.utils.utf8.toBytes(IV);
+    this.getAuthTokenWrapper = getAuthTokenWrapper;
   };
 
   hasBackup = async () => {
@@ -370,22 +376,6 @@ class GoogleDriveService {
     // Convert our bytes back into text
     const decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
     return decryptedText.trim();
-  };
-
-  getAuthTokenWrapper = async (interactive = true) => {
-    return new Promise(function (resolve, reject) {
-      const detail = {
-        interactive: interactive,
-        scopes: ['https://www.googleapis.com/auth/drive.appdata'],
-      };
-      chrome.identity.getAuthToken(detail, (token) => {
-        if (token) {
-          resolve(token);
-        } else {
-          reject(token);
-        }
-      });
-    });
   };
 
   /**

@@ -181,14 +181,6 @@ class PreferenceService {
     this.hasOtherProvider = val;
   };
 
-  // getAcceptLanguages = async () => {
-  //   let langs = await chrome.i18n.getAcceptLanguages();
-  //   if (!langs) langs = [];
-  //   return langs
-  //     .map((lang) => lang.replace(/-/g, '_'))
-  //     .filter((lang) => SUPPORT_LOCALES.includes(lang));
-  // };
-
   getHiddenAddresses = (): PreferenceAccount[] => {
     return structuredClone(this.store.hiddenAddresses);
   };

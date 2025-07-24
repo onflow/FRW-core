@@ -57,6 +57,7 @@ import {
   consoleLog,
   getPeriodFrequency,
   getPriceProvider,
+  consoleInfo,
 } from '@onflow/frw-shared/utils';
 
 import { findKeyAndInfo } from '../utils';
@@ -345,12 +346,7 @@ const _recordFetch = async (response, responseData, ...args: Parameters<typeof f
       // Note: functionParams and functionResponse will be added by the calling function
     };
 
-    consoleLog('fetchCallRecorder - response & messageData', response, messageData);
-
-    chrome.runtime.sendMessage({
-      type: 'API_CALL_RECORDED',
-      data: messageData,
-    });
+    consoleInfo('fetchCallRecorder - response & messageData', response, messageData);
   } catch (err) {
     consoleError('Error sending message to UI:', err);
   }
