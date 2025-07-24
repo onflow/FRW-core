@@ -3,8 +3,10 @@ import {
   KEYRING_STATE_CURRENT_KEY,
   KEYRING_STATE_V1_KEY,
   KEYRING_STATE_V2_KEY,
+  KEYRING_STATE_V3_KEY,
   getLocalData,
   setLocalData,
+  removeLocalData,
 } from '@onflow/frw-data-model';
 import encryptor from 'browser-passworder';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -162,6 +164,7 @@ describe('Keyring Migration Tests', () => {
 
     vi.mocked(getLocalData).mockClear();
     vi.mocked(setLocalData).mockClear();
+    vi.mocked(removeLocalData).mockClear();
 
     // Mock storage - these mocks now have access to the shared memoryStore
     vi.mocked(getLocalData).mockImplementation((key) => {
@@ -172,8 +175,19 @@ describe('Keyring Migration Tests', () => {
       memoryStore.set(key, value);
       return Promise.resolve();
     });
+    vi.mocked(removeLocalData).mockImplementation((key) => {
+      memoryStore.delete(key);
+      return Promise.resolve();
+    });
 
     // Setup returnCurrentProfileId mock to return the HD keyring ID by default
+
+    // Clear any existing keyring states that might persist between tests
+    await removeLocalData(KEYRING_STATE_CURRENT_KEY);
+    await removeLocalData(KEYRING_STATE_V3_KEY);
+    await removeLocalData(KEYRING_STATE_V2_KEY);
+    await removeLocalData(KEYRING_STATE_V1_KEY);
+    await removeLocalData('deepVault');
   });
 
   afterEach(async () => {
