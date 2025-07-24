@@ -27,29 +27,33 @@
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --write"
   },
   "exports": {
-    "./types": "./src/types/index.ts",
-    "./constant": "./src/constant/index.ts",
-    "./utils": "./src/utils/index.ts"
-  },
-  "publishConfig": {
-    "access": "public",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
+    ".": {
+      "@onflow/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
     "./types": {
+      "@onflow/source": "./src/types/index.ts",
       "types": "./dist/types/index.d.ts",
       "import": "./dist/types/index.js",
       "default": "./dist/types/index.js"
     },
     "./constant": {
+      "@onflow/source": "./src/constant/index.ts",
       "types": "./dist/constant/index.d.ts",
       "import": "./dist/constant/index.js",
       "default": "./dist/constant/index.js"
     },
     "./utils": {
+      "@onflow/source": "./src/utils/index.ts",
       "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.js",
       "default": "./dist/utils/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@onflow/typedefs": "^1.4.0",

@@ -15,6 +15,7 @@
     "isolatedModules": true,
     "composite": true,
     "noImplicitAny": false,
+    "customConditions": ["@onflow/source"],
 
     "outDir": "${configDir}/dist",
     "paths": {
