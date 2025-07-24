@@ -61,6 +61,7 @@
   },
   "dependencies": {
     "@onflow/frw-shared": "workspace:*",
+    "@onflow/frw-data-model": "workspace:*",
     "eth-rpc-errors": "^4.0.3",
     "events": "^3.3.0"
   },
