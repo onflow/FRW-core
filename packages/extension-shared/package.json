@@ -25,41 +25,33 @@
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --write"
   },
   "exports": {
-    ".": "./src/index.ts",
-    "./chrome-logger": "./src/chrome-logger.ts",
-    "./message": "./src/message/index.ts",
-    "./messaging": "./src/messaging.ts",
-    "./contact-utils": "./src/contact-utils.ts"
-  },
-  "publishConfig": {
-    "access": "public",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
     ".": {
+      "@onflow/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./chrome-logger": {
+      "@onflow/source": "./src/chrome-logger.ts",
       "types": "./dist/chrome-logger.d.ts",
       "import": "./dist/chrome-logger.js",
       "default": "./dist/chrome-logger.js"
     },
-    "./message": {
-      "types": "./dist/message/index.d.ts",
-      "import": "./dist/message/index.js",
-      "default": "./dist/message/index.js"
-    },
     "./messaging": {
+      "@onflow/source": "./src/messaging.ts",
       "types": "./dist/messaging.d.ts",
       "import": "./dist/messaging.js",
       "default": "./dist/messaging.js"
     },
     "./contact-utils": {
+      "@onflow/source": "./src/contact-utils.ts",
       "types": "./dist/contact-utils.d.ts",
       "import": "./dist/contact-utils.js",
       "default": "./dist/contact-utils.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@onflow/frw-shared": "workspace:*",

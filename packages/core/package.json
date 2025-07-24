@@ -26,23 +26,21 @@
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --write"
   },
   "exports": {
-    ".": "./src/index.ts",
-    "./utils": "./src/utils/index.ts"
-  },
-  "publishConfig": {
-    "access": "public",
-    "main": "./dist/service/index.js",
-    "types": "./dist/service/index.d.ts",
     ".": {
+      "@onflow/source": "./src/service/index.ts",
       "types": "./dist/service/index.d.ts",
       "import": "./dist/service/index.js",
       "default": "./dist/service/index.js"
     },
     "./utils": {
+      "@onflow/source": "./src/utils/index.ts",
       "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.js",
       "default": "./dist/utils/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@noble/secp256k1": "^1.7.2",
