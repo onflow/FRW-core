@@ -1,5 +1,17 @@
 # @onflow/frw-core
 
+## 0.2.0
+
+### Minor Changes
+
+- 1d87bbf: Removed all chrome refrerences and updated data model
+
+### Patch Changes
+
+- Updated dependencies [1d87bbf]
+  - @onflow/frw-data-model@0.2.0
+  - @onflow/frw-shared@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes
