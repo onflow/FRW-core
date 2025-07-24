@@ -1,5 +1,11 @@
 # @onflow/frw-shared
 
+## 0.2.1
+
+### Patch Changes
+
+- 32eb4bf: Updated exports to work properly on npm
+
 ## 0.2.0
 
 ### Minor Changes
