@@ -8,13 +8,13 @@ vi.mock('@onflow/frw-shared/utils', () => ({
   consoleError: vi.fn(),
 }));
 
-// Mock the storage module
-vi.mock('@onflow/frw-extension-shared/storage', () => ({
-  default: {
-    setSession: vi.fn(),
-    getSession: vi.fn(),
-    removeSession: vi.fn().mockResolvedValue(undefined),
-  },
+// Mock the storage functions
+vi.mock('./storage', () => ({
+  setSessionData: vi.fn(),
+  getSessionData: vi.fn(),
+  removeSessionData: vi.fn().mockResolvedValue(undefined),
+  addStorageListener,
+  removeStorageListener: vi.fn(),
 }));
 
 // Mock setCachedData
@@ -25,16 +25,16 @@ vi.mock('./data-cache', () => ({
 // Store registered listeners
 const storageListeners: ((changes: any, namespace: string) => void)[] = [];
 
-// Mock chrome.storage.onChanged
-global.chrome = {
-  storage: {
-    onChanged: {
-      addListener: vi.fn((listener) => {
-        storageListeners.push(listener);
-      }),
-    },
-  },
-} as any;
+// Mock the storage listener functions
+const { addStorageListener } = vi.hoisted(() => ({
+  addStorageListener: vi.fn((listener) => {
+    storageListeners.push(listener);
+  }),
+}));
+
+vi.mocked(addStorageListener).mockImplementation((listener) => {
+  storageListeners.push(listener);
+});
 
 describe('Batch Refresh Mechanism', () => {
   beforeEach(() => {

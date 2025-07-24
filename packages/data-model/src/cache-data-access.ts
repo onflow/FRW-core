@@ -1,10 +1,16 @@
-import storage, { type StorageChange } from '@onflow/frw-extension-shared/storage';
 import { consoleError } from '@onflow/frw-shared/utils';
 
 import { type CacheDataItem } from './data-cache-types';
+import {
+  getSessionData,
+  setSessionData,
+  addStorageListener,
+  removeStorageListener,
+} from './storage';
+import { type StorageChange } from './storage/storage-types';
 
 // The listeners object is used to store a reference to the listener function that is created by _updateCaller.
-// This is necessary because chrome.storage.onChanged.removeListener requires the exact same function instance
+// This is necessary because storage.removeStorageListener requires the exact same function instance
 // that was passed to addListener. If we call _updateCaller again in removeCachedDataListener, it will create
 // a new function instance, and the listener will not be removed.
 const listeners: {
@@ -19,13 +25,13 @@ const listeners: {
  * @returns The cached data or undefined if it doesn't exist or is expired
  */
 export const getCachedData = async <T>(key: string): Promise<T | undefined> => {
-  const sessionData: CacheDataItem | undefined = await storage.getSession(key);
+  const sessionData: CacheDataItem | undefined = await getSessionData(key);
   if (!sessionData || sessionData.expiry < Date.now()) {
     // Data is not there or expired, trigger a background event to refresh the data
     // We do this by setting a key in session storage that the background script will pick up
 
     // Note this is async but don't await it as we don't need the result
-    storage.setSession(`${key}-refresh`, Date.now());
+    setSessionData(`${key}-refresh`, Date.now());
   }
   return sessionData?.value as T | undefined;
 };
@@ -36,7 +42,7 @@ export const getCachedData = async <T>(key: string): Promise<T | undefined> => {
  * @param key - The key to trigger a refresh for
  */
 export const triggerRefresh = (key: string) => {
-  storage.setSession(`${key}-refresh`, Date.now());
+  setSessionData(`${key}-refresh`, Date.now());
 };
 /**
  * Internal function to call the update callback
@@ -66,7 +72,7 @@ export const addCachedDataListener = (
   updateCallback: (key: string, data: unknown) => void
 ) => {
   listeners[key] = _updateCaller(key, updateCallback);
-  chrome.storage.onChanged.addListener(listeners[key]);
+  addStorageListener(listeners[key]);
 };
 
 /**
@@ -78,6 +84,6 @@ export const removeCachedDataListener = (
   key: string,
   _updateCallback: (key: string, data: unknown) => void
 ) => {
-  chrome.storage.onChanged.removeListener(listeners[key]);
+  removeStorageListener(listeners[key]);
   delete listeners[key];
 };

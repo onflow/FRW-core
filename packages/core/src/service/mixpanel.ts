@@ -1,3 +1,5 @@
+import { getLocalData, setLocalData, removeLocalData } from '@onflow/frw-data-model';
+
 import type { TrackingEvents } from '@onflow/frw-shared/types';
 
 import versionService from './version-service';
@@ -76,8 +78,7 @@ class MixpanelService {
   }
 
   async getIdInfo(): Promise<IDInfo | undefined> {
-    const res = await chrome.storage.local.get(DISTINCT_ID_KEY);
-    const idInfo = res?.[DISTINCT_ID_KEY] as IDInfo | undefined;
+    const idInfo = await getLocalData<IDInfo>(DISTINCT_ID_KEY);
     return idInfo;
   }
 
@@ -87,7 +88,7 @@ class MixpanelService {
       ...(_info ? _info : {}),
       ...info,
     };
-    await chrome.storage.local.set({ [DISTINCT_ID_KEY]: newInfo });
+    await setLocalData(DISTINCT_ID_KEY, newInfo);
   }
 
   private constructor() {}
@@ -226,7 +227,7 @@ class MixpanelService {
     if (!this.initialized) return;
     this.distinctId = undefined;
 
-    return chrome.storage.local.remove(DISTINCT_ID_KEY).then(() => {
+    return removeLocalData(DISTINCT_ID_KEY).then(() => {
       return this.setIdInfo({ $device_id: UUID() });
     });
   }

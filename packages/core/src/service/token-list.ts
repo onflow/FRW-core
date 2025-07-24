@@ -4,7 +4,7 @@ import {
   getValidData,
   registerRefreshListener,
   setCachedData,
-  setUserData,
+  setLocalData,
   evmCustomTokenKey,
   getEvmCustomTokenData,
 } from '@onflow/frw-data-model';
@@ -69,13 +69,13 @@ class TokenList {
         custom: true,
       });
     }
-    await setUserData(evmCustomTokenKey(network), evmTokens);
+    await setLocalData(evmCustomTokenKey(network), evmTokens);
   };
 
   removeCustomEvmToken = async (network: string, tokenAddress: string) => {
     const evmTokens = await getEvmCustomTokenData(network);
     const filteredEvmTokens = evmTokens.filter((t) => t.address !== tokenAddress);
-    await setUserData(evmCustomTokenKey(network), filteredEvmTokens);
+    await setLocalData(evmCustomTokenKey(network), filteredEvmTokens);
   };
 
   mergeCustomTokens = (tokens: CustomFungibleTokenInfo[], customTokens: EvmCustomTokenInfo[]) => {

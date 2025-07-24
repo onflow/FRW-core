@@ -5,9 +5,10 @@ import {
   getValidData,
   registerRefreshListener,
   setCachedData,
+  getLocalData,
+  setLocalData,
 } from '@onflow/frw-data-model';
 
-import storage from '@onflow/frw-extension-shared/storage';
 import { type UserInfoResponse, type LoggedInAccount } from '@onflow/frw-shared/types';
 import { consoleError } from '@onflow/frw-shared/utils';
 
@@ -34,7 +35,7 @@ class UserInfoService {
   };
 
   loadStoredUserList = async (): Promise<UserInfoResponse[]> => {
-    const userList = await storage.get(storedUserListKey);
+    const userList = await getLocalData<UserInfoResponse[]>(storedUserListKey);
     if (!userList) {
       // Translate from logged in accounts
       return await this.translateFromLoggedInAccounts();
@@ -43,7 +44,7 @@ class UserInfoService {
   };
 
   translateFromLoggedInAccounts = async (): Promise<UserInfoResponse[]> => {
-    const loggedInAccounts: LoggedInAccount[] = await storage.get(loggedInAccountsKey);
+    const loggedInAccounts = await getLocalData<LoggedInAccount[]>(loggedInAccountsKey);
     if (!loggedInAccounts) {
       return [];
     }
@@ -128,7 +129,7 @@ class UserInfoService {
     } else {
       this.userList[userIndex] = userInfoWithAvatar;
     }
-    await storage.set(storedUserListKey, this.userList);
+    await setLocalData(storedUserListKey, this.userList);
   };
 
   fetchUserInfo = async (): Promise<UserInfoResponse> => {

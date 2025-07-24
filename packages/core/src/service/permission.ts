@@ -1,7 +1,6 @@
-import { permissionKey, permissionKeyV1 } from '@onflow/frw-data-model';
+import { permissionKey, permissionKeyV1, getLocalData } from '@onflow/frw-data-model';
 import { LRUCache } from 'lru-cache';
 
-import storage from '@onflow/frw-extension-shared/storage'; // Import storage for direct access
 import { INTERNAL_REQUEST_ORIGIN, MAINNET_CHAIN_ID } from '@onflow/frw-shared/constant';
 import { consoleInfo, consoleWarn } from '@onflow/frw-shared/utils';
 
@@ -47,7 +46,7 @@ class PermissionService {
     // If the new cache is empty, try to migrate from the old cache key
     if (!this.store.dumpCache || this.store.dumpCache.length === 0) {
       consoleInfo('New permission cache is empty. Checking for old cache data for migration...');
-      const oldStoreData = await storage.get(permissionKeyV1); // Directly get old data from storage
+      const oldStoreData = await getLocalData<{ dumpCache: OldCacheEntry[] }>(permissionKeyV1); // Directly get old data from storage
 
       const migratedEntries: [string, LRUCache.Entry<ConnectedSite>][] = [];
 

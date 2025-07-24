@@ -6,9 +6,9 @@
  * ******************************************************
  **/
 
+import { getLocalData } from '@onflow/frw-data-model';
 import compareVersions from 'compare-versions';
 
-import storage from '@onflow/frw-extension-shared/storage';
 import { MAINNET_NETWORK, DEFAULT_CURRENCY } from '@onflow/frw-shared/constant';
 import { type FlowNetwork, type Currency } from '@onflow/frw-shared/types';
 
@@ -73,7 +73,7 @@ class PreferenceService {
 
   init = async () => {
     const defaultLang = 'en';
-    const isDeveloperModeEnabled = await storage.get('developerMode');
+    const isDeveloperModeEnabled = await getLocalData<boolean>('developerMode');
     this.store = await createPersistStore<PreferenceStore>({
       name: 'preference',
       template: {

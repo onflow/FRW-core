@@ -3,11 +3,14 @@ import {
   KEYRING_STATE_CURRENT_KEY,
   KEYRING_STATE_V1_KEY,
   KEYRING_STATE_V2_KEY,
+  KEYRING_STATE_V3_KEY,
+  getLocalData,
+  setLocalData,
+  removeLocalData,
 } from '@onflow/frw-data-model';
 import encryptor from 'browser-passworder';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import storage from '@onflow/frw-extension-shared/storage';
 // Internal imports - after all mocks are defined
 import {
   FLOW_BIP44_PATH,
@@ -15,18 +18,23 @@ import {
   SIGN_ALGO_NUM_ECDSA_P256,
   SIGN_ALGO_NUM_ECDSA_secp256k1,
 } from '@onflow/frw-shared/constant';
-import { type KeyringStateV2 } from '@onflow/frw-shared/types';
+import { type KeyringStateV3, type KeyringStateV2 } from '@onflow/frw-shared/types';
 
 import { returnCurrentProfileId } from '../../utils/current-id';
 import keyringService from '../keyring';
 import { MOCK_KEYS } from './keyring-mock-data';
 import { SimpleKeyring } from '../keyring/simpleKeyring';
 // Mock dependencies at the beginning before any imports
-vi.mock('@onflow/frw-extension-shared/storage', () => ({
-  default: {
-    get: vi.fn(),
-    set: vi.fn(),
-  },
+vi.mock('@onflow/frw-data-model', () => ({
+  getLocalData: vi.fn(),
+  setLocalData: vi.fn(),
+  removeLocalData: vi.fn(),
+  CURRENT_ID_KEY: 'currentId',
+  KEYRING_STATE_CURRENT_KEY: 'keyringStateV3',
+  KEYRING_STATE_V1_KEY: 'keyringStateV1',
+  KEYRING_STATE_V2_KEY: 'keyringStateV2',
+  KEYRING_STATE_V3_KEY: 'keyringStateV3',
+  KEYRING_DEEP_VAULT_KEY: 'deepVault',
 }));
 
 vi.mock('../../utils/key-indexer', () => ({
@@ -114,7 +122,8 @@ interface TestLoggedInAccount {
 }
 
 describe('Keyring Migration Tests', () => {
-  // Create in-memory storage
+  // Create in-memory storage that persists across tests
+  const memoryStore = new Map<string, any>();
 
   // Helper function to create encrypted vault entries
   async function createEncryptedVault(
@@ -147,25 +156,38 @@ describe('Keyring Migration Tests', () => {
 
   beforeEach(async () => {
     // Reset mocks and storage
-    const memoryStore = new Map<string, any>();
-
     vi.clearAllMocks();
-    memoryStore.clear();
+    memoryStore.clear(); // ✅ Now this clears the shared store
 
     // Reset keyring service state
     await keyringService.resetKeyRing();
 
-    vi.mocked(storage.get).mockClear();
-    vi.mocked(storage.set).mockClear();
+    vi.mocked(getLocalData).mockClear();
+    vi.mocked(setLocalData).mockClear();
+    vi.mocked(removeLocalData).mockClear();
 
-    // Mock storage
-    vi.mocked(storage.get).mockImplementation((key) => memoryStore.get(key));
-    vi.mocked(storage.set).mockImplementation((key, value) => {
+    // Mock storage - these mocks now have access to the shared memoryStore
+    vi.mocked(getLocalData).mockImplementation((key) => {
+      const value = memoryStore.get(key);
+      return Promise.resolve(value);
+    });
+    vi.mocked(setLocalData).mockImplementation((key, value) => {
       memoryStore.set(key, value);
+      return Promise.resolve();
+    });
+    vi.mocked(removeLocalData).mockImplementation((key) => {
+      memoryStore.delete(key);
       return Promise.resolve();
     });
 
     // Setup returnCurrentProfileId mock to return the HD keyring ID by default
+
+    // Clear any existing keyring states that might persist between tests
+    await removeLocalData(KEYRING_STATE_CURRENT_KEY);
+    await removeLocalData(KEYRING_STATE_V3_KEY);
+    await removeLocalData(KEYRING_STATE_V2_KEY);
+    await removeLocalData(KEYRING_STATE_V1_KEY);
+    await removeLocalData('deepVault');
   });
 
   afterEach(async () => {
@@ -191,7 +213,7 @@ describe('Keyring Migration Tests', () => {
     ];
 
     // Store the deep vault data
-    await storage.set('deepVault', deepVault);
+    await setLocalData('deepVault', deepVault);
 
     // Setup loggedInAccounts for the keyring without an ID
     // We use a simplified version for testing
@@ -200,20 +222,20 @@ describe('Keyring Migration Tests', () => {
       { id: SIMPLE_KEYRING_ID, address: SIMPLE_KEYRING_ADDRESS },
       { id: 'noIdKeyring', address: NO_ID_KEYRING_ADDRESS },
     ];
-    await storage.set('loggedInAccounts', loggedInAccounts);
+    await setLocalData('loggedInAccounts', loggedInAccounts);
 
     // Set paths and phrases for the HD keyrings
-    await storage.set(`user0_path`, FLOW_BIP44_PATH);
-    await storage.set(`user0_phrase`, '');
-    await storage.set(`user${NO_ID_KEYRING_INDEX}_path`, "m/44'/0'/0'/0/0"); // Different path for the no-ID keyring
-    await storage.set(`user${NO_ID_KEYRING_INDEX}_phrase`, 'test_passphrase');
+    await setLocalData(`user0_path`, FLOW_BIP44_PATH);
+    await setLocalData(`user0_phrase`, '');
+    await setLocalData(`user${NO_ID_KEYRING_INDEX}_path`, "m/44'/0'/0'/0/0"); // Different path for the no-ID keyring
+    await setLocalData(`user${NO_ID_KEYRING_INDEX}_phrase`, 'test_passphrase');
 
     // Set currentId to one of our keyring IDs
-    await storage.set(CURRENT_ID_KEY, HD_KEYRING_ID);
+    await setLocalData(CURRENT_ID_KEY, HD_KEYRING_ID);
 
     // Create a booted flag to avoid the "Cannot unlock without a previous vault" error
     const encryptedBooted = await createEncryptedVault('true');
-    await storage.set(KEYRING_STATE_V1_KEY, {
+    await setLocalData(KEYRING_STATE_V1_KEY, {
       booted: encryptedBooted,
     });
     // Step 1: Initialize keyring service and set booted flag
@@ -226,7 +248,7 @@ describe('Keyring Migration Tests', () => {
     expect(keyringService.isUnlocked()).toBe(true);
 
     // Check keyringStateV3 was created
-    const keyringStateCurrent = await storage.get(KEYRING_STATE_CURRENT_KEY);
+    const keyringStateCurrent = await getLocalData(KEYRING_STATE_CURRENT_KEY);
     expect(keyringStateCurrent).toBeDefined();
 
     // Verify public key can be retrieved
@@ -238,7 +260,7 @@ describe('Keyring Migration Tests', () => {
     expect(keyrings.length).toBeGreaterThan(0);
 
     // Switch to the simple keyring
-    await storage.set(CURRENT_ID_KEY, SIMPLE_KEYRING_ID);
+    await setLocalData(CURRENT_ID_KEY, SIMPLE_KEYRING_ID);
     await keyringService.switchKeyring(SIMPLE_KEYRING_ID);
 
     // Verify we can get the public key from the simple keyring
@@ -246,7 +268,7 @@ describe('Keyring Migration Tests', () => {
     expect(simplePublicKeyTuple).toEqual(SIMPLE_KEYRING_PUBLIC_KEY_TUPLE);
 
     // Switch to the keyring without an ID
-    await storage.set(CURRENT_ID_KEY, 'noIdKeyring');
+    await setLocalData(CURRENT_ID_KEY, 'noIdKeyring');
     await keyringService.switchKeyring('noIdKeyring');
 
     // Verify we can get the public key from the keyring without an ID
@@ -255,28 +277,29 @@ describe('Keyring Migration Tests', () => {
   });
 
   it('should migrate from keyringState (V1) to current keyringState', async () => {
-    // Create V1 keyring state data
+    // Create proper V1 keyring state data using the same approach as deepVault test
     const hdKeyringData = createHDKeyringData(HD_KEYRING_MNEMONIC);
     const simpleKeyringData = createSimpleKeyringData(SIMPLE_KEYRING_PRIVATE_KEY);
     const hdKeyringNoPathData = createHDKeyringData(HD_KEYRING_NO_PATH_MNEMONIC, undefined);
 
-    // Create the encrypted entries for keyringState
+    // Create the encrypted entries for V1 keyringState
     const encryptedHDKeyring = await createEncryptedVault([hdKeyringData]);
     const encryptedSimpleKeyring = await createEncryptedVault([simpleKeyringData]);
     const encryptedHDKeyringNoPath = await createEncryptedVault([hdKeyringNoPathData]);
 
-    // Create a legacy-style keyringState (V1)
+    // Create proper V1 keyring state structure
     const keyringStateV1 = {
       booted: await createEncryptedVault('true'),
       vault: [
         { [HD_KEYRING_ID]: encryptedHDKeyring },
         { [SIMPLE_KEYRING_ID]: encryptedSimpleKeyring },
-        encryptedHDKeyringNoPath, // This one is just a string with no ID
+        encryptedHDKeyringNoPath, // This one has no ID
       ],
+      vaultVersion: 1,
     };
 
     // Store the keyringState data
-    await storage.set(KEYRING_STATE_V1_KEY, keyringStateV1);
+    await setLocalData(KEYRING_STATE_V1_KEY, keyringStateV1);
 
     // Setup loggedInAccounts for the keyring without an ID
     // We use a simplified version for testing
@@ -285,16 +308,16 @@ describe('Keyring Migration Tests', () => {
       { id: SIMPLE_KEYRING_ID, address: SIMPLE_KEYRING_ADDRESS },
       { id: 'noIdKeyring', address: NO_ID_KEYRING_ADDRESS },
     ];
-    await storage.set('loggedInAccounts', loggedInAccounts);
+    await setLocalData('loggedInAccounts', loggedInAccounts);
 
     // Set paths and phrases for the HD keyrings
-    await storage.set(`user0_path`, FLOW_BIP44_PATH);
-    await storage.set(`user0_phrase`, '');
-    await storage.set(`user${NO_ID_KEYRING_INDEX}_path`, "m/44'/0'/0'/0/0"); // Different path for the no-ID keyring
-    await storage.set(`user${NO_ID_KEYRING_INDEX}_phrase`, 'test_passphrase');
+    await setLocalData(`user0_path`, FLOW_BIP44_PATH);
+    await setLocalData(`user0_phrase`, '');
+    await setLocalData(`user${NO_ID_KEYRING_INDEX}_path`, "m/44'/0'/0'/0/0"); // Different path for the no-ID keyring
+    await setLocalData(`user${NO_ID_KEYRING_INDEX}_phrase`, 'test_passphrase');
 
     // Set currentId to one of our keyring IDs
-    await storage.set(CURRENT_ID_KEY, HD_KEYRING_ID);
+    await setLocalData(CURRENT_ID_KEY, HD_KEYRING_ID);
 
     // Step 1: Initialize keyring service (should try to load from keyringState)
     await keyringService.loadKeyringStore();
@@ -306,13 +329,13 @@ describe('Keyring Migration Tests', () => {
     expect(keyringService.isUnlocked()).toBe(true);
 
     // Check keyringStateV3 was created
-    const keyringStateCurrent = await storage.get(KEYRING_STATE_CURRENT_KEY);
+    const keyringStateCurrent = await getLocalData<KeyringStateV3>(KEYRING_STATE_CURRENT_KEY);
     expect(keyringStateCurrent).toBeDefined();
-    expect(keyringStateCurrent.vault).toHaveLength(3);
-    expect(keyringStateCurrent.vaultVersion).toBe(3);
+    expect(keyringStateCurrent!.vault).toHaveLength(3);
+    expect(keyringStateCurrent!.vaultVersion).toBe(3);
 
     // Verify each vault entry has proper structure with ID and encryptedData
-    keyringStateCurrent.vault.forEach((entry) => {
+    keyringStateCurrent!.vault.forEach((entry) => {
       expect(entry).toHaveProperty('id');
       expect(entry).toHaveProperty('encryptedData');
     });
@@ -322,7 +345,7 @@ describe('Keyring Migration Tests', () => {
     expect(publicKeyTuple).toEqual(MOCK_KEYS.publicKeys);
 
     // Switch to the simple keyring
-    await storage.set(CURRENT_ID_KEY, SIMPLE_KEYRING_ID);
+    await setLocalData(CURRENT_ID_KEY, SIMPLE_KEYRING_ID);
     await keyringService.switchKeyring(SIMPLE_KEYRING_ID);
 
     // Verify we can get the public key from the simple keyring
@@ -330,7 +353,7 @@ describe('Keyring Migration Tests', () => {
     expect(simplePublicKeyTuple).toEqual(SIMPLE_KEYRING_PUBLIC_KEY_TUPLE);
 
     // Switch to the keyring that had no ID
-    await storage.set(CURRENT_ID_KEY, 'noIdKeyring');
+    await setLocalData(CURRENT_ID_KEY, 'noIdKeyring');
     await keyringService.switchKeyring('noIdKeyring');
 
     // Verify we can get the public key from the keyring without an ID
@@ -340,7 +363,7 @@ describe('Keyring Migration Tests', () => {
     // Verify we can directly access the derivation path and passphrase
     // This tests that the translation from V1 to V2 correctly added the derivation path and passphrase
     const decryptedVaultData = await Promise.all(
-      keyringStateCurrent.vault.map(async (entry) => {
+      keyringStateCurrent!.vault.map(async (entry) => {
         return encryptor.decrypt(TEST_PASSWORD, entry.encryptedData);
       })
     );
@@ -377,10 +400,10 @@ describe('Keyring Migration Tests', () => {
     };
 
     // Store the keyringState data
-    await storage.set(KEYRING_STATE_V2_KEY, keyringStateV2);
+    await setLocalData(KEYRING_STATE_V2_KEY, keyringStateV2);
 
     // Set currentId to one of our keyring IDs
-    await storage.set(CURRENT_ID_KEY, HD_KEYRING_ID);
+    await setLocalData(CURRENT_ID_KEY, HD_KEYRING_ID);
 
     // Step 1: Initialize keyring service (should try to load from keyringState)
     await keyringService.loadKeyringStore();
@@ -392,13 +415,13 @@ describe('Keyring Migration Tests', () => {
     expect(keyringService.isUnlocked()).toBe(true);
 
     // Check keyringStateV3 was created
-    const keyringStateCurrent = await storage.get(KEYRING_STATE_CURRENT_KEY);
+    const keyringStateCurrent = await getLocalData<KeyringStateV3>(KEYRING_STATE_CURRENT_KEY);
     expect(keyringStateCurrent).toBeDefined();
-    expect(keyringStateCurrent.vault).toHaveLength(keyringStateV2.vault.length);
-    expect(keyringStateCurrent.vaultVersion).toBe(3);
+    expect(keyringStateCurrent!.vault).toHaveLength(keyringStateV2.vault.length);
+    expect(keyringStateCurrent!.vaultVersion).toBe(3);
 
     // Verify each vault entry has proper structure with ID and encryptedData
-    keyringStateCurrent.vault.forEach((entry) => {
+    keyringStateCurrent!.vault.forEach((entry) => {
       expect(entry).toHaveProperty('id');
       expect(entry).toHaveProperty('publicKey');
       expect(entry).toHaveProperty('signAlgo');
@@ -409,12 +432,12 @@ describe('Keyring Migration Tests', () => {
     const publicKeyTuple = await keyringService.getCurrentPublicKeyTuple();
     expect(publicKeyTuple).toEqual(MOCK_KEYS.publicKeys);
 
-    const currentVault = keyringStateCurrent.vault.find((entry) => entry.id === HD_KEYRING_ID);
-    expect(currentVault.publicKey).toEqual(MOCK_KEYS.publicKeys.SECP256K1.pubK);
-    expect(currentVault.signAlgo).toEqual(SIGN_ALGO_NUM_DEFAULT);
+    const currentVault = keyringStateCurrent!.vault.find((entry) => entry.id === HD_KEYRING_ID);
+    expect(currentVault!.publicKey).toEqual(MOCK_KEYS.publicKeys.SECP256K1.pubK);
+    expect(currentVault!.signAlgo).toEqual(SIGN_ALGO_NUM_DEFAULT);
 
     // Switch to the simple keyring
-    await storage.set(CURRENT_ID_KEY, SIMPLE_KEYRING_ID);
+    await setLocalData(CURRENT_ID_KEY, SIMPLE_KEYRING_ID);
     await keyringService.switchKeyring(SIMPLE_KEYRING_ID);
 
     // Verify we can get the public key from the simple keyring
@@ -425,14 +448,14 @@ describe('Keyring Migration Tests', () => {
   it('should add a new keyring with mnemonics', async () => {
     // Start with an empty keyring state with booted flag
     const encryptedBooted = await createEncryptedVault('true');
-    await storage.set(KEYRING_STATE_CURRENT_KEY, {
+    await setLocalData(KEYRING_STATE_CURRENT_KEY, {
       booted: encryptedBooted,
       vault: [],
       vaultVersion: 3,
     });
 
     // Set currentId
-    await storage.set(CURRENT_ID_KEY, HD_KEYRING_ID);
+    await setLocalData(CURRENT_ID_KEY, HD_KEYRING_ID);
 
     // Step 1: Initialize and boot keyring service
     await keyringService.loadKeyringStore();
@@ -450,7 +473,7 @@ describe('Keyring Migration Tests', () => {
     expect(newKeyring.type).toBe('HD Key Tree');
 
     // Check keyringStateV3 was updated
-    const keyringStateCurrent = await storage.get(KEYRING_STATE_CURRENT_KEY);
+    const keyringStateCurrent = (await getLocalData(KEYRING_STATE_CURRENT_KEY)) as any;
     expect(keyringStateCurrent).toBeDefined();
     expect(keyringStateCurrent.vault.length).toBeGreaterThan(0);
 
@@ -466,7 +489,7 @@ describe('Keyring Migration Tests', () => {
   it('should import a new keyring with a private key', async () => {
     // Start with an empty keyring state with booted flag
     const encryptedBooted = await createEncryptedVault('true');
-    await storage.set(KEYRING_STATE_CURRENT_KEY, {
+    await setLocalData(KEYRING_STATE_CURRENT_KEY, {
       booted: encryptedBooted,
       vault: [],
       vaultVersion: 3,
@@ -474,7 +497,7 @@ describe('Keyring Migration Tests', () => {
 
     // Set currentId - this will be the ID of the imported key
     const importedKeyringId = 'importedKeyringId';
-    await storage.set(CURRENT_ID_KEY, importedKeyringId);
+    await setLocalData(CURRENT_ID_KEY, importedKeyringId);
 
     // Step 1: Initialize and boot keyring service
     await keyringService.loadKeyringStore();
@@ -495,7 +518,7 @@ describe('Keyring Migration Tests', () => {
     expect(newKeyring.type).toBe('Simple Key Pair');
 
     // Check keyringStateCurrent was updated
-    const keyringStateCurrent = await storage.get(KEYRING_STATE_CURRENT_KEY);
+    const keyringStateCurrent = (await getLocalData(KEYRING_STATE_CURRENT_KEY)) as any;
     expect(keyringStateCurrent).toBeDefined();
     expect(keyringStateCurrent.vault.length).toBe(1);
     expect(keyringStateCurrent.vault[0].id).toBe(importedKeyringId);
@@ -547,8 +570,8 @@ describe('Keyring Migration Tests', () => {
       vaultVersion: 3,
     };
 
-    await storage.set(KEYRING_STATE_CURRENT_KEY, initialKeyringState);
-    await storage.set(CURRENT_ID_KEY, HD_KEYRING_ID); // Start with HD keyring as current
+    await setLocalData(KEYRING_STATE_CURRENT_KEY, initialKeyringState);
+    await setLocalData(CURRENT_ID_KEY, HD_KEYRING_ID); // Start with HD keyring as current
 
     // Step 1: Initialize and boot keyring service
     await keyringService.loadKeyringStore();
@@ -559,7 +582,7 @@ describe('Keyring Migration Tests', () => {
     expect(currentPublicKeyTuple.SECP256K1.pubK).toEqual(MOCK_KEYS.publicKeys.SECP256K1.pubK);
 
     // Step 2: Switch to Simple Keyring
-    await storage.set(CURRENT_ID_KEY, SIMPLE_KEYRING_ID); // Update current ID in storage
+    await setLocalData(CURRENT_ID_KEY, SIMPLE_KEYRING_ID); // Update current ID in storage
     await keyringService.switchKeyring(SIMPLE_KEYRING_ID);
 
     // Verify switched keyring (Simple)
@@ -569,7 +592,7 @@ describe('Keyring Migration Tests', () => {
     );
 
     // Step 3: Switch back to HD Keyring
-    await storage.set(CURRENT_ID_KEY, HD_KEYRING_ID); // Update current ID in storage
+    await setLocalData(CURRENT_ID_KEY, HD_KEYRING_ID); // Update current ID in storage
     await keyringService.switchKeyring(HD_KEYRING_ID);
 
     // Verify switched back keyring (HD)
@@ -615,22 +638,22 @@ describe('Keyring Migration Tests', () => {
       vaultVersion: 3,
     };
 
-    await storage.set(KEYRING_STATE_CURRENT_KEY, initialKeyringState);
-    await storage.set(CURRENT_ID_KEY, keyringId1); // Start with the first keyring as current
+    await setLocalData(KEYRING_STATE_CURRENT_KEY, initialKeyringState);
+    await setLocalData(CURRENT_ID_KEY, keyringId1); // Start with the first keyring as current
 
     await keyringService.loadKeyringStore();
     await keyringService.unlock(TEST_PASSWORD);
 
     await keyringService.removeProfile(TEST_PASSWORD, keyringId1);
 
-    const updatedState = await storage.get(KEYRING_STATE_CURRENT_KEY);
+    const updatedState = (await getLocalData(KEYRING_STATE_CURRENT_KEY)) as any;
     expect(updatedState.vault.length).toBe(2);
     expect(updatedState.vault.find((k) => k.id === keyringId1)).toBeUndefined();
     expect(updatedState.vault[0].id).toBe(keyringId2);
     expect(updatedState.vault[1].id).toBe(keyringId3);
 
     // Check if currentId was updated to the next available keyring
-    const currentId = await storage.get(CURRENT_ID_KEY);
+    const currentId = await getLocalData(CURRENT_ID_KEY);
     expect(currentId).toBe(keyringId2);
     const currentProfileId = await returnCurrentProfileId();
     expect(currentProfileId).toBe(keyringId2);
@@ -674,21 +697,21 @@ describe('Keyring Migration Tests', () => {
       vaultVersion: 3,
     };
 
-    await storage.set(KEYRING_STATE_CURRENT_KEY, initialKeyringState);
-    await storage.set(CURRENT_ID_KEY, keyringId2); // Start with the middle keyring as current
+    await setLocalData(KEYRING_STATE_CURRENT_KEY, initialKeyringState);
+    await setLocalData(CURRENT_ID_KEY, keyringId2); // Start with the middle keyring as current
 
     await keyringService.loadKeyringStore();
     await keyringService.unlock(TEST_PASSWORD);
 
     await keyringService.removeProfile(TEST_PASSWORD, keyringId2);
 
-    const updatedState = await storage.get(KEYRING_STATE_CURRENT_KEY);
+    const updatedState = (await getLocalData(KEYRING_STATE_CURRENT_KEY)) as any;
     expect(updatedState.vault.length).toBe(2);
     expect(updatedState.vault.find((k) => k.id === keyringId2)).toBeUndefined();
     expect(updatedState.vault[0].id).toBe(keyringId1);
     expect(updatedState.vault[1].id).toBe(keyringId3);
 
-    const currentId = await storage.get(CURRENT_ID_KEY);
+    const currentId = await getLocalData(CURRENT_ID_KEY);
     expect(currentId).toBe(keyringId3); // Should switch to the last one if middle is removed
     const currentProfileId = await returnCurrentProfileId();
     expect(currentProfileId).toBe(keyringId3);
@@ -732,21 +755,21 @@ describe('Keyring Migration Tests', () => {
       vaultVersion: 3,
     };
 
-    await storage.set(KEYRING_STATE_CURRENT_KEY, initialKeyringState);
-    await storage.set(CURRENT_ID_KEY, keyringId3); // Start with the last keyring as current
+    await setLocalData(KEYRING_STATE_CURRENT_KEY, initialKeyringState);
+    await setLocalData(CURRENT_ID_KEY, keyringId3); // Start with the last keyring as current
 
     await keyringService.loadKeyringStore();
     await keyringService.unlock(TEST_PASSWORD);
 
     await keyringService.removeProfile(TEST_PASSWORD, keyringId3);
 
-    const updatedState = await storage.get(KEYRING_STATE_CURRENT_KEY);
+    const updatedState = (await getLocalData(KEYRING_STATE_CURRENT_KEY)) as any;
     expect(updatedState.vault.length).toBe(2);
     expect(updatedState.vault.find((k) => k.id === keyringId3)).toBeUndefined();
     expect(updatedState.vault[0].id).toBe(keyringId1);
     expect(updatedState.vault[1].id).toBe(keyringId2);
 
-    const currentId = await storage.get(CURRENT_ID_KEY);
+    const currentId = await getLocalData(CURRENT_ID_KEY);
     expect(currentId).toBe(keyringId1); // Should switch to the first one if last is removed
     const currentProfileId = await returnCurrentProfileId();
     expect(currentProfileId).toBe(keyringId1);

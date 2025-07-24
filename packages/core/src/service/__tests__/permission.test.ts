@@ -1,18 +1,18 @@
+import { getLocalData } from '@onflow/frw-data-model';
 import { LRUCache } from 'lru-cache';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import storage from '@onflow/frw-extension-shared/storage';
 import { INTERNAL_REQUEST_ORIGIN, MAINNET_CHAIN_ID } from '@onflow/frw-shared/constant';
 
 import permissionService, { type ConnectedSite } from '../permission';
 
 // Mock dependencies
-vi.mock('@onflow/frw-extension-shared/storage', () => ({
-  default: {
-    get: vi.fn(),
-    set: vi.fn(),
-    remove: vi.fn(),
-  },
+vi.mock('@onflow/frw-data-model', () => ({
+  getLocalData: vi.fn(),
+  setLocalData: vi.fn(),
+  removeLocalData: vi.fn(),
+  permissionKey: 'permission',
+  permissionKeyV1: 'permissionV1',
 }));
 
 vi.mock('../../utils/persistStore', () => ({
@@ -43,11 +43,14 @@ describe('PermissionService', () => {
       // Return template by default (empty cache)
       return template || {};
     });
+
+    // Reset getLocalData mock to return null by default
+    vi.mocked(getLocalData).mockResolvedValue(null);
   });
 
   describe('init', () => {
     it('should initialize with empty cache when no data exists', async () => {
-      vi.mocked(storage.get).mockResolvedValue(null);
+      vi.mocked(getLocalData).mockResolvedValue(null);
 
       await permissionService.init();
 
@@ -74,9 +77,9 @@ describe('PermissionService', () => {
         ],
       };
 
-      // Mock storage.get to return old cache data when asked for 'permission' key
-      vi.mocked(storage.get).mockImplementation(async (key) => {
-        if (key === 'permission') {
+      // Mock storage.get to return old cache data when asked for 'permissionV1' key
+      vi.mocked(getLocalData).mockImplementation(async (key) => {
+        if (key === 'permissionV1') {
           return oldCacheData;
         }
         return null;
@@ -122,9 +125,9 @@ describe('PermissionService', () => {
         ],
       };
 
-      // Mock storage.get to return old cache data when asked for 'permission' key
-      vi.mocked(storage.get).mockImplementation(async (key) => {
-        if (key === 'permission') {
+      // Mock storage.get to return old cache data when asked for 'permissionV1' key
+      vi.mocked(getLocalData).mockImplementation(async (key) => {
+        if (key === 'permissionV1') {
           return oldCacheData;
         }
         return null;

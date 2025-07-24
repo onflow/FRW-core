@@ -22,8 +22,9 @@ import {
   registerBatchRefreshListener,
   registerRefreshListener,
   setCachedData,
-  removeUserData,
-  setUserData,
+  getLocalData,
+  removeLocalData,
+  setLocalData,
   activeAccountsKey,
   type ActiveAccountsStore,
   getActiveAccountsData,
@@ -36,7 +37,6 @@ import { signInAnonymously } from 'firebase/auth/web-extension';
 import { TransactionError } from 'web3';
 
 import { retryOperation } from '@onflow/frw-extension-shared/retryOperation';
-import storage from '@onflow/frw-extension-shared/storage';
 import { DEFAULT_WEIGHT, FLOW_BIP44_PATH } from '@onflow/frw-shared/constant';
 import {
   type PublicPrivateKeyTuple,
@@ -275,8 +275,8 @@ class UserWallet {
   // Moved from WalletController to UserWallet
   allowFreeGas = async (): Promise<boolean> => {
     const isFreeGasFeeKillSwitch = await remoteConfigService.getFeatureFlag('free_gas');
-    const isFreeGasFeeEnabled = await storage.get('lilicoPayer');
-    return isFreeGasFeeKillSwitch && isFreeGasFeeEnabled;
+    const isFreeGasFeeEnabled = await getLocalData<boolean>('lilicoPayer');
+    return isFreeGasFeeKillSwitch && !!isFreeGasFeeEnabled;
   };
 
   /**
@@ -346,7 +346,7 @@ class UserWallet {
       const mainAccounts = await this.getMainAccounts();
       if (mainAccounts.length === 0) {
         // If the parent address is null, we need to reset to the first parent account
-        await removeUserData(activeAccountsKey(network, pubkey));
+        await removeLocalData(activeAccountsKey(network, pubkey));
         return {
           parentAddress: null,
           currentAddress: null,
@@ -359,7 +359,7 @@ class UserWallet {
         validatedActiveAccounts.currentAddress !== activeAccounts?.currentAddress)
     ) {
       // Only update the active accounts if they have changed and the addresses are not null
-      await setUserData<ActiveAccountsStore>(
+      await setLocalData<ActiveAccountsStore>(
         activeAccountsKey(network, pubkey),
         validatedActiveAccounts
       );
@@ -426,7 +426,7 @@ class UserWallet {
     }
 
     // Save the data in storage
-    await setUserData<ActiveAccountsStore>(activeAccountsKey(network, pubkey), newActiveAccounts);
+    await setLocalData<ActiveAccountsStore>(activeAccountsKey(network, pubkey), newActiveAccounts);
   };
   /**
    * Set the current account - the actively selected account
