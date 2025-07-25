@@ -1,5 +1,14 @@
 # @onflow/frw-core
 
+## 0.2.3
+
+### Patch Changes
+
+- 043dc56: refactored nft types and service
+- Updated dependencies [043dc56]
+  - @onflow/frw-data-model@0.2.3
+  - @onflow/frw-shared@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes
