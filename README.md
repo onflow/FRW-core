@@ -4,11 +4,11 @@ This repository contains the core packages for the Flow Reference Wallet (FRW) e
 
 ## Packages
 
-- **@onflow/frw-shared** - Common types, constants, and utilities
-- **@onflow/frw-core** - Core business logic and services
-- **@onflow/frw-reducers** - State management reducers
-- **@onflow/frw-data-model** - Cache data model implementation
-- **@onflow/frw-extension-shared** - Extension-specific shared utilities
+- **[@onflow/frw-shared](./packages/shared/README.md)** - Common types, constants, and utilities
+- **[@onflow/frw-core](./packages/core/README.md)** - Core business logic and services
+- **[@onflow/frw-reducers](./packages/reducers/README.md)** - State management reducers
+- **[@onflow/frw-data-model](./packages/data-model/README.md)** - Cache data model implementation
+- **[@onflow/frw-extension-shared](./packages/extension-shared/README.md)** - Extension-specific shared utilities
 
 ## Installation
 

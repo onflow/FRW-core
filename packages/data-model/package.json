@@ -5,7 +5,8 @@
   "type": "module",
   "files": [
     "src",
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
