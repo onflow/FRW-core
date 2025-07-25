@@ -30,7 +30,6 @@ import {
 } from '@onflow/frw-shared/types';
 import { isValidEthereumAddress } from '@onflow/frw-shared/utils';
 
-import { nftService } from '.';
 import openapiService, { getScripts } from './openapi';
 import { fclConfirmNetwork } from '../utils/fclConfig';
 
@@ -379,7 +378,7 @@ class NFT {
     if (validData) {
       return validData;
     }
-    return await nftService.loadChildAccountNFTs(network, parentAddress);
+    return await this.loadChildAccountNFTs(network, parentAddress);
   };
 
   /**
@@ -428,7 +427,7 @@ class NFT {
     if (validData) {
       return validData;
     }
-    return await nftService.loadChildAccountAllowTypes(network, parentAddress, childAddress);
+    return await this.loadChildAccountAllowTypes(network, parentAddress, childAddress);
   };
 
   clear = async () => {
