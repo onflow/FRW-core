@@ -1,6 +1,6 @@
 {
   "name": "@onflow/frw-extension-shared",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Shared code for Flow Reference Wallet Extension",
   "type": "module",
   "files": [

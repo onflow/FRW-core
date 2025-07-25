@@ -1,5 +1,11 @@
 # @onflow/frw-shared
 
+## 0.2.3
+
+### Patch Changes
+
+- 043dc56: refactored nft types and service
+
 ## 0.2.2
 
 ### Patch Changes

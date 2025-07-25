@@ -1,6 +1,6 @@
 {
   "name": "@onflow/frw-data-model",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Data model for Flow Reference Wallet",
   "type": "module",
   "files": [
