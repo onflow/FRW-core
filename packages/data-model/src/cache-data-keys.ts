@@ -12,18 +12,17 @@ import {
   type FeatureFlags,
   type AccountBalanceInfo,
   type NewsItem,
-  type CadenceNftCollection,
+  type NftCollection,
   type NFTModelV2,
   type UserInfoResponse,
-  type EvmNFTCollectionList,
-  type EvmNFTIds,
-  type CadenceCollectionNfts,
-  type CadenceNftCollectionsAndIds,
+  type CollectionNfts,
+  type NftCollectionAndIds,
   type NetworkScripts,
   type TransferItem,
   type Currency,
   type MainAccount,
   type PublicKeyAccount,
+  type ChildAccountNftMap,
 } from '@onflow/frw-shared/types';
 
 import { getCachedData, triggerRefresh } from './cache-data-access';
@@ -165,116 +164,115 @@ export type TransferListStore = {
   list: TransferItem[];
 };
 
-// NFTs
-
+/**
+ * --------------------------------------------------------------------
+ * NFTs
+ * --------------------------------------------------------------------
+ */
 export const nftListKey = (network: string, chainType: string) =>
   `nft-list-${network}-${chainType}`;
 export const nftListRefreshRegex = refreshKey(nftListKey);
 export type NftListStore = NFTModelV2[];
 
-export const nftCollectionListKey = (network: string) => `nft-collections-${network}`;
-export const nftCollectionListRefreshRegex = refreshKey(nftCollectionListKey);
-export type NftCollectionListStore = CadenceNftCollection[];
-
-export const getCachedNftCollectionList = async (network: string) => {
-  return getCachedData<NftCollectionListStore>(nftCollectionListKey(network));
+// 1. List of all NFT collections on a network
+export const fullCadenceNftCollectionListKey = (network: string) =>
+  `full-cadence-nft-collection-list-${network}`;
+export const fullCadenceNftCollectionListRefreshRegex = refreshKey(fullCadenceNftCollectionListKey);
+export const getCachedFullCadenceNftCollectionList = async (network: string) => {
+  return getCachedData<NftCollection[]>(fullCadenceNftCollectionListKey(network));
 };
-export const nftCollectionKey = (
+
+// 2. List of NFT collections and the ids of the nfts owned in each collection
+export const cadenceNftCollectionsAndIdsKey = (network: string, address: string) =>
+  `cadence-nft-collections-and-ids-${network}-${address}`;
+
+export const cadenceNftCollectionsAndIdsRefreshRegex = refreshKey(cadenceNftCollectionsAndIdsKey);
+export const getCachedCadenceNftCollectionsAndIds = async (network: string, address: string) => {
+  return getCachedData<NftCollectionAndIds[]>(cadenceNftCollectionsAndIdsKey(network, address));
+};
+export const refreshNftCatalogCollections = async (network: string, address: string) => {
+  // Should rarely be used
+  triggerRefresh(cadenceNftCollectionsAndIdsKey(network, address));
+};
+
+// 3. List of NFTs from a specific collection under a Cadence address
+export const cadenceCollectionNftsKey = (
   network: string,
   address: string,
   collectionId: string,
   offset: string
-) => `nft-collection-${network}-${address}-${collectionId}-${offset}`;
-
-export const nftCollectionRefreshRegex = refreshKey(nftCollectionKey);
-export type NftCollectionStore = CadenceCollectionNfts;
-
-export const getCachedNftCollection = async (
+) => `cadence-collection-nfts-${network}-${address}-${collectionId}-${offset}`;
+export const cadenceCollectionNftsRefreshRegex = refreshKey(cadenceCollectionNftsKey);
+export const getCachedCadenceCollectionNfts = async (
   network: string,
   address: string,
   collectionId: string,
   offset: number
 ) => {
-  return getCachedData<CadenceCollectionNfts>(
-    nftCollectionKey(network, address, collectionId, `${offset}`)
+  return getCachedData<CollectionNfts>(
+    cadenceCollectionNftsKey(network, address, collectionId, `${offset}`)
   );
 };
 
-export const nftCatalogCollectionsKey = (network: string, address: string) =>
-  `nft-catalog-collections-${network}-${address}`;
+/**
+ * EVM NFTs
+ */
 
-export const nftCatalogCollectionsRefreshRegex = refreshKey(nftCatalogCollectionsKey);
-export type NftCatalogCollectionsStore = CadenceNftCollectionsAndIds[];
-
-export const getCachedNftCatalogCollections = async (network: string, address: string) => {
-  return getCachedData<NftCatalogCollectionsStore>(nftCatalogCollectionsKey(network, address));
+// 1. List of NFT collections and the ids of the nfts owned in each collection
+export const evmNftCollectionsAndIdsKey = (network: string, address: string) =>
+  `evm-nft-collections-and-ids-${network}-${address}`;
+export const evmNftCollectionsAndIdsRefreshRegex = refreshKey(evmNftCollectionsAndIdsKey);
+export const getCachedEvmNftCollectionsAndIds = async (network: string, address: string) => {
+  return getCachedData<NftCollectionAndIds[]>(evmNftCollectionsAndIdsKey(network, address));
 };
 
-export const refreshNftCatalogCollections = async (network: string, address: string) => {
-  // Should rarely be used
-  triggerRefresh(nftCatalogCollectionsKey(network, address));
+// 2. List of NFTs from a specific collection under a EVM address
+export const evmCollectionNftsKey = (
+  network: string,
+  address: string,
+  collectionIdentifier: string,
+  offset: string
+) => `evm-collection-nfts-${network}-${address}-${collectionIdentifier}-${offset}`;
+
+export const evmCollectionNftsRefreshRegex = refreshKey(evmCollectionNftsKey);
+export const getCachedEvmCollectionNfts = async (
+  network: string,
+  address: string,
+  collectionIdentifier: string,
+  offset: string
+) => {
+  return getCachedData<CollectionNfts>(
+    evmCollectionNftsKey(network, address, collectionIdentifier, offset)
+  );
 };
 
+// Child Account NFTs
 export const childAccountAllowTypesKey = (network: string, parent: string, child: string) =>
   `child-account-allow-types-${network}-${parent}-${child}`;
 
 export const childAccountAllowTypesRefreshRegex = refreshKey(childAccountAllowTypesKey);
-export type ChildAccountAllowTypesStore = string[];
 
 export const getCachedChildAccountAllowTypes = async (
   network: string,
   parent: string,
   child: string
 ) => {
-  return getCachedData<ChildAccountAllowTypesStore>(
-    childAccountAllowTypesKey(network, parent, child)
-  );
+  return getCachedData<string[]>(childAccountAllowTypesKey(network, parent, child));
 };
 
 export const childAccountNftsKey = (network: string, parentAddress: string) =>
   `child-account-nfts-${network}-${parentAddress}`;
 
 export const childAccountNFTsRefreshRegex = refreshKey(childAccountNftsKey);
-export type ChildAccountNFTs = {
-  [nftCollectionId: string]: string[];
-};
-export type ChildAccountNFTsStore = {
-  [address: string]: ChildAccountNFTs;
-};
 
 export const getCachedChildAccountNfts = async (network: string, parentAddress: string) => {
-  return getCachedData<ChildAccountNFTsStore>(childAccountNftsKey(network, parentAddress));
+  return getCachedData<ChildAccountNftMap>(childAccountNftsKey(network, parentAddress));
 };
 
-// EVM NFTs
-export const evmNftIdsKey = (network: string, address: string) =>
-  `evm-nft-collection-ids-${network}-${address}`;
-
-export const evmNftIdsRefreshRegex = refreshKey(evmNftIdsKey);
-export type EvmNftIdsStore = EvmNFTIds[];
-
-export const evmNftCollectionListKey = (
-  network: string,
-  address: string,
-  collectionIdentifier: string,
-  offset: string
-) => `evm-nft-collection-list-${network}-${address}-${collectionIdentifier}-${offset}`;
-
-export const evmNftCollectionListRefreshRegex = refreshKey(evmNftCollectionListKey);
-export type EvmNftCollectionListStore = EvmNFTCollectionList[];
-
-export const getCachedEvmNftCollectionList = async (
-  network: string,
-  address: string,
-  collectionIdentifier: string,
-  offset: number
-) => {
-  return getCachedData<EvmNftCollectionListStore>(
-    evmNftCollectionListKey(network, address, collectionIdentifier, `${offset}`)
-  );
-};
 /**
+ * *************
  * Fungible Token information
+ * *************
  */
 
 export const tokenListKey = (network: string, chainType: string) =>

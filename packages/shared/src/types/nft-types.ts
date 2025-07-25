@@ -41,7 +41,7 @@ export type NftPostMedia = {
  * These are the nfts owned by an account from a specific collection
  *
  */
-export type CadenceNft = {
+export type Nft = {
   id: string;
   name: string;
   description: string;
@@ -65,7 +65,7 @@ export type CadenceNft = {
  * Returned by - get all nft collections, get nft collection list
  */
 
-export type CadenceNftCollection = {
+export type NftCollection = {
   id: string;
   address: string;
   contractName: string; // alternative name
@@ -88,10 +88,11 @@ export type CadenceNftCollection = {
  * Returned by - fetchCadenceCollectionNfts - /api/v2/nft/collectionList
  * These are the nfts owned by an account from a specific collection
  */
-export type CadenceCollectionNfts = {
-  nfts: CadenceNft[];
-  collection: CadenceNftCollection;
+export type CollectionNfts = {
+  nfts: Nft[];
+  collection: NftCollection;
   nftCount: number;
+  offset?: string | null;
 };
 
 /**
@@ -101,10 +102,23 @@ export type CadenceCollectionNfts = {
  * Returned by - fetchCadenceNftCollectionsAndIds - /api/v2/nft/id
  * These are the collections and ids of the nfts owned by an account
  */
-export type CadenceNftCollectionsAndIds = {
-  collection: CadenceNftCollection;
+export type NftCollectionAndIds = {
+  collection: NftCollection;
   ids: string[];
   count: number;
+};
+
+/**
+ * Child Account NFTs
+ * This is the list of nfts owned by a child account
+ * Returned by - getChildAccountNfts - /api/v2/nft/childAccountNfts
+ * These are the nfts owned by a child account
+ */
+export type ChildAccountNfts = {
+  [nftCollectionId: string]: string[];
+};
+export type ChildAccountNftMap = {
+  [address: string]: ChildAccountNfts;
 };
 
 export interface NFTModelV2 {
@@ -130,49 +144,3 @@ export interface NFTPathV2 {
   storage: string;
   public: string;
 }
-
-/***
- * EVM ******
- *
- */
-
-type EvmNFTCollection = {
-  id: string;
-  address: string;
-  contractName: string;
-  contract_name: string;
-  evmAddress: string;
-  name: string;
-  logo: string | null;
-  banner: string | null;
-  description: string | null;
-  flowIdentifier: string;
-};
-
-export type EvmNFTIds = {
-  collection: EvmNFTCollection;
-  ids: string[];
-  count: number;
-};
-
-type EvmNFTItem = {
-  id: string;
-  name: string;
-  description: string;
-  thumbnail: string;
-  externalURL: string;
-  collectionName: string;
-  contractAddress: string;
-  postMedia: {
-    image: string;
-    isSvg: boolean;
-    description: string;
-    title: string;
-  };
-};
-
-export type EvmNFTCollectionList = {
-  nfts: EvmNFTItem[];
-  nftCount: number;
-  collection: EvmNFTCollection;
-};
