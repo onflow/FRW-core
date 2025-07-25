@@ -33,7 +33,7 @@ The system uses three main patterns:
 - Keys often include parameters like network, address, or user ID
 - Includes TypeScript types for the stored data
 
-#### B. Background Service Worker
+#### B. Core Service Layer
 
 - Handles data fetching and refreshing
 - Data in the cache is **only ever set in the background**
