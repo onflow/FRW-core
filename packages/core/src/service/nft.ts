@@ -374,7 +374,9 @@ class NFT {
     network: string,
     parentAddress: string
   ): Promise<ChildAccountNftMap | undefined> => {
-    const validData = getValidData<ChildAccountNftMap>(childAccountNftsKey(network, parentAddress));
+    const validData = await getValidData<ChildAccountNftMap>(
+      childAccountNftsKey(network, parentAddress)
+    );
     if (validData) {
       return validData;
     }
@@ -421,7 +423,7 @@ class NFT {
     parentAddress: string,
     childAddress: string
   ): Promise<string[] | undefined> => {
-    const validData = getValidData<string[]>(
+    const validData = await getValidData<string[]>(
       childAccountAllowTypesKey(network, parentAddress, childAddress)
     );
     if (validData) {
