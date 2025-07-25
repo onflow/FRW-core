@@ -9,7 +9,6 @@ export { default as coinListService } from './coinList';
 export { default as addressBookService } from './addressBook';
 export { default as userWalletService } from './userWallet';
 export { default as nftService } from './nft';
-export { default as evmNftService } from './nft-evm';
 export { default as googleDriveService } from './googleDrive';
 export { default as googleSafeHostService } from './googleSafeHost';
 export { default as signTextHistoryService } from './signTextHistory';
