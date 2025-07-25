@@ -12039,13 +12039,13 @@ export const createTestResults = (
 
   nft: [
     {
-      functionName: 'nftCatalogList',
+      functionName: 'fetchCadenceNftsAcrossCollections',
       functionGroup: 'nft',
       functionParams: {
+        network: 'testnet',
         address: '0x552013bd8742476c',
         limit: 10,
         offset: 0,
-        network: 'testnet',
       },
       functionResponse: {
         nfts: [
