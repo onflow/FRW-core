@@ -15,15 +15,21 @@ import {
   getValidData,
   registerRefreshListener,
   setCachedData,
+  type EvmNftCollectionListStore,
+  evmNftCollectionListKey,
+  type EvmNftIdsStore,
+  evmNftIdsKey,
+  evmNftIdsRefreshRegex,
+  evmNftCollectionListRefreshRegex,
 } from '@onflow/frw-data-model';
 
 import {
-  type NftCollection,
+  type CadenceNftCollection,
   type NFTModelV2,
-  type NFTCollectionData,
-  type NFTCollections,
-  type NFTItem,
+  type CadenceCollectionNfts,
+  type CadenceNftCollectionsAndIds,
 } from '@onflow/frw-shared/types';
+import { isValidEthereumAddress } from '@onflow/frw-shared/utils';
 
 import openapiService, { getScripts } from './openapi';
 import { fclConfirmNetwork } from '../utils/fclConfig';
@@ -31,11 +37,15 @@ import { fclConfirmNetwork } from '../utils/fclConfig';
 class NFT {
   init = async () => {
     registerRefreshListener(nftCatalogCollectionsRefreshRegex, this.loadNftCatalogCollections);
-    registerRefreshListener(nftCollectionRefreshRegex, this.loadSingleNftCollection);
+    registerRefreshListener(nftCollectionRefreshRegex, this.loadCadenceCollectionNfts);
     registerRefreshListener(childAccountAllowTypesRefreshRegex, this.loadChildAccountAllowTypes);
     registerRefreshListener(childAccountNFTsRefreshRegex, this.loadChildAccountNFTs);
     registerRefreshListener(nftCollectionListRefreshRegex, this.loadNftCollectionList);
     registerRefreshListener(nftListRefreshRegex, this.loadNftList);
+
+    // EVM NFTs
+    registerRefreshListener(evmNftCollectionListRefreshRegex, this.loadEvmCollectionList);
+    registerRefreshListener(evmNftIdsRefreshRegex, this.loadEvmNftIds);
   };
 
   loadChildAccountNFTs = async (network: string, parentAddress: string) => {
@@ -78,13 +88,13 @@ class NFT {
   loadNftCatalogCollections = async (
     network: string,
     address: string
-  ): Promise<NFTCollections[]> => {
+  ): Promise<CadenceNftCollectionsAndIds[]> => {
     if (!(await fclConfirmNetwork(network))) {
       // Do nothing if the network is switched
       // Don't update the cache
       return [];
     }
-    const data = await openapiService.nftCatalogCollections(address!, network);
+    const data = await openapiService.fetchCadenceNftCollectionsAndIds(network, address!);
     if (!data || !Array.isArray(data)) {
       return [];
     }
@@ -95,42 +105,33 @@ class NFT {
     return sortedList;
   };
 
-  loadSingleNftCollection = async (
+  loadCadenceCollectionNfts = async (
     network: string,
     address: string,
     collectionId: string,
     offset: string
-  ): Promise<NFTCollectionData | undefined> => {
+  ): Promise<CadenceCollectionNfts | undefined> => {
     if (!(await fclConfirmNetwork(network))) {
       // Do nothing if the network is switched
       // Don't update the cache
       return undefined;
     }
     const offsetNumber = parseInt(offset) || 0;
-    const data = await openapiService.nftCatalogCollectionList(
+    const data = await openapiService.fetchCadenceCollectionNfts(
+      network,
       address!,
       collectionId,
       50,
-      offsetNumber,
-      network
+      offsetNumber
     );
-
-    data.nfts.map((nft: NFTItem) => {
-      (nft as NFTItem & { unique_id: string }).unique_id = nft.collectionName + '_' + nft.id;
-    });
-    function getUniqueListBy(arr: (NFTItem & { unique_id: string })[], key: string) {
-      return [...new Map(arr.map((item) => [item[key as keyof typeof item], item])).values()];
-    }
-    const unique_nfts = getUniqueListBy(data.nfts, 'unique_id');
-    data.nfts = unique_nfts;
 
     setCachedData(nftCollectionKey(network, address, collectionId, `${offset}`), data);
 
     return data;
   };
 
-  loadNftCollectionList = async (network: string): Promise<NftCollection[]> => {
-    const data = await openapiService.getNFTV2CollectionList(network);
+  loadNftCollectionList = async (network: string): Promise<CadenceNftCollection[]> => {
+    const data = await openapiService.fetchFullCadenceNftCollectionList(network);
     if (!data || !Array.isArray(data)) {
       throw new Error('Could not load nft collection list');
     }
@@ -143,12 +144,12 @@ class NFT {
     address: string,
     collectionId: string,
     offset: number
-  ): Promise<NFTCollectionData | undefined> => {
-    const cachedData = await getValidData<NFTCollectionData>(
+  ): Promise<CadenceCollectionNfts | undefined> => {
+    const cachedData = await getValidData<CadenceCollectionNfts>(
       nftCollectionKey(network, address, collectionId, `${offset}`)
     );
     if (!cachedData) {
-      return this.loadSingleNftCollection(network, address, collectionId, `${offset}`);
+      return this.loadCadenceCollectionNfts(network, address, collectionId, `${offset}`);
     }
     return cachedData;
   };
@@ -156,8 +157,8 @@ class NFT {
   getNftCatalogCollections = async (
     network: string,
     address: string
-  ): Promise<NFTCollections[] | undefined> => {
-    const collections = await getValidData<NFTCollections[]>(
+  ): Promise<CadenceNftCollectionsAndIds[] | undefined> => {
+    const collections = await getValidData<CadenceNftCollectionsAndIds[]>(
       nftCatalogCollectionsKey(network, address)
     );
     if (!collections) {
@@ -166,8 +167,8 @@ class NFT {
     return collections;
   };
 
-  getNftCollectionList = async (network: string): Promise<NftCollection[] | undefined> => {
-    const collections = await getValidData<NftCollection[]>(nftCollectionListKey(network));
+  getNftCollectionList = async (network: string): Promise<CadenceNftCollection[] | undefined> => {
+    const collections = await getValidData<CadenceNftCollection[]>(nftCollectionListKey(network));
     if (!collections) {
       return this.loadNftCollectionList(network);
     }
@@ -206,6 +207,95 @@ class NFT {
     return data;
   };
 
+  loadEvmNftIds = async (network: string, address: string) => {
+    if (!(await fclConfirmNetwork(network))) {
+      // Do nothing if the network is switched
+      // Don't update the cache
+      return [];
+    }
+    const result = await openapiService.EvmNFTID(network, address);
+
+    setCachedData(evmNftIdsKey(network, address), result);
+    return result;
+  };
+
+  loadEvmCollectionList = async (
+    network: string,
+    address: string,
+    collectionIdentifier: string,
+    offset: string
+  ) => {
+    if (!isValidEthereumAddress(address)) {
+      throw new Error('Invalid Ethereum address');
+    }
+
+    if (!(await fclConfirmNetwork(network))) {
+      // Do nothing if the network is switched
+      // Don't update the cache
+      return [];
+    }
+
+    // For EVM, offset can be a JWT token string
+    // Don't convert to integer if it's a JWT token
+    const offsetParam = offset && !isNaN(Number(offset)) ? parseInt(offset) : offset;
+
+    const result = await openapiService.EvmNFTcollectionList(
+      address,
+      collectionIdentifier,
+      50,
+      offsetParam as string | number
+    );
+
+    setCachedData(evmNftCollectionListKey(network, address, collectionIdentifier, offset), result);
+    return result;
+  };
+
+  clearEvmNfts = async () => {};
+
+  /**
+   * Get EVM NFT IDs for a given address
+   * @param network - The network to get the NFTs for
+   * @param address - The address to get the NFTs for
+   * @returns The list of EVM NFT IDs
+   */
+  getEvmNftId = async (network: string, address: string) => {
+    if (!isValidEthereumAddress(address)) {
+      throw new Error('Invalid Ethereum address');
+    }
+    const cacheData = await getValidData<EvmNftIdsStore>(evmNftIdsKey(network, address));
+    if (cacheData) {
+      return cacheData;
+    }
+    return this.loadEvmNftIds(network, address);
+  };
+
+  /**
+   * Get EVM NFT collection list for a given address and collection
+   * @param network - The network to get the collection for
+   * @param address - The address to get the collection for
+   * @param collectionIdentifier - The collection identifier
+   * @param limit - The limit of items to return
+   * @param offset - The offset for pagination
+   * @returns The list of EVM NFT collections
+   */
+  getEvmNftCollectionList = async (
+    network: string,
+    address: string,
+    collectionIdentifier: string,
+    limit = 50,
+    offset = '0'
+  ) => {
+    if (!isValidEthereumAddress(address)) {
+      throw new Error('Invalid Ethereum address');
+    }
+    const cacheData = await getValidData<EvmNftCollectionListStore>(
+      evmNftCollectionListKey(network, address, collectionIdentifier, `${offset}`)
+    );
+    if (cacheData) {
+      return cacheData;
+    }
+    return this.loadEvmCollectionList(network, address, collectionIdentifier, `${offset}`);
+  };
   clear = async () => {
     // Just gonna ingore this for now
   };

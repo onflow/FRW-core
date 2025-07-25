@@ -34,13 +34,13 @@ import type {
   KeyResponseItem,
   NewsConditionType,
   NewsItem,
-  NftCollection,
+  CadenceNftCollection,
   NFTModelV2,
   SignInResponse,
   StorageInfo,
   TokenPriceHistory,
   UserInfoResponse,
-  NFTCollections,
+  CadenceNftCollectionsAndIds,
   NetworkScripts,
   ActiveAccountType,
   Currency,
@@ -48,6 +48,7 @@ import type {
   LoggedInAccount,
   LoggedInAccountWithIndex,
   PublicKeyAccount,
+  CadenceNft,
 } from '@onflow/frw-shared/types';
 import {
   isValidFlowAddress,
@@ -1575,18 +1576,74 @@ export class OpenApiService {
     return data;
   };
 
-  nftCatalogList = async (address: string, limit: any, offset: any, network: string) => {
-    const { data } = await this.sendRequest(
+  /**
+   * 1.fetchFullCadenceNftCollectionList - /api/v2/nft/collections
+   * Get a list of ALL the Cadence NFT collections on the Flow network
+   * This would be used to populate the NFT collection list in the UI
+   * This is needed on the Flow network as Collections need to be enabled on accounts to receive NFTs
+   * @param network
+   * @returns a list of NFT collections
+   */
+  fetchFullCadenceNftCollectionList = async (
+    network = 'mainnet'
+  ): Promise<CadenceNftCollection[]> => {
+    const {
+      data,
+    }: {
+      data: {
+        id: string;
+        contract_name: string;
+        address: string;
+        name: string;
+        logo: string;
+        banner: string;
+        description: string;
+        path: {
+          storage_path: string;
+          public_path: string;
+        };
+        evmAddress: string;
+        evm_address: string;
+        official_website: string;
+        socials: Record<string, string>;
+      }[];
+    } = await this.sendRequest(
       'GET',
-      `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
+      `/api/v2/nft/collections?network=${network}`,
       {},
       {},
       this.store.webNextUrl
     );
-    return data;
+    return data.map((item) => {
+      return {
+        ...item,
+        contractName: item.contract_name,
+        officialWebsite: item.official_website,
+        socials: item.socials,
+        path: item.path
+          ? {
+              storagePath: item.path.storage_path,
+              publicPath: item.path.public_path,
+            }
+          : undefined,
+      };
+    });
   };
 
-  nftCatalogCollections = async (address: string, network: string): Promise<NFTCollections[]> => {
+  /**
+   * 2. fetchCadenceNftCollectionsAndIds - /api/v2/nft/id
+   * Get a list of the NFT collections and the ids of the nfts owned in each by an account on the Flow network
+   * Flow Address -> NFT Collections
+   * This is used to populate the NFT collection list in the UI
+   * @param address
+   * @param network
+   * @returns a list of NFT collections and the ids of the nfts owned in each collection
+   */
+
+  fetchCadenceNftCollectionsAndIds = async (
+    network: string,
+    address: string
+  ): Promise<CadenceNftCollectionsAndIds[]> => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/id?address=${address}&network=${network}`,
@@ -1597,13 +1654,29 @@ export class OpenApiService {
     return data;
   };
 
-  nftCatalogCollectionList = async (
+  /**
+   * 3. Get a list of NFTs from a specific collection under a FLOW address
+   * Use this endpoint to get a list of NFTs that the user owns within a specific collection on the Flow network.
+   * Flow Address -> NFT Collection -> NFTs
+   * @param network
+   * @param address
+   * @param contractName
+   * @param limit
+   * @param offset
+   * @param network
+   * @returns a paginated list of NFTs
+   */
+  fetchCadenceCollectionNfts = async (
+    network: string,
     address: string,
     contractName: string,
-    limit: any,
-    offset: any,
-    network: string
-  ) => {
+    limit: number,
+    offset: number
+  ): Promise<{
+    nfts: CadenceNft[];
+    collection: CadenceNftCollection;
+    nftCount: number;
+  }> => {
     const { data } = await this.sendRequest(
       'GET',
       `/api/v2/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}&network=${network}`,
@@ -1615,14 +1688,60 @@ export class OpenApiService {
   };
 
   /**
-   * The entire list of nft collections
-   * @returns The entire list of nft collections
-   * @deprecated Use getNFTV2CollectionList instead
+   * 4. Get a list of Nfts owned by an account on the Flow network across all collections
+   * Use this endpoint if you need to display an agregated list of NFTs owned by an account across all collections
+   * Flow Address -> NFTs
+   * @param address
+   * @param limit
+   * @param offset
+   * @param network
+   * @returns a paginated list of NFTs
    */
-  nftCollectionList = async () => {
+  fetchCadenceNftsAcrossCollections = async (
+    network: string,
+    address: string,
+    limit: number,
+    offset: number
+  ): Promise<{
+    offset: string | null;
+    nfts: CadenceNft[];
+    nftCount: number;
+  }> => {
     const { data } = await this.sendRequest(
       'GET',
-      '/api/nft/collections',
+      `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
+      {},
+      {},
+      this.store.webNextUrl
+    );
+    return data;
+  };
+  /**
+   **************
+   * EVM NFTs
+   **************
+   *
+   * 1. Get a list of NFTs from a specific collection under a EVM address
+   * Use this endpoint to get a list of NFTs that the user owns within a specific collection on the EVM network.
+   *       EVM Address -> NFT Collection -> NFTs
+   * @param address
+   * @param contractName
+   * @param limit
+   * @param offset
+   * @param network
+   * @returns a paginated list of NFTs
+   */
+
+  EvmNFTcollectionList = async (
+    address: string,
+    collectionIdentifier: string,
+    limit = 24,
+    offset: string | number = 0
+  ) => {
+    const network = await userWalletService.getNetwork();
+    const { data } = await this.sendRequest(
+      'GET',
+      `/api/v3/evm/nft/collectionList?network=${network}&address=${address}&collectionIdentifier=${collectionIdentifier}&limit=${limit}&offset=${offset}`,
       {},
       {},
       this.store.webNextUrl
@@ -1675,23 +1794,6 @@ export class OpenApiService {
     return res;
   };
 
-  EvmNFTcollectionList = async (
-    address: string,
-    collectionIdentifier: string,
-    limit = 24,
-    offset: string | number = 0
-  ) => {
-    const network = await userWalletService.getNetwork();
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v3/evm/nft/collectionList?network=${network}&address=${address}&collectionIdentifier=${collectionIdentifier}&limit=${limit}&offset=${offset}`,
-      {},
-      {},
-      this.store.webNextUrl
-    );
-    return data;
-  };
-
   EvmNFTID = async (network: string, address: string) => {
     const { data } = await this.sendRequest(
       'GET',
@@ -1714,27 +1816,11 @@ export class OpenApiService {
     );
     return data;
   };
-
+  /**
+   * @deprecated use fetchCadenceNftCollectionsAndIds instead
+   */
   getNFTCadenceList = async (address: string, network = 'mainnet', offset = 0, limit = 5) => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/id?network=${network}&address=${address}`,
-      {},
-      {},
-      this.store.webNextUrl
-    );
-    return data;
-  };
-
-  getNFTV2CollectionList = async (network = 'mainnet'): Promise<NftCollection[]> => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/collections?network=${network}`,
-      {},
-      {},
-      this.store.webNextUrl
-    );
-    return data;
+    return this.fetchCadenceNftCollectionsAndIds(address, network);
   };
 
   putDeviceInfo = async (walletData: PublicKeyAccount[]) => {

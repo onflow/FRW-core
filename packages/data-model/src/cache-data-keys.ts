@@ -12,13 +12,13 @@ import {
   type FeatureFlags,
   type AccountBalanceInfo,
   type NewsItem,
-  type NftCollection,
+  type CadenceNftCollection,
   type NFTModelV2,
   type UserInfoResponse,
   type EvmNFTCollectionList,
   type EvmNFTIds,
-  type NFTCollectionData,
-  type NFTCollections,
+  type CadenceCollectionNfts,
+  type CadenceNftCollectionsAndIds,
   type NetworkScripts,
   type TransferItem,
   type Currency,
@@ -174,7 +174,7 @@ export type NftListStore = NFTModelV2[];
 
 export const nftCollectionListKey = (network: string) => `nft-collections-${network}`;
 export const nftCollectionListRefreshRegex = refreshKey(nftCollectionListKey);
-export type NftCollectionListStore = NftCollection[];
+export type NftCollectionListStore = CadenceNftCollection[];
 
 export const getCachedNftCollectionList = async (network: string) => {
   return getCachedData<NftCollectionListStore>(nftCollectionListKey(network));
@@ -187,7 +187,7 @@ export const nftCollectionKey = (
 ) => `nft-collection-${network}-${address}-${collectionId}-${offset}`;
 
 export const nftCollectionRefreshRegex = refreshKey(nftCollectionKey);
-export type NftCollectionStore = NFTCollectionData;
+export type NftCollectionStore = CadenceCollectionNfts;
 
 export const getCachedNftCollection = async (
   network: string,
@@ -195,7 +195,7 @@ export const getCachedNftCollection = async (
   collectionId: string,
   offset: number
 ) => {
-  return getCachedData<NFTCollectionData>(
+  return getCachedData<CadenceCollectionNfts>(
     nftCollectionKey(network, address, collectionId, `${offset}`)
   );
 };
@@ -204,7 +204,7 @@ export const nftCatalogCollectionsKey = (network: string, address: string) =>
   `nft-catalog-collections-${network}-${address}`;
 
 export const nftCatalogCollectionsRefreshRegex = refreshKey(nftCatalogCollectionsKey);
-export type NftCatalogCollectionsStore = NFTCollections[];
+export type NftCatalogCollectionsStore = CadenceNftCollectionsAndIds[];
 
 export const getCachedNftCatalogCollections = async (network: string, address: string) => {
   return getCachedData<NftCatalogCollectionsStore>(nftCatalogCollectionsKey(network, address));

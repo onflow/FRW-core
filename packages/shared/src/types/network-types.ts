@@ -28,61 +28,6 @@ export interface TokenModel {
   symbol: string;
   website: string | null;
 }
-export interface NFTModel_depreciated {
-  name: string;
-  id: string;
-  address: string;
-  contract_name: string;
-  logo: string | null;
-  banner: string | null;
-  official_website: string | null;
-  marketplace: string | null;
-  description: string | null;
-  path: NFTPath_depreciated;
-}
-export interface NFTPath_depreciated {
-  storage_path: string;
-  public_path: string;
-  public_collection_name: string;
-  public_type: string;
-  private_type: string;
-}
-export interface NftCollection {
-  contractName?: string; // alternative name
-  logoURI: string;
-  id: string;
-  address: string;
-  contract_name: string;
-  evmAddress: string;
-  name: string;
-  logo: string;
-  banner: string;
-  description: string;
-  flowIdentifier: string;
-}
-export interface NFTModelV2 {
-  chainId: number;
-  address: string;
-  contractName: string;
-  path: NFTPathV2;
-  evmAddress?: string;
-  flowAddress: string;
-  name: string;
-  description: string | null;
-  logoURI: string | null;
-  bannerURI: string | null;
-  tags: string[];
-  extensions: {
-    discord?: string;
-    instagram?: string;
-    twitter?: string;
-    website?: string;
-  };
-}
-export interface NFTPathV2 {
-  storage: string;
-  public: string;
-}
 
 export interface SecureCadenceCompatible {
   mainnet: boolean;
@@ -126,11 +71,6 @@ export interface Contact {
   username?: string;
   contact_type?: (typeof ContactType)[keyof typeof ContactType];
   group?: string;
-}
-
-export interface NFTData {
-  nfts: any[];
-  nftCount: number;
 }
 
 export interface Domain {
