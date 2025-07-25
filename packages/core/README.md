@@ -49,43 +49,115 @@ npm install firebase
 
 ### Service Initialization
 
-All services are singletons that need to be initialized before use:
+All services are singletons that need to be initialized in a specific order:
 
 ```typescript
 import {
   authenticationService,
+  versionService,
   keyringService,
   openapiService,
+  permissionService,
   preferenceService,
+  coinListService,
+  userInfoService,
+  addressBookService,
   userWalletService,
-  transactionService,
+  transactionActivityService,
   nftService,
+  evmNftService,
+  googleDriveService,
+  googleSafeHostService,
+  tokenListService,
+  remoteConfigService,
+  newsService,
 } from '@onflow/frw-core';
+import { initializeStorage } from '@onflow/frw-data-model';
 
-// Initialize services in order
+// Initialize services following the required order
 async function initializeWallet() {
-  // 1. Authentication (Firebase)
+  // 1. Initialize storage implementation (required first)
+  initializeStorage({ implementation: chromeStorage });
+
+  // 2. Version service (tracks extension version)
+  await versionService.init('1.0.0'); // Your app version
+
+  // 3. Authentication service (Firebase)
   await authenticationService.init(firebaseConfig);
 
-  // 2. API Service (required for FCL)
+  // 4. OpenAPI service (required for FCL and API calls)
   await openapiService.init(
-    API_GO_SERVER_URL,
-    API_BASE_URL,
-    FB_FUNCTIONS_URL,
-    SCRIPTS_PUBLIC_KEY,
-    isDev
+    API_GO_SERVER_URL, // Registration server URL
+    API_BASE_URL, // Web API base URL
+    FB_FUNCTIONS_URL, // Firebase functions URL
+    SCRIPTS_PUBLIC_KEY, // Public key for script verification
+    isDev // Development mode flag
   );
 
-  // 3. Keyring (loads encrypted vaults)
+  // 5. Analytics and logging (optional)
+  if (process.env.MIXPANEL_TOKEN) {
+    await mixpanelService.init(process.env.MIXPANEL_TOKEN);
+    // Initialize logging after analytics
+    initializeChromeLogging();
+  }
+
+  // 6. Keyring service (loads encrypted vaults)
   await keyringService.loadKeyringStore();
 
-  // 4. Other services
-  await preferenceService.init();
+  // 7. Core services (can be initialized in parallel)
+  await Promise.all([
+    permissionService.init(),
+    preferenceService.init(),
+    coinListService.init(),
+    userInfoService.init(),
+    addressBookService.init(),
+  ]);
+
+  // 8. Wallet and transaction services
   await userWalletService.init();
-  await transactionService.init();
+  await transactionActivityService.init();
+
+  // 9. NFT services
   await nftService.init();
+  await evmNftService.init();
+
+  // 10. Google services (optional)
+  await googleDriveService.init({
+    baseURL: 'https://www.googleapis.com/',
+    backupName: process.env.GD_BACKUP_NAME!,
+    appDataFolder: process.env.GD_FOLDER!,
+    scope: 'https://www.googleapis.com/auth/drive.appdata',
+    AES_KEY: process.env.GD_AES_KEY!,
+    IV: process.env.GD_IV!,
+    getAuthTokenWrapper: authTokenFunction,
+  });
+
+  await googleSafeHostService.init({
+    baseURL: 'https://safebrowsing.googleapis.com/',
+    key: process.env.GOOGLE_API!,
+  });
+
+  // 11. Additional services
+  await tokenListService.init();
+  await remoteConfigService.init();
+  await newsService.init();
+
+  // 12. Mark initialization complete
+  // This is typically handled by your app controller
+  // await walletController.setLoaded(true);
 }
 ```
+
+#### Initialization Order Requirements
+
+1. **Storage** must be initialized first as many services depend on it
+2. **Version Service** tracks the app version for compatibility
+3. **Authentication** must come before OpenAPI as API calls require auth
+4. **OpenAPI** initializes FCL and API clients needed by other services
+5. **Keyring** must be loaded before wallet services that access keys
+6. **Core services** (permissions, preferences, etc.) can initialize in parallel
+7. **Wallet services** depend on core services being ready
+8. **Optional services** (Google Drive, analytics) can be conditionally initialized
 
 ## 📚 Core Services
 
@@ -474,11 +546,16 @@ await transactionService.transferTokens(transactionState);
 
 Services must be initialized in a specific order due to dependencies:
 
-1. **authenticationService** - Required for API authentication
-2. **openapiService** - Initializes FCL and API clients
-3. **keyringService** - Loads encrypted vault data
-4. **preferenceService** - User preferences
-5. **Other services** - Can be initialized in any order
+1. **Storage (data-model)** - Required by all services for persistence
+2. **versionService** - Tracks app version for compatibility checks
+3. **authenticationService** - Required for API authentication
+4. **openapiService** - Initializes FCL and API clients
+5. **Analytics/Logging** - Optional telemetry and debugging (if configured)
+6. **keyringService** - Loads encrypted vault data
+7. **Core services** - Permission, preference, user info, address book (can be parallel)
+8. **userWalletService** - Depends on core services being ready
+9. **Transaction/NFT services** - Depend on wallet service
+10. **External services** - Google Drive, remote config, news (optional)
 
 ### Service Patterns
 
@@ -512,33 +589,70 @@ export const someService = SomeService.getInstance();
 // background/index.ts
 import {
   authenticationService,
+  versionService,
   keyringService,
   openapiService,
-  // ... other services
+  // ... all other services
 } from '@onflow/frw-core';
+import { initializeStorage } from '@onflow/frw-data-model';
+import { chromeStorage } from '@onflow/frw-extension-shared/chrome-storage';
 
-async function initializeExtension() {
-  // Initialize services
-  await authenticationService.init(firebaseConfig);
-  await openapiService.init(...);
+async function restoreAppState() {
+  // 1. Initialize storage first
+  initializeStorage({ implementation: chromeStorage });
+
+  // 2. Initialize version service
+  await versionService.init(packageJson.version);
+
+  // 3. Init authentication service
+  await authenticationService.init(getFirbaseConfig());
+
+  // 4. Init OpenAPI service
+  await openapiService.init(
+    process.env.API_GO_SERVER_URL!,
+    process.env.API_BASE_URL!,
+    process.env.FB_FUNCTIONS_URL!,
+    process.env.SCRIPTS_PUBLIC_KEY!,
+    process.env.NODE_ENV === 'development'
+  );
+
+  // 5. Load keyring store
   await keyringService.loadKeyringStore();
 
-  // Set up other services
+  // 6. Initialize other services
   await Promise.all([
+    permissionService.init(),
     preferenceService.init(),
-    userWalletService.init(),
-    transactionService.init(),
-    nftService.init(),
-    coinListService.init()
+    coinListService.init(),
+    userInfoService.init(),
+    addressBookService.init(),
   ]);
+
+  await userWalletService.init();
+  await transactionActivityService.init();
+  await nftService.init();
+  await evmNftService.init();
+
+  // 7. Optional services
+  await googleDriveService.init(googleDriveConfig);
+  await tokenListService.init();
+  await remoteConfigService.init();
+  await newsService.init();
+
+  // 8. Mark app as loaded
+  await walletController.setLoaded(true);
 }
+
+// Initialize on startup
+restoreAppState();
 
 // Handle messages from UI
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.method === 'transferTokens') {
-    transactionService.transferTokens(request.params)
+    transactionService
+      .transferTokens(request.params)
       .then(sendResponse)
-      .catch(error => sendResponse({ error: error.message }));
+      .catch((error) => sendResponse({ error: error.message }));
     return true; // async response
   }
 });
