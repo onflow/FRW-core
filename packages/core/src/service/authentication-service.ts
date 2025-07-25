@@ -15,7 +15,7 @@ import { getId, getInstallations } from 'firebase/installations';
 
 import { consoleLog } from '@onflow/frw-shared/utils';
 
-import { mixpanelTrack } from './mixpanel';
+import { analyticsService } from './analytics';
 
 export class AuthenticationService {
   private app: FirebaseApp | null;
@@ -34,8 +34,8 @@ export class AuthenticationService {
         if (user.isAnonymous) {
           consoleLog('User is anonymous');
         } else {
-          if (mixpanelTrack) {
-            mixpanelTrack.identify(user.uid, user.displayName ?? user.uid);
+          if (analyticsService) {
+            analyticsService.identify(user.uid, user.displayName ?? user.uid);
           }
           consoleLog('User is signed in');
         }

@@ -1,4 +1,16 @@
+import { getLocalData } from '@onflow/frw-data-model';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { type FlowNetwork } from '@onflow/frw-shared/types';
+
+import openApiService from '../openapi';
+import userWalletService from '../userWallet';
+import { createTestResults } from './test-data/api-test-results';
+import {
+  type CommonParams,
+  createTestGroups,
+  updateTestParamsFromResults,
+} from './test-data/test-groups';
 
 vi.mock('../userWallet', async () => {
   const actual = await vi.importActual('../userWallet');
@@ -46,39 +58,46 @@ vi.mock('../transaction', () => ({
   },
 }));
 
-// Mock chrome.storage before any imports
-const mockStorage = {
-  local: {
-    get: vi.fn().mockImplementation(() =>
-      Promise.resolve({
-        auth: { token: 'mock-token' },
-        network: 'testnet',
-      })
-    ),
-    set: vi.fn().mockImplementation(() => Promise.resolve()),
-  },
-  session: {
-    get: vi.fn().mockImplementation(() =>
-      Promise.resolve({
-        expiry: Date.now() + 1000 * 60 * 60,
-        value: {
-          version: '1.0.0',
-          scripts: {
-            mainnet: {
-              test: 'test',
-            },
-            testnet: {
-              test: 'test',
-            },
-          },
-        },
-      })
-    ),
-    set: vi.fn().mockImplementation(() => Promise.resolve()),
-  },
-};
+// Shared memory store for testing
+const memoryStore = new Map<string, any>();
 
-vi.stubGlobal('chrome', { storage: mockStorage });
+vi.mock('@onflow/frw-data-model', () => ({
+  getLocalData: vi.fn(),
+  setLocalData: vi.fn(),
+  removeLocalData: vi.fn(),
+  clearLocalData: vi.fn(),
+  getSessionData: vi.fn(),
+  setSessionData: vi.fn(),
+  removeSessionData: vi.fn(),
+  clearSessionData: vi.fn(),
+  addStorageListener: vi.fn(),
+  removeStorageListener: vi.fn(),
+  getValidData: vi.fn(),
+  setCachedData: vi.fn(),
+  getCachedData: vi.fn(),
+  clearCachedData: vi.fn(),
+  triggerRefresh: vi.fn(),
+  registerRefreshListener: vi.fn(),
+  registerBatchRefreshListener: vi.fn(),
+  cadenceScriptsKey: 'cadenceScripts',
+  CURRENT_ID_KEY: 'currentId',
+  // Add other keys that might be used
+  accountBalanceKey: vi.fn(),
+  accountBalanceRefreshRegex: vi.fn(),
+  coinListKey: vi.fn(),
+  mainAccountsKey: vi.fn(),
+  mainAccountsRefreshRegex: vi.fn(),
+  mainAccountStorageBalanceKey: vi.fn(),
+  mainAccountStorageBalanceRefreshRegex: vi.fn(),
+  pendingAccountCreationTransactionsKey: vi.fn(),
+  pendingAccountCreationTransactionsRefreshRegex: vi.fn(),
+  placeholderAccountsKey: vi.fn(),
+  placeholderAccountsRefreshRegex: vi.fn(),
+  userMetadataKey: vi.fn(),
+  activeAccountsKey: vi.fn(),
+  userWalletsKey: vi.fn(),
+  getActiveAccountsData: vi.fn(),
+}));
 
 vi.mock('dayjs', () => {
   return {
@@ -99,20 +118,6 @@ const mockFetch = vi.fn();
 
 // Set it as global fetch
 vi.stubGlobal('fetch', mockFetch);
-
-// Then imports
-
-import { type FlowNetwork } from '@onflow/frw-shared/types';
-
-import {
-  type CommonParams,
-  createTestGroups,
-  updateTestParamsFromResults,
-} from '@/service/__tests__/test-data/test-groups';
-
-import openApiService from '../openapi';
-import userWalletService from '../userWallet';
-import { createTestResults } from './test-data/api-test-results';
 
 const API_TEST_RESULTS = createTestResults(
   'https://INITIAL_OPENAPI_URL.com',
@@ -146,6 +151,21 @@ describe('OpenApiService', () => {
   beforeEach(async () => {
     mockFetch.mockClear();
     vi.clearAllMocks();
+    memoryStore.clear();
+
+    // Mock storage functions
+    vi.mocked(getLocalData).mockImplementation((key) => {
+      if (key === 'auth') {
+        return Promise.resolve({ token: 'mock-token' });
+      }
+      if (key === 'network') {
+        return Promise.resolve('testnet');
+      }
+      if (key === 'developerMode') {
+        return Promise.resolve(false);
+      }
+      return Promise.resolve(undefined);
+    });
 
     // Default mock implementation for fetch
     mockFetch.mockImplementation((_url, _init) => {
@@ -169,6 +189,7 @@ describe('OpenApiService', () => {
       'https://INITIAL_OPENAPI_URL.com',
       'https://WEB_NEXT_URL.com',
       'https://functions.com',
+      'https://api.onflow.org',
       false
     );
 
@@ -267,13 +288,16 @@ describe('OpenApiService', () => {
             vi.mocked(userWalletService.getNetwork).mockResolvedValue(
               networkHeader.toLowerCase() as FlowNetwork
             );
-            // Also update the headers in the mock storage
-            mockStorage.local.get.mockImplementation(() =>
-              Promise.resolve({
-                auth: { token: 'mock-token' },
-                network: networkHeader.toLowerCase(),
-              })
-            );
+            // Also update the network in the mock storage
+            vi.mocked(getLocalData).mockImplementation((key) => {
+              if (key === 'auth') {
+                return Promise.resolve({ token: 'mock-token' });
+              }
+              if (key === 'network') {
+                return Promise.resolve(networkHeader.toLowerCase());
+              }
+              return Promise.resolve(undefined);
+            });
           }
 
           // Create a queue of responses

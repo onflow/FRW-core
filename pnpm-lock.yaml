@@ -89,9 +89,6 @@ importers:
       '@onflow/frw-data-model':
         specifier: workspace:*
         version: link:../data-model
-      '@onflow/frw-extension-shared':
-        specifier: workspace:*
-        version: link:../extension-shared
       '@onflow/frw-shared':
         specifier: workspace:*
         version: link:../shared
@@ -128,9 +125,6 @@ importers:
       firebase:
         specifier: ^10.14.1
         version: 10.14.1
-      koa-compose:
-        specifier: ^4.1.0
-        version: 4.1.0
       lru-cache:
         specifier: ^11.1.0
         version: 11.1.0
@@ -162,9 +156,6 @@ importers:
 
   packages/data-model:
     dependencies:
-      '@onflow/frw-extension-shared':
-        specifier: workspace:*
-        version: link:../extension-shared
       '@onflow/frw-shared':
         specifier: workspace:*
         version: link:../shared
@@ -187,6 +178,9 @@ importers:
 
   packages/extension-shared:
     dependencies:
+      '@onflow/frw-data-model':
+        specifier: workspace:*
+        version: link:../data-model
       '@onflow/frw-shared':
         specifier: workspace:*
         version: link:../shared
@@ -3058,9 +3052,6 @@ packages:
 
   keyvaluestorage-interface@1.0.0:
     resolution: {integrity: sha512-8t6Q3TclQ4uZynJY9IGr2+SsIGwK9JHcO6ootkHCGA0CrQCRy+VkouYNO2xicET6b9al7QKzpebNow+gkpCL8g==}
-
-  koa-compose@4.1.0:
-    resolution: {integrity: sha512-8ODW8TrDuMYvXRwra/Kh7/rJo9BtOfPc6qO8eAfC80CnCvSjSl0bkRM24X6/XBBEyj0v1nRUQ1LyOy3dbqOWXw==}
 
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
@@ -8244,8 +8235,6 @@ snapshots:
       json-buffer: 3.0.1
 
   keyvaluestorage-interface@1.0.0: {}
-
-  koa-compose@4.1.0: {}
 
   levn@0.4.1:
     dependencies:

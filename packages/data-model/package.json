@@ -1,16 +1,12 @@
 {
   "name": "@onflow/frw-data-model",
-  "version": "0.1.1",
-  "publishConfig": {
-    "access": "public"
-  },
+  "version": "0.2.1",
   "description": "Data model for Flow Reference Wallet",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "src",
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
@@ -31,14 +27,17 @@
   },
   "exports": {
     ".": {
+      "@onflow/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@onflow/frw-shared": "workspace:*",
-    "@onflow/frw-extension-shared": "workspace:*"
+    "@onflow/frw-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

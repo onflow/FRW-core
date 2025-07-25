@@ -1,7 +1,7 @@
-import storage from '@onflow/frw-extension-shared/storage';
 import { consoleError } from '@onflow/frw-shared/utils';
 
 import { setCachedData } from './data-cache';
+import { addStorageListener, removeSessionData } from './storage';
 
 type BatchItem = {
   key: string;
@@ -48,7 +48,7 @@ export const registerBatchRefreshListener = (
     });
   }
 
-  chrome.storage.onChanged.addListener(async (changes, namespace) => {
+  addStorageListener(async (changes, namespace) => {
     // Filter out non-refresh changes
     const changedKeys = Object.keys(changes).filter((key) => key.includes('-refresh'));
     if (changedKeys.length === 0) {
@@ -91,7 +91,7 @@ export const registerBatchRefreshListener = (
       }
 
       // Remove the refresh key
-      await storage.removeSession(key);
+      await removeSessionData(key);
     }
   });
 };

@@ -1,3 +1,12 @@
+import {
+  getLocalData,
+  setLocalData,
+  removeLocalData,
+  getInvalidData,
+  getValidData,
+  setCachedData,
+  getCachedData,
+} from '@onflow/frw-data-model';
 import type { TransactionExecutionStatus, TransactionStatus } from '@onflow/typedefs';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -6,74 +15,47 @@ import { type FlowNetwork } from '@onflow/frw-shared/types';
 import openapiService from '../openapi';
 import transaction from '../transaction-activity';
 
-// Mock storage functions
-vi.mock('@onflow/frw-extension-shared/storage', () => ({
-  default: {
-    getSession: vi.fn().mockImplementation((key) => {
-      const now = Date.now();
-      const value = mockStorageState.session.get(key);
-      return Promise.resolve(
-        value
-          ? {
-              value,
-              expiry: now + 120_000, // 2 minutes from now
-            }
-          : undefined
-      );
-    }),
-    setSession: vi.fn().mockImplementation((key, value) => {
-      mockStorageState.session.set(key, value);
-      return Promise.resolve();
-    }),
-    removeSession: vi.fn().mockImplementation((key) => {
-      mockStorageState.session.delete(key);
-      return Promise.resolve();
-    }),
-    clear: vi.fn().mockImplementation(() => {
-      mockStorageState.session.clear();
-      return Promise.resolve();
-    }),
-  },
+// Shared memory store for testing
+const memoryStore = new Map<string, any>();
+
+vi.mock('@onflow/frw-data-model', () => ({
+  getLocalData: vi.fn(),
+  setLocalData: vi.fn(),
+  removeLocalData: vi.fn(),
+  clearLocalData: vi.fn(),
+  getSessionData: vi.fn(),
+  setSessionData: vi.fn(),
+  removeSessionData: vi.fn(),
+  clearSessionData: vi.fn(),
+  addStorageListener: vi.fn(),
+  removeStorageListener: vi.fn(),
+  getValidData: vi.fn(),
+  getInvalidData: vi.fn(),
+  setCachedData: vi.fn(),
+  getCachedData: vi.fn(),
+  clearCachedData: vi.fn(),
+  triggerRefresh: vi.fn(),
+  registerRefreshListener: vi.fn(),
+  registerBatchRefreshListener: vi.fn(),
+  transferListKey: vi.fn(),
+  transferListRefreshRegex: vi.fn(),
+  coinListKey: vi.fn(),
+  // Add other keys that might be used
+  accountBalanceKey: vi.fn(),
+  accountBalanceRefreshRegex: vi.fn(),
+  mainAccountsKey: vi.fn(),
+  mainAccountsRefreshRegex: vi.fn(),
+  mainAccountStorageBalanceKey: vi.fn(),
+  mainAccountStorageBalanceRefreshRegex: vi.fn(),
+  pendingAccountCreationTransactionsKey: vi.fn(),
+  pendingAccountCreationTransactionsRefreshRegex: vi.fn(),
+  placeholderAccountsKey: vi.fn(),
+  placeholderAccountsRefreshRegex: vi.fn(),
+  userMetadataKey: vi.fn(),
+  activeAccountsKey: vi.fn(),
+  userWalletsKey: vi.fn(),
+  getActiveAccountsData: vi.fn(),
 }));
-
-// Mock storage state
-const mockStorageState = {
-  local: new Map<string, any>(),
-  session: new Map<string, any>(),
-};
-
-// Create storage handlers
-const createStorageApis = (storageMap: Map<string, any>) => ({
-  get: vi.fn((key?: string | string[] | undefined) => {
-    if (!key) {
-      return Promise.resolve(Object.fromEntries(storageMap));
-    }
-    if (typeof key === 'string') {
-      const value = storageMap.get(key);
-      return Promise.resolve({ [key]: value === undefined ? null : value });
-    }
-    const result = {};
-    key.forEach((k) => {
-      const value = storageMap.get(k);
-      result[k] = value === undefined ? null : value;
-    });
-    return Promise.resolve(result);
-  }),
-  set: vi.fn((items: object) => {
-    Object.entries(items).forEach(([key, value]) => {
-      storageMap.set(key, value);
-    });
-    return Promise.resolve();
-  }),
-  remove: vi.fn((key: string) => {
-    storageMap.delete(key);
-    return Promise.resolve();
-  }),
-  clear: vi.fn(() => {
-    storageMap.clear();
-    return Promise.resolve();
-  }),
-});
 
 // Mock chrome API
 const chrome = {
@@ -81,20 +63,11 @@ const chrome = {
     getMessage: vi.fn((msg) => {
       const messages = {
         PENDING: 'PENDING',
-        SEALED: 'SEALED',
+        Sealed: 'Sealed',
         FAILED: 'FAILED',
       };
       return messages[msg] || msg;
     }),
-  },
-  storage: {
-    local: createStorageApis(mockStorageState.local),
-    session: createStorageApis(mockStorageState.session),
-    onChanged: {
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      hasListener: vi.fn(),
-    },
   },
   runtime: {
     sendMessage: vi.fn(),
@@ -109,18 +82,43 @@ beforeAll(async () => {});
 describe('Transaction Service', () => {
   beforeEach(async () => {
     // Clear mock storage state
-    await chrome.storage.local.clear();
-    await chrome.storage.session.clear();
+    memoryStore.clear();
+
+    // Mock storage functions
+    vi.mocked(getLocalData).mockImplementation((key) => {
+      if (key === 'developerMode') {
+        return Promise.resolve(false);
+      }
+      return Promise.resolve(undefined);
+    });
+    vi.mocked(setLocalData).mockImplementation((key, value) => {
+      memoryStore.set(key, value);
+      return Promise.resolve();
+    });
+    vi.mocked(removeLocalData).mockImplementation((key) => {
+      memoryStore.delete(key);
+      return Promise.resolve();
+    });
+    vi.mocked(getInvalidData).mockImplementation((key) => {
+      return Promise.resolve(undefined);
+    });
+    vi.mocked(getValidData).mockImplementation((key) => {
+      return Promise.resolve(undefined);
+    });
+    vi.mocked(setCachedData).mockImplementation((key, value) => {
+      memoryStore.set(key, value);
+      return Promise.resolve();
+    });
+    vi.mocked(getCachedData).mockImplementation((key) => {
+      return Promise.resolve(memoryStore.get(key));
+    });
 
     // Reset the service before each test
     await transaction.init();
     transaction.clear();
 
     // Clear mock call history
-    vi.mocked(chrome.storage.local.set).mockClear();
-    vi.mocked(chrome.storage.local.get).mockClear();
-    vi.mocked(chrome.storage.session.set).mockClear();
-    vi.mocked(chrome.storage.session.get).mockClear();
+    vi.clearAllMocks();
   });
 
   // Add the openapi service mock
@@ -131,7 +129,7 @@ describe('Transaction Service', () => {
           sender: '0x1234567890abcdef',
           receiver: '0x2234567890abcdef',
           time: '123456789',
-          status: 'SEALED',
+          status: 'Sealed',
           txid: '0x1234567890abcdef1234567890abcdef',
           error: false,
           image: 'test-image',
@@ -222,7 +220,7 @@ describe('Transaction Service', () => {
       const status: TransactionStatus = {
         blockId: '123',
         status: 4 as TransactionExecutionStatus,
-        statusString: 'SEALED',
+        statusString: 'Sealed',
         statusCode: 0,
         errorMessage: '',
         events: [
@@ -244,7 +242,7 @@ describe('Transaction Service', () => {
       await transaction.updatePending(network, address, txId, status);
 
       const pendingItems = await transaction.listPending(network, address);
-      expect(pendingItems[0].status).toBe('SEALED');
+      expect(pendingItems[0].status).toBe('Sealed');
       expect(pendingItems[0].error).toBe(false);
       expect(pendingItems[0].cadenceTxId).toBe(txId);
       expect(pendingItems[0].evmTxIds).toHaveLength(1);
@@ -261,7 +259,7 @@ describe('Transaction Service', () => {
       const status: TransactionStatus = {
         blockId: '123',
         status: 4 as TransactionExecutionStatus,
-        statusString: 'SEALED',
+        statusString: 'Sealed',
         statusCode: 0,
         errorMessage: '',
         events: [
@@ -296,7 +294,7 @@ describe('Transaction Service', () => {
 
       const pendingItems = await transaction.listPending(network, address);
       expect(pendingItems[0].evmTxIds).toHaveLength(1);
-      expect(pendingItems[0].status).toBe('SEALED');
+      expect(pendingItems[0].status).toBe('Sealed');
     });
 
     test('should mark transaction as error when status code is 1', async () => {
@@ -372,7 +370,7 @@ describe('Transaction Service', () => {
       const status: TransactionStatus = {
         blockId: '123',
         status: 4 as TransactionExecutionStatus,
-        statusString: 'SEALED',
+        statusString: 'Sealed',
         statusCode: 0,
         errorMessage: '',
         events: [
@@ -436,7 +434,7 @@ describe('Transaction Service', () => {
       const status: TransactionStatus = {
         blockId: '123',
         status: 4 as TransactionExecutionStatus,
-        statusString: 'SEALED',
+        statusString: 'Sealed',
         statusCode: 0,
         errorMessage: '',
         events,
@@ -447,7 +445,7 @@ describe('Transaction Service', () => {
       const pendingItems = await transaction.listPending(network, address);
       expect(pendingItems[0].evmTxIds).toHaveLength(numEvmTxs);
       expect(pendingItems[0].cadenceTxId).toBe(cadenceTxId);
-      expect(pendingItems[0].status).toBe('SEALED');
+      expect(pendingItems[0].status).toBe('Sealed');
 
       // Verify we can still remove it using any of the IDs
       await transaction.removePending(network, address, pendingItems[0].evmTxIds![25]); // Try removing using a middle EVM tx ID
@@ -485,32 +483,32 @@ describe('Transaction Service', () => {
         total: 0,
       });
       vi.mocked(openapiService.getNetwork).mockResolvedValueOnce('mainnet');
-      await transaction.loadTransactions(network, address, '', '');
 
-      const transactions = await transaction.listTransactions(network, address, '', '');
+      // Clear any cached data for this test
+      memoryStore.clear();
+
+      // Clear pending transactions for this address
+      await transaction.clearPending(network, address);
+
+      // Ensure getValidData returns undefined to force loading from API
+      vi.mocked(getValidData).mockResolvedValue(undefined);
+
+      // Mock getValidData to return empty data structure for getCount
+      vi.mocked(getValidData).mockResolvedValueOnce({
+        count: 0,
+        pendingCount: 0,
+        list: [],
+      });
+
+      // Also ensure getInvalidData returns undefined to avoid existing transaction data
+      vi.mocked(getInvalidData).mockResolvedValue(undefined);
+
+      await transaction.loadTransactions(network, address, '0', '15');
+
+      const transactions = await transaction.listTransactions(network, address, '0', '15');
       expect(transactions).toHaveLength(0);
-      expect(await transaction.getCount(network, address, '', '')).toBe(0);
+
+      expect(await transaction.getCount(network, address, '0', '15')).toBe(0);
     });
   });
-});
-
-vi.mock('@onflow/frw-data-model', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@onflow/frw-data-model')>();
-  return {
-    ...actual,
-    getCachedData: vi.fn().mockImplementation(async (key) => {
-      return mockStorageState.session.get(key);
-    }),
-    setCachedData: vi.fn().mockImplementation((key, value, expiry) => {
-      mockStorageState.session.set(key, value);
-    }),
-    getValidData: vi.fn().mockImplementation(async (key) => {
-      return mockStorageState.session.get(key);
-    }),
-    getInvalidData: vi.fn().mockImplementation(async (key) => {
-      return mockStorageState.session.get(key);
-    }),
-
-    registerRefreshListener: vi.fn(),
-  };
 });

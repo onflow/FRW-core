@@ -179,7 +179,7 @@ class TransactionActivity {
     } as TransferItem;
 
     // Not sure we have a string for this
-    txItem.status = chrome.i18n.getMessage('PENDING') || 'PENDING';
+    txItem.status = 'PENDING';
     txItem.time = now.getTime();
     txItem.token = 'Exec Transaction';
     txItem.sender = address;
@@ -222,9 +222,7 @@ class TransactionActivity {
     }
     const txItem = txList[txItemIndex];
 
-    txItem.status =
-      chrome.i18n.getMessage(transactionStatus.statusString) ||
-      mapTransactionStatus(transactionStatus.statusString);
+    txItem.status = mapTransactionStatus(transactionStatus.statusString);
     txItem.error = transactionStatus.statusCode === 1;
 
     const evmTxIds: string[] = transactionStatus.events?.reduce(

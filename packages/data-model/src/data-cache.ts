@@ -1,7 +1,7 @@
-import storage from '@onflow/frw-extension-shared/storage';
 import { consoleError } from '@onflow/frw-shared/utils';
 
 import { type CacheDataItem } from './data-cache-types';
+import { getSessionData, setSessionData, removeSessionData, addStorageListener } from './storage';
 
 /**
  * Get valid data from session storage
@@ -13,7 +13,7 @@ import { type CacheDataItem } from './data-cache-types';
  */
 
 export const getValidData = async <T>(key: string): Promise<T | undefined> => {
-  const sessionData: CacheDataItem | undefined = await storage.getSession(key);
+  const sessionData: CacheDataItem | undefined = await getSessionData<CacheDataItem>(key);
   if (!sessionData || sessionData.expiry < Date.now()) {
     return undefined;
   }
@@ -27,7 +27,7 @@ export const getValidData = async <T>(key: string): Promise<T | undefined> => {
  */
 
 export const getInvalidData = async <T>(key: string): Promise<T | undefined> => {
-  const sessionData: CacheDataItem | undefined = await storage.getSession(key);
+  const sessionData: CacheDataItem | undefined = await getSessionData<CacheDataItem>(key);
 
   return sessionData?.value as T | undefined;
 };
@@ -45,7 +45,7 @@ export const registerRefreshListener = (
   keyRegex: RegExp,
   loader: (...args: string[]) => Promise<unknown>
 ) => {
-  chrome.storage.onChanged.addListener(async (changes, namespace) => {
+  addStorageListener(async (changes, namespace) => {
     // Filter out timestamp changes
     const changedKeys = Object.keys(changes).filter((key) => key.includes('-refresh'));
     if (changedKeys.length === 0) {
@@ -68,7 +68,7 @@ export const registerRefreshListener = (
       }
 
       // Remove the refresh key
-      await storage.removeSession(`${key}`);
+      await removeSessionData(`${key}`);
     }
   });
 };
@@ -90,14 +90,14 @@ export const setCachedData = async (
 ): Promise<void> => {
   // Check that the key is not already set
   const newCacheData: CacheDataItem = { value, expiry: Date.now() + ttl };
-  return storage.setSession(key, newCacheData).then(() => {
+  return setSessionData(key, newCacheData).then(() => {
     // Remove any refresh key if it exists as the data has just been updated
-    storage.removeSession(`${key}-refresh`);
+    removeSessionData(`${key}-refresh`);
   });
 };
 
 export const clearCachedData = async (key: string): Promise<void> => {
-  return storage.removeSession(key);
+  return removeSessionData(key);
 };
 
 // Export batch refresh functionality

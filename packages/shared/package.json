@@ -1,19 +1,12 @@
 {
   "name": "@onflow/frw-shared",
-  "version": "0.1.1",
-  "publishConfig": {
-    "access": "public"
-  },
+  "version": "0.2.1",
   "description": "Shared types and utilities for Flow Reference Wallet",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "src",
-    "src/types/index.ts",
-    "src/constant/index.ts",
-    "src/utils/index.ts"
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
@@ -35,21 +28,33 @@
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --write"
   },
   "exports": {
+    ".": {
+      "@onflow/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
     "./types": {
+      "@onflow/source": "./src/types/index.ts",
       "types": "./dist/types/index.d.ts",
       "import": "./dist/types/index.js",
       "default": "./dist/types/index.js"
     },
     "./constant": {
+      "@onflow/source": "./src/constant/index.ts",
       "types": "./dist/constant/index.d.ts",
       "import": "./dist/constant/index.js",
       "default": "./dist/constant/index.js"
     },
     "./utils": {
+      "@onflow/source": "./src/utils/index.ts",
       "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.js",
       "default": "./dist/utils/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@onflow/typedefs": "^1.4.0",

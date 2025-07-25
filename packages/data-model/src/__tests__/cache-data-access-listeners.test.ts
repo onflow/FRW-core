@@ -2,24 +2,18 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import { addCachedDataListener, removeCachedDataListener } from '../cache-data-access';
 
-// Mock chrome global
+// Mock storage functions
 const mockListeners: ((...args: any[]) => void)[] = [];
-const mockAddListener = vi.fn((listener) => {
-  mockListeners.push(listener);
-});
-const mockRemoveListener = vi.fn((listener) => {
-  const index = mockListeners.indexOf(listener);
-  if (index > -1) mockListeners.splice(index, 1);
-});
 
-global.chrome = {
-  storage: {
-    onChanged: {
-      addListener: mockAddListener,
-      removeListener: mockRemoveListener,
-    },
-  },
-} as unknown as typeof chrome;
+vi.mock('../storage', () => ({
+  addStorageListener: vi.fn((listener) => {
+    mockListeners.push(listener);
+  }),
+  removeStorageListener: vi.fn((listener) => {
+    const index = mockListeners.indexOf(listener);
+    if (index > -1) mockListeners.splice(index, 1);
+  }),
+}));
 
 describe('cache-data-access listeners', () => {
   beforeEach(() => {
@@ -33,12 +27,11 @@ describe('cache-data-access listeners', () => {
 
     addCachedDataListener(key, callback);
 
-    expect(mockAddListener).toHaveBeenCalledTimes(1);
     expect(mockListeners.length).toBe(1);
 
     removeCachedDataListener(key, callback);
 
-    expect(mockRemoveListener).toHaveBeenCalledTimes(1);
+    expect(mockListeners.length).toBe(0);
     expect(mockListeners.length).toBe(0);
   });
 });

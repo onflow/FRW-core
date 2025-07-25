@@ -13,6 +13,8 @@ export * from './modules/publicPrivateKey';
 export * from './random-id';
 export * from './modules/findAddressWithPubKey';
 export * from './modules/findAddressWithPK';
+export * from './fclConfig';
+export * from './retryOperation';
 // {a:{b: string}} => {1: 'a.b'}
 // later same [source] value will override [result] key generated before
 const retrieveValuePath = (obj) => {
@@ -44,7 +46,6 @@ export const underline2Camelcase = (str: string) => {
   return str.replace(/_(.)/g, (m, p1) => p1.toUpperCase());
 };
 
-export { default as PromiseFlow } from './promiseFlow';
 export { retrieveValuePath };
 
 export function normalizeAddress(input: number | string): string {
@@ -87,7 +88,7 @@ export const checkEmulatorStatus = async (network: FlowNetwork): Promise<boolean
     const baseURL = getEmulatorBaseURL(network);
     const response = await fetch(`${baseURL}/v1/blocks?height=sealed`);
     const data = await response.json();
-    return !!data[0].block_status;
+    return !!(data as any)[0].block_status;
   } catch (error) {
     consoleError('checkEmulatorAccount - error ', error);
 

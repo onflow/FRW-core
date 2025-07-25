@@ -1,14 +1,12 @@
 {
   "name": "@onflow/frw-extension-shared",
-  "version": "0.1.1",
-  "publishConfig": {
-    "access": "public"
-  },
+  "version": "0.2.2",
   "description": "Shared code for Flow Reference Wallet Extension",
   "type": "module",
   "files": [
     "src",
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
@@ -28,39 +26,43 @@
     "*.{json,js,ts,jsx,tsx,html,md,mdx,mjs}": "prettier --write"
   },
   "exports": {
+    ".": {
+      "@onflow/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
     "./chrome-logger": {
+      "@onflow/source": "./src/chrome-logger.ts",
       "types": "./dist/chrome-logger.d.ts",
       "import": "./dist/chrome-logger.js",
       "default": "./dist/chrome-logger.js"
     },
-    "./message/eventBus": {
-      "types": "./dist/message/eventBus.d.ts",
-      "import": "./dist/message/eventBus.js",
-      "default": "./dist/message/eventBus.js"
+    "./chrome-storage": {
+      "@onflow/source": "./src/chrome-storage.ts",
+      "types": "./dist/chrome-storage.d.ts",
+      "import": "./dist/chrome-storage.js",
+      "default": "./dist/chrome-storage.js"
     },
-    "./message/messaging": {
-      "types": "./dist/message/messaging.d.ts",
-      "import": "./dist/message/messaging.js",
-      "default": "./dist/message/messaging.js"
-    },
-    "./message/storage": {
-      "types": "./dist/message/storage.d.ts",
-      "import": "./dist/message/storage.js",
-      "default": "./dist/message/storage.js"
+    "./messaging": {
+      "@onflow/source": "./src/messaging.ts",
+      "types": "./dist/messaging.d.ts",
+      "import": "./dist/messaging.js",
+      "default": "./dist/messaging.js"
     },
     "./contact-utils": {
+      "@onflow/source": "./src/contact-utils.ts",
       "types": "./dist/contact-utils.d.ts",
       "import": "./dist/contact-utils.js",
       "default": "./dist/contact-utils.js"
-    },
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.js",
-      "default": "./dist/*.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@onflow/frw-shared": "workspace:*",
+    "@onflow/frw-data-model": "workspace:*",
     "eth-rpc-errors": "^4.0.3",
     "events": "^3.3.0"
   },

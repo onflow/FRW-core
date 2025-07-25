@@ -50,6 +50,9 @@ class GoogleSafeHost {
     const hostList = hosts.map((host) => new URL(host).host);
     const unique = Array.from(new Set(hostList)).map((host): GoogleHostModel => ({ url: host }));
     const { data } = await this.sendRequest(unique);
+    if (typeof data !== 'object' || !data || !('matches' in data) || !Array.isArray(data.matches)) {
+      return [];
+    }
     this.setExpiry();
     if (data.matches && data.matches.length > 0) {
       const blockList = data.matches.map((item) => item.threat.url);

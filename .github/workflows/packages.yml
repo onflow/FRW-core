@@ -42,7 +42,7 @@ jobs:
       - name: Type check
         run: |
           echo "Running type checks..."
-          pnpm -r --parallel exec tsc --noEmit || true
+          pnpm typecheck
           echo "Type check completed"
 
       - name: Check package publishability

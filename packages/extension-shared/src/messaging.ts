@@ -7,3 +7,5 @@ const Message = {
 };
 
 export { Message };
+export { default as eventBus } from './message/eventBus';
+export * from './message';

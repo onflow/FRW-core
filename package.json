@@ -5,6 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "dev": "pnpm -r --parallel build:watch",
     "build": "pnpm -r build",
     "build:packages": "pnpm -F './packages/**' build",
     "build:parallel": "pnpm -r --parallel build",
@@ -16,6 +17,7 @@
     "lint:fix": "for pkg in packages/*; do (cd $pkg && echo \"Linting $pkg\" && pnpm lint:fix) || exit 1; done",
     "format": "prettier .",
     "format:fix": "prettier --write .",
+    "typecheck": "pnpm -r --parallel exec tsc --build --force",
     "prepare": "husky",
     "pre-commit": "pnpm --filter \"@onflow/frw-*\" pre-commit",
     "changeset": "changeset",

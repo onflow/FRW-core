@@ -1,16 +1,12 @@
 {
   "name": "@onflow/frw-reducers",
-  "version": "0.1.1",
-  "publishConfig": {
-    "access": "public"
-  },
+  "version": "0.2.1",
   "description": "Reducers for Flow Reference Wallet",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "src",
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
@@ -31,15 +27,14 @@
   },
   "exports": {
     ".": {
+      "@onflow/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    },
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.js",
-      "default": "./dist/*.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@onflow/frw-shared": "workspace:*",

@@ -25,7 +25,6 @@ export default defineConfig({
     alias: {
       '@onflow/frw-shared': new URL('../shared/src', import.meta.url).pathname,
       '@onflow/frw-data-model': new URL('../data-model/src', import.meta.url).pathname,
-      '@onflow/frw-extension-shared': new URL('../extension-shared/src', import.meta.url).pathname,
       '@': new URL('./src', import.meta.url).pathname,
     },
   },

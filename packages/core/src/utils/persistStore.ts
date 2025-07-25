@@ -1,7 +1,7 @@
-import storage from '@onflow/frw-extension-shared/storage';
+import { getLocalData, setLocalData } from '@onflow/frw-data-model';
 
 const persistStorage = (name: string, obj: object) => {
-  storage.set(name, obj);
+  setLocalData(name, obj);
 };
 
 interface CreatePersistStoreParams<T> {
@@ -18,10 +18,10 @@ const createPersistStore = async <T extends object>({
   // Always clone the template to avoid mutating the original object
   let tpl = structuredClone(template);
   if (fromStorage) {
-    const storageCache = await storage.get(name);
+    const storageCache = await getLocalData<T>(name);
     tpl = storageCache || template;
     if (!storageCache) {
-      await storage.set(name, tpl);
+      await setLocalData(name, tpl);
     }
   }
 

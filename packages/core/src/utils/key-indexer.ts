@@ -9,7 +9,7 @@ export const fetchAccountsByPublicKey = async (
       ? `https://staging.key-indexer.flow.com/key/${publicKey}`
       : `https://production.key-indexer.flow.com/key/${publicKey}`;
   const result = await fetch(url);
-  const json: {
+  const json = (await result.json()) as {
     publicKey: string;
     accounts: {
       address: string;
@@ -21,7 +21,7 @@ export const fetchAccountsByPublicKey = async (
       signing: string;
       hashing: string;
     }[];
-  } = await result.json();
+  };
 
   // Now massage the data to match the type we want
   const accounts: PublicKeyAccount[] = json.accounts
