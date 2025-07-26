@@ -1,5 +1,11 @@
 # @onflow/frw-shared
 
+## 0.2.4
+
+### Patch Changes
+
+- d950c81: Small type changes and fixes
+
 ## 0.2.3
 
 ### Patch Changes
