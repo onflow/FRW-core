@@ -1,5 +1,14 @@
 # @onflow/frw-core
 
+## 0.2.4
+
+### Patch Changes
+
+- d950c81: Small type changes and fixes
+- Updated dependencies [d950c81]
+  - @onflow/frw-shared@0.2.4
+  - @onflow/frw-data-model@0.2.4
+
 ## 0.2.3
 
 ### Patch Changes
