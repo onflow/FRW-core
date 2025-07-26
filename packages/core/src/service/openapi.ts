@@ -1025,6 +1025,9 @@ export class OpenApiService {
     }
   };
 
+  /**
+   * @deprecated script is not found
+   */
   checkChildAccount = async (address: string) => {
     const script = await getScripts(
       userWalletService.getNetwork(),
@@ -1037,7 +1040,9 @@ export class OpenApiService {
     });
     return result;
   };
-
+  /**
+   * @deprecated script is not found
+   */
   queryAccessible = async (address: string, childAccount: string) => {
     const script = await getScripts(
       userWalletService.getNetwork(),
@@ -1566,6 +1571,7 @@ export class OpenApiService {
    * @param network - The network to get the NFTs for
    * @param chainType - The chain type to get the NFTs for
    * @returns The list of NFTs
+   * @deprecated use fetchFullCadenceNftCollectionList instead
    */
   getNFTList = async (network: string, chainType: 'flow' | 'evm'): Promise<NFTModelV2[]> => {
     //'/api/v3/nfts',

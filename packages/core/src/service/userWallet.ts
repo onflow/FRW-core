@@ -30,6 +30,8 @@ import {
   getActiveAccountsData,
   userWalletsKey,
   type UserWalletStore,
+  registerStatusKey,
+  registerStatusRefreshRegex,
 } from '@onflow/frw-data-model';
 import type { Account as FclAccount } from '@onflow/typedefs';
 import * as ethUtil from 'ethereumjs-util';
@@ -1911,4 +1913,9 @@ const initAccountLoaders = () => {
     pendingAccountCreationTransactionsRefreshRegex,
     clearPendingAccountCreationTransactions
   );
+
+  registerRefreshListener(registerStatusRefreshRegex, async (pubKey: string) => {
+    // The ttl is set to 2 minutes. After that we set the cache to false
+    setCachedData(registerStatusKey(pubKey), false, 120_000);
+  });
 };

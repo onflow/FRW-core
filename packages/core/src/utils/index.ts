@@ -131,8 +131,8 @@ export const findPublicKeyIndex = (account: FclAccount, publicKey: string) => {
 
 export const replaceNftKeywords = (script: string, token: any) => {
   const contractName = token.contractName || token.contract_name;
-  const storagePath = token.path.storage_path || token.path.storage;
-  const publicPath = token.path.public_path || token.path.public;
+  const storagePath = token.path.storagePath || token.path.storage;
+  const publicPath = token.path.publicPath || token.path.public;
   if (!contractName) {
     throw new Error('Contract name not found');
   }
