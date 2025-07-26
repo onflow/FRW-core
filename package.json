@@ -22,7 +22,9 @@
     "pre-commit": "pnpm --filter \"@onflow/frw-*\" pre-commit",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "link:global": "pnpm -r exec pnpm link --global",
+    "unlink:global": "pnpm unlink --global @onflow/frw-core @onflow/frw-data-model @onflow/frw-extension-shared @onflow/frw-reducers @onflow/frw-shared"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.1",

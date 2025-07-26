@@ -121,6 +121,9 @@ export type ChildAccountNftMap = {
   [address: string]: ChildAccountNfts;
 };
 
+/**
+ * @deprecated use NftCollectionAndIds instead
+ */
 export interface NFTModelV2 {
   chainId: number;
   address: string;
@@ -140,6 +143,9 @@ export interface NFTModelV2 {
     website?: string;
   };
 }
+/**
+ * @deprecated use NFTPathV2 instead
+ */
 export interface NFTPathV2 {
   storage: string;
   public: string;
