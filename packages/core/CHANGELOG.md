@@ -1,5 +1,11 @@
 # @onflow/frw-core
 
+## 0.2.6
+
+### Patch Changes
+
+- e4a255b: Corrected transaction value error in evm
+
 ## 0.2.5
 
 ### Patch Changes
