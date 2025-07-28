@@ -1,5 +1,14 @@
 # @onflow/frw-core
 
+## 0.2.5
+
+### Patch Changes
+
+- a286c45: New unified transferNfts function
+- Updated dependencies [a286c45]
+  - @onflow/frw-shared@0.2.5
+  - @onflow/frw-data-model@0.2.5
+
 ## 0.2.4
 
 ### Patch Changes

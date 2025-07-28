@@ -1,5 +1,11 @@
 # @onflow/frw-shared
 
+## 0.2.5
+
+### Patch Changes
+
+- a286c45: New unified transferNfts function
+
 ## 0.2.4
 
 ### Patch Changes
