@@ -1757,15 +1757,20 @@ export class OpenApiService {
     address: string,
     limit: number,
     offset: number
-  ): Promise<CollectionNfts> => {
-    const { data }: { data: CollectionNftsResponse } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
-      {},
-      {},
-      this.store.webNextUrl
-    );
-    return responseToCollectionNfts(data);
+  ): Promise<{
+    nfts: Nft[];
+    nftCount: number;
+    offset?: string | null;
+  }> => {
+    const { data }: { data: { nfts: Nft[]; nftCount: number; offset?: string | null } } =
+      await this.sendRequest(
+        'GET',
+        `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
+        {},
+        {},
+        this.store.webNextUrl
+      );
+    return data;
   };
   /**
    **************
