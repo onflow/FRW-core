@@ -16,6 +16,7 @@ import {
 import {
   convertToIntegerAmount,
   ensureEvmAddressPrefix,
+  getErrorMessage,
   validateAmount,
 } from '@onflow/frw-shared/utils';
 
@@ -407,7 +408,7 @@ export class TransactionService {
 
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, fcl.t.String),
-      fcl.arg('0', fcl.t.UInt256),
+      fcl.arg(transactionValue.toString(), fcl.t.UInt256),
       fcl.arg(regularArray, fcl.t.Array(fcl.t.UInt8)),
       fcl.arg(gasLimit, fcl.t.UInt64),
     ]);
@@ -1396,9 +1397,9 @@ export class TransactionService {
       await fcl.tx(txID).onceExecuted();
       // Track with success
       await this.trackCoaCreation(txID);
-    } catch (error: any) {
+    } catch (error) {
       // Track with error
-      await this.trackCoaCreation(txID, error.message);
+      await this.trackCoaCreation(txID, getErrorMessage(error));
     }
 
     return txID;
@@ -1424,9 +1425,9 @@ export class TransactionService {
 
       // Track with success
       await this.trackCoaCreation(txID);
-    } catch (error: any) {
+    } catch (error) {
       // Track with error
-      await this.trackCoaCreation(txID, error.message);
+      await this.trackCoaCreation(txID, getErrorMessage(error));
     }
 
     return txID;
