@@ -407,7 +407,7 @@ export class TransactionService {
 
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, fcl.t.String),
-      fcl.arg('BigInt(0).toString()', fcl.t.UInt256),
+      fcl.arg('0', fcl.t.UInt256),
       fcl.arg(regularArray, fcl.t.Array(fcl.t.UInt8)),
       fcl.arg(gasLimit, fcl.t.UInt64),
     ]);
