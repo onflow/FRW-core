@@ -49,6 +49,7 @@ import type {
   LoggedInAccountWithIndex,
   PublicKeyAccount,
   CollectionNfts,
+  Nft,
 } from '@onflow/frw-shared/types';
 import {
   isValidFlowAddress,
@@ -137,6 +138,77 @@ export interface OpenApiStore {
   scriptsPublicKey: string;
   config: Record<string, OpenApiConfigValue>;
 }
+
+type NftCollectionResponse = {
+  id: string;
+  contract_name: string;
+  contractName: string;
+  address: string;
+  name: string;
+  logo: string;
+  banner: string;
+  description: string;
+  path: {
+    storage_path: string;
+    public_path: string;
+    public_type?: string;
+  };
+  evmAddress: string;
+  evm_address: string;
+  official_website: string;
+  socials: Record<string, string>;
+  flowIdentifier?: string;
+  nftTypeId?: string;
+};
+
+export const responseToNftCollection = (item: NftCollectionResponse): NftCollection => {
+  return {
+    ...item,
+    contractName: item.contractName || item.contract_name,
+    officialWebsite: item.official_website,
+    socials: item.socials,
+    flowIdentifier: item.flowIdentifier || item.nftTypeId || '',
+    path: item.path
+      ? {
+          storagePath: item.path.storage_path,
+          publicPath: item.path.public_path,
+          publicType: item.path.public_type,
+        }
+      : undefined,
+  };
+};
+
+type NftCollectionAndIdsResponse = {
+  collection: NftCollectionResponse;
+  ids: string[];
+  count: number;
+};
+
+export const responseToNftCollectionAndIds = (
+  item: NftCollectionAndIdsResponse
+): NftCollectionAndIds => {
+  return {
+    collection: responseToNftCollection(item.collection),
+    ids: item.ids,
+    count: item.count,
+  };
+};
+
+type CollectionNftsResponse = {
+  nfts: Nft[];
+  collection: NftCollectionResponse;
+  nftCount: number;
+  offset?: string | null;
+};
+
+export const responseToCollectionNfts = (item: CollectionNftsResponse): CollectionNfts => {
+  return {
+    nfts: item.nfts,
+    collection: responseToNftCollection(item.collection),
+    nftCount: item.nftCount,
+    offset: item.offset,
+  };
+};
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -1602,23 +1674,7 @@ export class OpenApiService {
     const {
       data,
     }: {
-      data: {
-        id: string;
-        contract_name: string;
-        address: string;
-        name: string;
-        logo: string;
-        banner: string;
-        description: string;
-        path: {
-          storage_path: string;
-          public_path: string;
-        };
-        evmAddress: string;
-        evm_address: string;
-        official_website: string;
-        socials: Record<string, string>;
-      }[];
+      data: NftCollectionResponse[];
     } = await this.sendRequest(
       'GET',
       `/api/v2/nft/collections?network=${network}`,
@@ -1626,20 +1682,7 @@ export class OpenApiService {
       {},
       this.store.webNextUrl
     );
-    return data.map((item) => {
-      return {
-        ...item,
-        contractName: item.contract_name,
-        officialWebsite: item.official_website,
-        socials: item.socials,
-        path: item.path
-          ? {
-              storagePath: item.path.storage_path,
-              publicPath: item.path.public_path,
-            }
-          : undefined,
-      };
-    });
+    return data.map(responseToNftCollection);
   };
 
   /**
@@ -1656,14 +1699,18 @@ export class OpenApiService {
     network: string,
     address: string
   ): Promise<NftCollectionAndIds[]> => {
-    const { data } = await this.sendRequest(
+    const {
+      data,
+    }: {
+      data: NftCollectionAndIdsResponse[];
+    } = await this.sendRequest(
       'GET',
       `/api/v2/nft/id?address=${address}&network=${network}`,
       {},
       {},
       this.store.webNextUrl
     );
-    return data;
+    return data.map(responseToNftCollectionAndIds);
   };
 
   /**
@@ -1685,14 +1732,14 @@ export class OpenApiService {
     limit: number,
     offset: number
   ): Promise<CollectionNfts> => {
-    const { data } = await this.sendRequest(
+    const { data }: { data: CollectionNftsResponse } = await this.sendRequest(
       'GET',
       `/api/v2/nft/collectionList?address=${address}&limit=${limit}&offset=${offset}&collectionIdentifier=${contractName}&network=${network}`,
       {},
       {},
       this.store.webNextUrl
     );
-    return data;
+    return responseToCollectionNfts(data);
   };
 
   /**
@@ -1710,14 +1757,19 @@ export class OpenApiService {
     address: string,
     limit: number,
     offset: number
-  ): Promise<CollectionNfts> => {
-    const { data } = await this.sendRequest(
-      'GET',
-      `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
-      {},
-      {},
-      this.store.webNextUrl
-    );
+  ): Promise<{
+    nfts: Nft[];
+    nftCount: number;
+    offset?: string | null;
+  }> => {
+    const { data }: { data: { nfts: Nft[]; nftCount: number; offset?: string | null } } =
+      await this.sendRequest(
+        'GET',
+        `/api/v2/nft/list?address=${address}&limit=${limit}&offset=${offset}&network=${network}`,
+        {},
+        {},
+        this.store.webNextUrl
+      );
     return data;
   };
   /**
@@ -1737,14 +1789,14 @@ export class OpenApiService {
     network: string,
     address: string
   ): Promise<NftCollectionAndIds[]> => {
-    const { data } = await this.sendRequest(
+    const { data }: { data: NftCollectionAndIdsResponse[] } = await this.sendRequest(
       'GET',
       `/api/v3/evm/nft/id?network=${network}&address=${address}`,
       {},
       {},
       this.store.webNextUrl
     );
-    return data;
+    return data.map(responseToNftCollectionAndIds);
   };
 
   /**
@@ -1766,18 +1818,18 @@ export class OpenApiService {
     limit: number = 24,
     offset: string = '0'
   ): Promise<CollectionNfts> => {
-    const { data } = await this.sendRequest(
+    const { data }: { data: CollectionNftsResponse } = await this.sendRequest(
       'GET',
       `/api/v3/evm/nft/collectionList?network=${network}&address=${address}&collectionIdentifier=${collectionIdentifier}&limit=${limit}&offset=${offset}`,
       {},
       {},
       this.store.webNextUrl
     );
-    return data;
+    return responseToCollectionNfts(data);
   };
 
   /**
-   * 3. Get a list of Nfts owned by an account on the EVM network across all collections
+   * 3. Get a list of NFTs owned by an account on the EVM network across all collections
    * EVM Address -> NFTs
    * Use this endpoint if you need to display an agregated list of NFTs owned by an account across all collections
    * @param address
@@ -1789,14 +1841,14 @@ export class OpenApiService {
     limit: number,
     offset: string = '0'
   ): Promise<CollectionNfts> => {
-    const { data } = await this.sendRequest(
+    const { data }: { data: CollectionNftsResponse } = await this.sendRequest(
       'GET',
       `/api/v3/evm/nft/list?network=${network}&address=${address}&limit=${limit}&offset=${offset}`,
       {},
       {},
       this.store.webNextUrl
     );
-    return data;
+    return responseToCollectionNfts(data);
   };
 
   evmFTList = async () => {

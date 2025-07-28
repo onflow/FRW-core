@@ -119,7 +119,7 @@ function SendTokenView() {
     dispatch({
       type: 'initTransactionState',
       payload: {
-        rootAddress: mainAddress, // Main Flow address
+        parentAddress: mainAddress, // Main Flow address
         fromAddress: currentWallet.address, // Selected wallet
         fromContact: {
           address: currentWallet.address,
@@ -179,8 +179,8 @@ function SendTokenView() {
 - `initTransactionState` - Initialize transaction with addresses
 - `setTokenInfo` - Set token information (updates token type automatically)
 - `setTokenType` - Set token type (Flow or FT)
-- `setFromNetwork` - Set source network (Cadence, Child, or Evm)
-- `setToNetwork` - Set destination network (Cadence or Evm)
+- `setfromAddressType` - Set source network (Cadence, Child, or Evm)
+- `settoAddressType` - Set destination network (Cadence or Evm)
 - `setToAddress` - Set recipient address and optional contact
 - `setAmount` - Set transaction amount (handles fiat/coin conversion)
 - `setFiatOrCoin` - Set input mode ('fiat' or 'coin')

@@ -7,6 +7,7 @@ import web3, { Web3 } from 'web3';
 
 import { erc20Abi as erc20ABI, EVM_ENDPOINT } from '@onflow/frw-shared/constant';
 import {
+  type NftTransactionState,
   type CustomFungibleTokenInfo,
   type NFTModelV2,
   type TokenInfo,
@@ -22,11 +23,14 @@ import { tokenListService } from '.';
 import { analyticsService } from './analytics';
 import { getScripts } from './openapi';
 import userWalletService from './userWallet';
-import { replaceNftKeywords } from '../utils';
+import { replaceNftCollectionKeywords, replaceNftKeywords } from '../utils';
+import { encodeEvmContractCallDataForNft } from '../utils/encodeEvmContractCallData';
 
 export class TransactionService {
   /**
    * Master send token function that takes a transaction state from the front end and returns the transaction ID
+   * @param transactionState - The transaction state from the front end
+   * @returns The transaction ID
    */
   async transferTokens(transactionState: TransactionState): Promise<string> {
     const transferTokensOnCadence = async () => {
@@ -153,6 +157,13 @@ export class TransactionService {
     }
   }
 
+  /**
+   * Transfer Flow from Cadence to EVM address
+   * @param recipientEVMAddressHex - The EVM address to transfer Flow to
+   * @param amount - The amount of Flow to transfer
+   * @param gasLimit - The gas limit for the transaction
+   * @returns The transaction ID
+   */
   async transferFlowEvm(
     recipientEVMAddressHex: string,
     amount = '1.0',
@@ -396,7 +407,7 @@ export class TransactionService {
 
     const result = await userWalletService.sendTransaction(script, [
       fcl.arg(to, fcl.t.String),
-      fcl.arg(transactionValue.toString(), fcl.t.UInt256),
+      fcl.arg('0', fcl.t.UInt256),
       fcl.arg(regularArray, fcl.t.Array(fcl.t.UInt8)),
       fcl.arg(gasLimit, fcl.t.UInt64),
     ]);
@@ -589,9 +600,8 @@ export class TransactionService {
     }
 
     const script = await getScripts(userWalletService.getNetwork(), 'hybridCustody', 'sendChildFT');
-    const replacedScript = replaceNftKeywords(script, token);
 
-    const result = await userWalletService.sendTransaction(replacedScript, [
+    const result = await userWalletService.sendTransaction(script, [
       fcl.arg(childAddress, fcl.t.Address),
       fcl.arg(receiver, fcl.t.Address),
       fcl.arg(path, fcl.t.String),
@@ -622,9 +632,8 @@ export class TransactionService {
       'hybridCustody',
       'transferChildFT'
     );
-    const replacedScript = replaceNftKeywords(script, token);
 
-    const result = await userWalletService.sendTransaction(replacedScript, [
+    const result = await userWalletService.sendTransaction(script, [
       fcl.arg(childAddress, fcl.t.Address),
       fcl.arg(path, fcl.t.String),
       fcl.arg(amount, fcl.t.UFix64),
@@ -638,7 +647,147 @@ export class TransactionService {
     });
     return result;
   }
+  /**
+   * ===============================
+   * NFT Functions
+   * ===============================
+   */
 
+  /**
+   * Master send token function that takes a transaction state from the front end and returns the transaction ID
+   * @param transactionState - The transaction state from the front end
+   * @returns The transaction ID
+   */
+  async transferNfts(transactionState: NftTransactionState): Promise<string> {
+    const {
+      network,
+      collection,
+      ids,
+      fromAddress,
+      toAddress,
+      parentAddress,
+      parentChildAddresses,
+    } = transactionState;
+
+    // Validate the amount. Just to be sure!
+    if (transactionState.ids.length === 0) {
+      throw new Error('There are no NFTs to transfer');
+    }
+    // Determine the script and arguments to use based on the transaction state
+    const [script, args] = await (async () => {
+      // Switch on the current transaction state
+      switch (transactionState.currentTxState) {
+        case 'NftFromCadenceToCadence': {
+          if (ids.length > 1) {
+            throw new Error('Batch transfer not supported for Cadence to Cadence');
+          }
+          const scriptName =
+            collection.contractName.trim() === 'TopShot' ? 'sendNbaNFTV3' : 'sendNFTV3';
+          return [
+            await getScripts(network, 'collection', scriptName),
+            [fcl.arg(toAddress, fcl.t.Address), fcl.arg(ids[0], fcl.t.UInt64)],
+          ];
+        }
+        case 'NftFromCadenceToEvm':
+          return [
+            await getScripts(network, 'bridge', 'batchBridgeNftToEvmAddress'),
+            [
+              fcl.arg(collection.flowIdentifier, fcl.t.String),
+              fcl.arg(ids[0], fcl.t.UInt64),
+              fcl.arg(toAddress, fcl.t.Address),
+            ],
+          ];
+        case 'NftFromCadenceToChild':
+          if (toAddress === '' || !parentChildAddresses.includes(toAddress)) {
+            throw new Error('Sending to a child CoA the only thing supported at the moment');
+          }
+          return [
+            await getScripts(network, 'hybridCustody', 'batchTransferNFTToChild'),
+            [fcl.arg(toAddress, fcl.t.Address), fcl.arg(ids[0], fcl.t.UInt64)],
+          ];
+        case 'NftFromEvmToCadence':
+          if (toAddress !== parentAddress) {
+            throw new Error('Sending to a parent is the only thing supported at the moment');
+          }
+          return [
+            await getScripts(network, 'bridge', 'batchBridgeNftFromEvmToFlow'),
+            [
+              fcl.arg(collection.flowIdentifier || '', fcl.t.String),
+              fcl.arg(ids[0], fcl.t.UInt64),
+              fcl.arg(toAddress, fcl.t.Address),
+            ],
+          ];
+
+        case 'NftFromEvmToEvm': {
+          const callData = encodeEvmContractCallDataForNft(transactionState);
+
+          const dataBuffer = Buffer.from(callData.slice(2), 'hex');
+          const dataArray = Uint8Array.from(dataBuffer);
+          const regularArray = Array.from(dataArray);
+          const gasLimit = 30_000_000;
+          return [
+            await getScripts(network, 'evm', 'callContractV2'),
+            [
+              fcl.arg(toAddress, fcl.t.String),
+              fcl.arg('0.0', fcl.t.UInt256),
+              fcl.arg(regularArray, fcl.t.Array(fcl.t.UInt8)),
+              fcl.arg(gasLimit, fcl.t.UInt64),
+            ],
+          ];
+        }
+        case 'NftFromEvmToChild':
+          return [
+            await getScripts(network, 'hybridCustody', 'batchBridgeChildNFTFromEvm'),
+            [
+              fcl.arg(collection.flowIdentifier, fcl.t.String),
+              fcl.arg(toAddress, fcl.t.Address),
+              fcl.arg(ids, fcl.t.Array(fcl.t.UInt64)),
+            ],
+          ];
+        case 'NftFromChildToCadence':
+          return [
+            await getScripts(network, 'hybridCustody', 'batchSendChildNft'),
+            [
+              fcl.arg(collection.flowIdentifier, fcl.t.String),
+              fcl.arg(fromAddress, fcl.t.Address),
+              fcl.arg(toAddress, fcl.t.Address),
+              fcl.arg(ids, fcl.t.Array(fcl.t.UInt64)),
+            ],
+          ];
+        case 'NftFromChildToEvm':
+          return [
+            await getScripts(network, 'hybridCustody', 'batchBridgeChildNftToEvmAddress'),
+            [
+              fcl.arg(collection.flowIdentifier, fcl.t.String),
+              fcl.arg(fromAddress, fcl.t.Address),
+              fcl.arg(ids, fcl.t.Array(fcl.t.UInt64)), // note this is ids before toAddress
+              fcl.arg(toAddress, fcl.t.Address),
+            ],
+          ];
+        case 'NftFromChildToChild':
+          return [
+            await getScripts(network, 'hybridCustody', 'batchSendChildNftToChild'),
+            [
+              fcl.arg(collection.flowIdentifier, fcl.t.String),
+              fcl.arg(fromAddress, fcl.t.Address),
+              fcl.arg(toAddress, fcl.t.Address),
+              fcl.arg(ids, fcl.t.Array(fcl.t.UInt64)),
+            ],
+          ];
+        default:
+          throw new Error(`Unsupported transaction state: ${transactionState.currentTxState}`);
+      }
+    })();
+
+    // Replace the collection keywords in the script
+    const replacedScript = replaceNftCollectionKeywords(script, collection);
+    const txID = await userWalletService.sendTransaction(replacedScript, args);
+    return txID;
+  }
+
+  /**
+   * @deprecated use transferNfts instead
+   */
   async moveNFTfromChild(
     nftContractAddress: string,
     nftContractName: string,
@@ -667,8 +816,10 @@ export class TransactionService {
     });
     return txID;
   }
-
-  async sendNFTfromChild(
+  /**
+   * @deprecated use transferNfts instead
+   */
+  async sendNftFromChild(
     linkedAddress: string,
     receiverAddress: string,
     nftContractName: string,
@@ -698,7 +849,9 @@ export class TransactionService {
     });
     return txID;
   }
-
+  /**
+   * @deprecated use transferNfts instead
+   */
   async bridgeChildNFTToEvmAddress(
     linkedAddress: string,
     receiverAddress: string,
@@ -729,7 +882,9 @@ export class TransactionService {
     });
     return txID;
   }
-
+  /**
+   * @deprecated use transferNfts instead
+   */
   async sendNFTtoChild(
     linkedAddress: string,
     path: string,
@@ -764,6 +919,13 @@ export class TransactionService {
     return txID;
   }
 
+  /**
+   * Bridge multiple NFTs from Cadence to it's child EVM CoA (Cadence Owned Account)
+   * @param flowIdentifier - The flow identifier of the NFT collection
+   * @param ids - The ids of the NFTs to bridge
+   * @returns The transaction ID
+   * @deprecated use transferNfts instead
+   */
   async batchBridgeNftToEvm(flowIdentifier: string, ids: Array<number>): Promise<string> {
     const script = await getScripts(
       userWalletService.getNetwork(),
@@ -787,6 +949,9 @@ export class TransactionService {
     return txID;
   }
 
+  /**
+   * @deprecated use transferNfts instead
+   */
   async batchBridgeNftFromEvm(flowIdentifier: string, ids: Array<number>): Promise<string> {
     const script = await getScripts(
       userWalletService.getNetwork(),
@@ -810,6 +975,9 @@ export class TransactionService {
     return txID;
   }
 
+  /**
+   * @deprecated use transferNfts instead
+   */
   async batchTransferNFTToChild(
     childAddr: string,
     identifier: string,
@@ -840,6 +1008,9 @@ export class TransactionService {
     return txID;
   }
 
+  /**
+   * @deprecated use transferNfts instead
+   */
   async batchTransferChildNft(
     childAddr: string,
     identifier: string,
@@ -870,6 +1041,9 @@ export class TransactionService {
     return txID;
   }
 
+  /**
+   * @deprecated use transferNfts instead
+   */
   async sendChildNFTToChild(
     childAddr: string,
     receiver: string,
@@ -902,6 +1076,9 @@ export class TransactionService {
     return txID;
   }
 
+  /**
+   * @deprecated use transferNfts instead
+   */
   async batchBridgeChildNFTToEvm(
     childAddr: string,
     identifier: string,
@@ -931,6 +1108,9 @@ export class TransactionService {
     return txID;
   }
 
+  /**
+   * @deprecated use transferNfts instead
+   */
   async batchBridgeChildNFTFromEvm(
     childAddr: string,
     identifier: string,
@@ -959,6 +1139,9 @@ export class TransactionService {
     return txID;
   }
 
+  /**
+   * @deprecated use transferNfts instead
+   */
   async bridgeNftToEvmAddress(
     flowIdentifier: string,
     ids: number,
@@ -991,6 +1174,9 @@ export class TransactionService {
     return txID;
   }
 
+  /**
+   * @deprecated use transferNfts instead
+   */
   async bridgeNftFromEvmToFlow(
     flowIdentifier: string,
     ids: number,
@@ -1019,6 +1205,9 @@ export class TransactionService {
     return txID;
   }
 
+  /**
+   * @deprecated use transferNftsFromCadenceToCadence instead
+   */
   async sendNFT(recipient: string, id: number, token: NFTModelV2): Promise<string> {
     await userWalletService.getNetwork();
     const script = await getScripts(userWalletService.getNetwork(), 'collection', 'sendNFTV3');
@@ -1042,7 +1231,9 @@ export class TransactionService {
     });
     return txID;
   }
-
+  /**
+   * @deprecated use transferNftsFromCadenceToCadence instead
+   */
   async sendNBANFT(recipient: string, id: number, token: NFTModelV2): Promise<string> {
     await userWalletService.getNetwork();
     const script = await getScripts(userWalletService.getNetwork(), 'collection', 'sendNbaNFTV3');
