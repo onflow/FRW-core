@@ -39,3 +39,5 @@ storybook-static
 
 docs-archive
 .eslintcache
+
+*.swagger.json
