@@ -237,7 +237,7 @@ import { type TransactionState } from '@onflow/frw-shared/types';
 // Transfer tokens using transaction state from reducer
 const transactionState: TransactionState = {
   currentTxState: 'FlowFromCadenceToCadence',
-  rootAddress: '0x123...',
+  parentAddress: '0x123...',
   fromAddress: '0x123...',
   toAddress: '0xabc...',
   amount: '10.5',
@@ -250,8 +250,8 @@ const transactionState: TransactionState = {
     // ... other token info
   },
   tokenType: 'Flow',
-  fromNetwork: 'Cadence',
-  toNetwork: 'Cadence',
+  fromAddressType: 'Cadence',
+  toAddressType: 'Cadence',
   // ... other fields from transaction reducer
 };
 
@@ -499,7 +499,7 @@ await userWalletService.linkChildAccount(
 const txId = await userWalletService.sendTransaction(
   `
     import FungibleToken from 0xFungibleToken
-    
+
     transaction(amount: UFix64, recipient: Address) {
       prepare(signer: AuthAccount) {
         // Transaction logic

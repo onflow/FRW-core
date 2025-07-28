@@ -22,7 +22,7 @@ export const networkToChainId = (network: string): FlowChainId => {
   }
 };
 
-export const chainIdToNetwork = (chainId: number): FlowNetwork => {
+export const chainIdtoAddressType = (chainId: number): FlowNetwork => {
   switch (chainId) {
     case MAINNET_CHAIN_ID:
       return MAINNET_NETWORK;

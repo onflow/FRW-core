@@ -1,23 +1,27 @@
 import BN from 'bignumber.js';
 
 import type {
-  AddressType,
   TokenType,
   TransactionState,
   TransactionStateString,
   ExtendedTokenInfo,
   Contact,
   WalletAddress,
+  FlowNetwork,
 } from '@onflow/frw-shared/types';
 import { isValidEthereumAddress, consoleError, trimDecimalAmount } from '@onflow/frw-shared/utils';
 
 export const INITIAL_TRANSACTION_STATE: TransactionState = {
+  network: 'testnet',
   currentTxState: '',
-  rootAddress: '',
+  parentAddress: '',
+  parentCoaAddress: '',
+  parentChildAddresses: [],
   fromAddress: '',
+  canReceive: true,
   tokenType: 'Flow',
-  fromNetwork: 'Evm',
-  toNetwork: 'Evm',
+  fromAddressType: 'Evm',
+  toAddressType: 'Evm',
   toAddress: '',
   tokenInfo: {
     name: 'Flow',
@@ -54,9 +58,15 @@ export const INITIAL_TRANSACTION_STATE: TransactionState = {
 
 type TransactionAction =
   | {
-      type: 'initTransactionState';
+      // Called when initialising or when changing the from address
+      type: 'initTransactionState' | 'setFromAddress';
       payload: {
-        rootAddress: WalletAddress;
+        network: FlowNetwork;
+        // the parent address of the account we're sending from
+        parentAddress: WalletAddress;
+        parentCoaAddress: WalletAddress;
+        parentChildAddresses: WalletAddress[];
+        // the address of the account we're sending from
         fromAddress: WalletAddress;
         fromContact?: Contact;
       };
@@ -70,14 +80,6 @@ type TransactionAction =
   | {
       type: 'setTokenType';
       payload: TokenType;
-    }
-  | {
-      type: 'setFromNetwork';
-      payload: AddressType;
-    }
-  | {
-      type: 'setToNetwork';
-      payload: AddressType;
     }
   | {
       type: 'setToAddress';
@@ -105,8 +107,8 @@ type TransactionAction =
     };
 
 export const getTransactionStateString = (state: TransactionState): TransactionStateString | '' => {
-  if (!state.tokenType || !state.fromNetwork || !state.toNetwork) return '';
-  return `${state.tokenType}From${state.fromNetwork}To${state.toNetwork}`;
+  if (!state.tokenType || !state.fromAddressType || !state.toAddressType) return '';
+  return `${state.tokenType}From${state.fromAddressType}To${state.toAddressType}`;
 };
 
 const updateTxState = (state: TransactionState): TransactionState => {
@@ -121,15 +123,33 @@ export const transactionReducer = (
   action: TransactionAction
 ): TransactionState => {
   switch (action.type) {
-    case 'initTransactionState': {
-      const { rootAddress, fromAddress, fromContact } = action.payload;
-      // Set from network based on the from address
-      const fromNetwork = isValidEthereumAddress(fromAddress)
+    case 'initTransactionState':
+    case 'setFromAddress': {
+      const {
+        network,
+        parentAddress,
+        parentCoaAddress,
+        parentChildAddresses,
+        fromAddress,
+        fromContact,
+      } = action.payload;
+      // Set from address type based on the from address
+      const fromAddressType = isValidEthereumAddress(fromAddress)
         ? 'Evm'
-        : fromAddress === rootAddress
+        : fromAddress === parentAddress
           ? 'Cadence'
           : 'Child';
-      return updateTxState({ ...state, rootAddress, fromAddress, fromNetwork, fromContact });
+      return updateTxState({
+        // If the network is changing, reset the state
+        ...(network !== state.network ? INITIAL_TRANSACTION_STATE : state),
+        network,
+        parentAddress: parentAddress,
+        parentCoaAddress: parentCoaAddress,
+        parentChildAddresses: parentChildAddresses,
+        fromAddress,
+        fromAddressType: fromAddressType,
+        fromContact,
+      });
     }
     case 'setTokenInfo': {
       // Set the token type based on the token symbol from the new tokenInfo
@@ -149,11 +169,11 @@ export const transactionReducer = (
     }
     case 'setToAddress': {
       const { address, contact } = action.payload;
-      const toNetwork = isValidEthereumAddress(address) ? 'Evm' : 'Cadence';
+      const toAddressType = isValidEthereumAddress(address) ? 'Evm' : 'Cadence';
       return updateTxState({
         ...state,
         toAddress: address,
-        toNetwork,
+        toAddressType,
         toContact: contact,
       });
     }
@@ -230,7 +250,7 @@ export const transactionReducer = (
       } else if (state.fiatOrCoin === 'coin') {
         // Should limit non-evm networks to 8 decimals
         const maxNetworkDecimals =
-          state.fromNetwork === 'Evm' && state.toNetwork === 'Evm' ? 18 : 8;
+          state.fromAddressType === 'Evm' && state.toAddressType === 'Evm' ? 18 : 8;
         // Check if the amount entered has too many decimal places
         amountInCoin = trimDecimalAmount(
           action.payload,

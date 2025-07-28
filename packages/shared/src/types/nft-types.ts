@@ -74,12 +74,13 @@ export type NftCollection = {
   logo: string;
   banner: string;
   description: string;
-  flowIdentifier?: string;
+  flowIdentifier: string;
   officialWebsite?: string;
   socials?: Record<string, string>;
   path?: {
     storagePath: string;
     publicPath: string;
+    publicType?: string;
   };
   externalURL?: string;
 };

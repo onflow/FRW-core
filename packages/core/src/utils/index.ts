@@ -1,7 +1,7 @@
 import type { Account as FclAccount } from '@onflow/typedefs';
 import * as ethUtil from 'ethereumjs-util';
 
-import { type FlowNetwork } from '@onflow/frw-shared/types';
+import { type NftCollection, type FlowNetwork, type NFTModelV2 } from '@onflow/frw-shared/types';
 import { consoleError } from '@onflow/frw-shared/utils';
 
 import { EMULATOR_HOST_MAINNET, EMULATOR_HOST_TESTNET } from './fclConfig';
@@ -129,10 +129,11 @@ export const findPublicKeyIndex = (account: FclAccount, publicKey: string) => {
   return account.keys.findIndex((key) => key.publicKey === publicKey);
 };
 
-export const replaceNftKeywords = (script: string, token: any) => {
-  const contractName = token.contractName || token.contract_name;
-  const storagePath = token.path.storagePath || token.path.storage;
-  const publicPath = token.path.publicPath || token.path.public;
+export const replaceNftCollectionKeywords = (script: string, token: NftCollection) => {
+  const contractName = token.contractName;
+  const storagePath = token.path?.storagePath || '';
+  const publicPath = token.path?.publicPath || '';
+  const publicType = token.path?.publicType || '';
   if (!contractName) {
     throw new Error('Contract name not found');
   }
@@ -141,6 +142,24 @@ export const replaceNftKeywords = (script: string, token: any) => {
     .replaceAll('<NFT>', contractName)
     .replaceAll('<NFTAddress>', token.address)
     .replaceAll('<CollectionStoragePath>', storagePath)
-    .replaceAll('<CollectionPublicType>', token.path.public_type)
+    .replaceAll('<CollectionPublicType>', publicType)
+    .replaceAll('<CollectionPublicPath>', publicPath);
+};
+
+/**
+ * @deprecated use replaceNftCollectionKeywords
+ */
+export const replaceNftKeywords = (script: string, token: NFTModelV2) => {
+  const contractName = token.contractName;
+  const storagePath = token.path.storage || '';
+  const publicPath = token.path.public || '';
+  if (!contractName) {
+    throw new Error('Contract name not found');
+  }
+
+  return script
+    .replaceAll('<NFT>', contractName)
+    .replaceAll('<NFTAddress>', token.address)
+    .replaceAll('<CollectionStoragePath>', storagePath)
     .replaceAll('<CollectionPublicPath>', publicPath);
 };

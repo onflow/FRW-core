@@ -1,35 +1,62 @@
 import { type ExtendedTokenInfo } from './coin-types';
-import { type Contact } from './network-types';
+import { type Contact, type FlowNetwork } from './network-types';
+import { type NftCollection } from './nft-types';
 import { type WalletAddress } from './wallet-types';
-
-// Define the base token types
-export type TokenType = 'FT' | 'Flow';
 
 // Define the network types
 export type AddressType = 'Evm' | 'Cadence' | 'Child';
 
-// Define the transaction direction
-export type TransactionStateString = `${TokenType}From${AddressType}To${AddressType}`;
-
-export type TransactionState = {
-  // A unique key for the transaction state
-  currentTxState: TransactionStateString | '';
-  // the root account that owns the account we're sending from
-  rootAddress: WalletAddress | '';
+export type BaseTransactionState = {
+  // Network
+  network: FlowNetwork;
+  // the parent account that owns the account we're sending from (proposer)
+  parentAddress: WalletAddress | '';
+  // parent Coa - the Coa account of the parent address - needed to check if sending between parent and child
+  parentCoaAddress: WalletAddress | '';
+  // parent child addresses - the child addresses of the parent address - needed to check if sending between parent and child
+  parentChildAddresses: WalletAddress[];
 
   // the address of the account we're sending from
   fromAddress: WalletAddress | '';
   // the network type of the root address
-  fromNetwork: AddressType;
+  fromAddressType: AddressType;
   // the contact of the from address (if it exists)
   fromContact?: Contact;
 
   // the address of the to address
   toAddress: WalletAddress | '';
   // the network type of the to address
-  toNetwork: AddressType;
+  toAddressType: AddressType;
   // the contact of the to address (if it exists)
   toContact?: Contact;
+
+  // Can the receiver at the to address receive the token?
+  canReceive: boolean;
+
+  // the amount of the transaction as a decimal string
+  amount: string;
+
+  // the status of the transaction
+  status?: 'pending' | 'success' | 'failed';
+  // The transaction if of the transaction
+  txId?: string;
+};
+
+/**
+ * ------------------------------------------------------------------------------------------------
+ * Fungible Token Transaction State
+ * ------------------------------------------------------------------------------------------------
+ */
+
+// Define the base token types
+export type TokenType = 'FT' | 'Flow';
+
+// Define the transaction direction
+export type TransactionStateString = `${TokenType}From${AddressType}To${AddressType}`;
+
+export type TransactionState = BaseTransactionState & {
+  // A unique key for the transaction state
+  currentTxState: TransactionStateString | '';
 
   // consolidated token info for the selected token
   tokenInfo: ExtendedTokenInfo;
@@ -37,8 +64,6 @@ export type TransactionState = {
   // the type of token we're sending
   tokenType: TokenType;
 
-  // the amount of the transaction as a decimal string
-  amount: string;
   // the fiat amount of the transaction as a decimal string
   fiatAmount: string;
   // the currency of the fiat amount (note we only support USD for now)
@@ -47,13 +72,33 @@ export type TransactionState = {
   fiatOrCoin: 'fiat' | 'coin';
   // whether the balance was exceeded
   balanceExceeded: boolean;
-
-  // the status of the transaction
-  status?: 'pending' | 'success' | 'failed';
-  // The transaction if of the transaction
-  txId?: string;
 };
 
+/**
+ * ------------------------------------------------------------------------------------------------
+ * NFT Transaction State
+ * ------------------------------------------------------------------------------------------------
+ */
+
+// Define the Nft transaction direction
+export type NftTransactionStateString = `NftFrom${AddressType}To${AddressType}`;
+
+export type NftTransactionState = BaseTransactionState & {
+  // A unique key for the transaction state
+  currentTxState: NftTransactionStateString | '';
+
+  // The collection of the Nfts we're sending
+  collection: NftCollection;
+
+  // The ids of the Nfts we're sending
+  ids: string[];
+};
+
+/**
+ * ------------------------------------------------------------------------------------------------
+ * Activity Item
+ * ------------------------------------------------------------------------------------------------
+ */
 // The activity item type
 export interface TransferItem {
   coin: string;
