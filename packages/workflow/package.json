@@ -1,7 +1,7 @@
 {
-    "name": "@onflow/frw-send",
+    "name": "@onflow/frw-workflow",
     "version": "0.0.1",
-    "description": "Package for flow wallet send scripts",
+    "description": "Package for flow wallet workflow",
     "type": "module",
     "main": "./src/index.ts",
     "types": "./src/index.ts",
@@ -31,7 +31,7 @@
     },
     "dependencies": {
         "@onflow/fcl": "^1.13.1",
-        "@onflow/frw-cadence-gen": "workspace:*",
+        "@onflow/frw-cadence": "workspace:*",
         "@onflow/util-encode-key": "^1.2.4"
     },
     "devDependencies": {

@@ -1,5 +1,5 @@
 import * as fcl from '@onflow/fcl';
-import { addresses, CadenceService } from '@onflow/frw-cadence-gen';
+import { addresses, CadenceService } from '@onflow/frw-cadence';
 import { send as httpSend } from '@onflow/transport-http';
 
 import { authz } from './utils/authz';

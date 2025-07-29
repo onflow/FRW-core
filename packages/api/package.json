@@ -1,7 +1,7 @@
 {
-    "name": "@onflow/frw-cadence-gen",
+    "name": "@onflow/frw-api",
     "version": "0.0.1",
-    "description": "Package for flow wallet cadence scripts",
+    "description": "Package for flow wallet network layer with backend server api",
     "type": "module",
     "main": "./src/index.ts",
     "types": "./src/index.ts",
@@ -17,7 +17,8 @@
         "test": "vitest",
         "test:run": "vitest --run",
         "test:coverage": "vitest --coverage",
-        "prepublishOnly": "pnpm build"
+        "prepublishOnly": "pnpm build",
+        "codegen": "node scripts/codegen.cjs && node scripts/codegen-go.cjs"
     },
     "exports": {
         ".": {
@@ -30,6 +31,7 @@
         }
     },
     "dependencies": {
-        "@onflow/fcl": "^1.13.1"
+        "swagger-axios-codegen": "^0.17.4",
+        "axios": "^1.4.0"
     }
 }
