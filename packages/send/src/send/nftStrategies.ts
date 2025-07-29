@@ -8,8 +8,13 @@ import { validateEvmAddress, validateFlowAddress } from './validation';
  */
 export class ChildToChildNftStrategy implements TransferStrategy {
   canHandle(payload: SendPayload): boolean {
-    const { childAddrs, receiver, sender } = payload;
-    return childAddrs.length > 0 && childAddrs.includes(receiver) && childAddrs.includes(sender);
+    const { childAddrs, receiver, sender, type } = payload;
+    return (
+      type === 'nft' &&
+      childAddrs.length > 0 &&
+      childAddrs.includes(receiver) &&
+      childAddrs.includes(sender)
+    );
   }
 
   async execute(payload: SendPayload): Promise<any> {
@@ -23,8 +28,10 @@ export class ChildToChildNftStrategy implements TransferStrategy {
  */
 export class ChildToOthersNftStrategy implements TransferStrategy {
   canHandle(payload: SendPayload): boolean {
-    const { childAddrs, sender, assetType } = payload;
-    return childAddrs.length > 0 && childAddrs.includes(sender) && assetType === 'flow';
+    const { childAddrs, sender, assetType, type } = payload;
+    return (
+      type === 'nft' && childAddrs.length > 0 && childAddrs.includes(sender) && assetType === 'flow'
+    );
   }
 
   async execute(payload: SendPayload): Promise<any> {
@@ -60,8 +67,9 @@ export class ChildToOthersNftStrategy implements TransferStrategy {
  */
 export class ParentToChildNftStrategy implements TransferStrategy {
   canHandle(payload: SendPayload): boolean {
-    const { childAddrs, receiver, assetType, sender, coaAddr } = payload;
+    const { childAddrs, receiver, assetType, sender, coaAddr, type } = payload;
     return (
+      type === 'nft' &&
       childAddrs.length > 0 &&
       childAddrs.includes(receiver) &&
       assetType === 'evm' &&
@@ -84,8 +92,13 @@ export class ParentToChildNftStrategy implements TransferStrategy {
  */
 export class TopShotNftStrategy implements TransferStrategy {
   canHandle(payload: SendPayload): boolean {
-    const { assetType, flowIdentifier } = payload;
-    return assetType === 'flow' && flowIdentifier.indexOf('TopShot') > -1;
+    const { assetType, flowIdentifier, type, receiver } = payload;
+    return (
+      type === 'nft' &&
+      assetType === 'flow' &&
+      flowIdentifier.indexOf('TopShot') > -1 &&
+      validateFlowAddress(receiver)
+    );
   }
 
   async execute(payload: SendPayload): Promise<any> {
@@ -99,8 +112,10 @@ export class TopShotNftStrategy implements TransferStrategy {
  */
 export class FlowToFlowNftStrategy implements TransferStrategy {
   canHandle(payload: SendPayload): boolean {
-    const { assetType, receiver, ids } = payload;
-    return assetType === 'flow' && validateFlowAddress(receiver) && ids.length === 1;
+    const { assetType, receiver, ids, type } = payload;
+    return (
+      type === 'nft' && assetType === 'flow' && validateFlowAddress(receiver) && ids.length === 1
+    );
   }
 
   async execute(payload: SendPayload): Promise<any> {
@@ -114,8 +129,8 @@ export class FlowToFlowNftStrategy implements TransferStrategy {
  */
 export class FlowToEvmNftBridgeStrategy implements TransferStrategy {
   canHandle(payload: SendPayload): boolean {
-    const { assetType, receiver } = payload;
-    return assetType === 'flow' && validateEvmAddress(receiver);
+    const { assetType, receiver, type } = payload;
+    return type === 'nft' && assetType === 'flow' && validateEvmAddress(receiver);
   }
 
   async execute(payload: SendPayload): Promise<any> {
@@ -129,8 +144,8 @@ export class FlowToEvmNftBridgeStrategy implements TransferStrategy {
  */
 export class EvmToFlowNftBridgeStrategy implements TransferStrategy {
   canHandle(payload: SendPayload): boolean {
-    const { assetType, receiver } = payload;
-    return assetType === 'evm' && validateFlowAddress(receiver);
+    const { assetType, receiver, type } = payload;
+    return type === 'nft' && assetType === 'evm' && validateFlowAddress(receiver);
   }
 
   async execute(payload: SendPayload): Promise<any> {
@@ -148,14 +163,14 @@ export class EvmToFlowNftBridgeStrategy implements TransferStrategy {
  */
 export class EvmToEvmNftStrategy implements TransferStrategy {
   canHandle(payload: SendPayload): boolean {
-    const { assetType, receiver } = payload;
-    return assetType === 'evm' && validateEvmAddress(receiver);
+    const { assetType, receiver, type } = payload;
+    return type === 'nft' && assetType === 'evm' && validateEvmAddress(receiver);
   }
 
   async execute(payload: SendPayload): Promise<any> {
     const { tokenContractAddr, amount } = payload;
     const data = encodeEvmContractCallData(payload);
-    const value = Number(amount);
-    return await cadenceService.callContract(tokenContractAddr, value.toString(), data, 30_000_000);
+    const value = '0.0';
+    return await cadenceService.callContract(tokenContractAddr, value, data, 30_000_000);
   }
 }
