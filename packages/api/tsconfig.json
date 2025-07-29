@@ -3,6 +3,7 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.json",
+    "src/codgen/**/*.ts",
     "tests/**/*.ts",
     "tsup.config.ts",
     "vitest.config.ts"
