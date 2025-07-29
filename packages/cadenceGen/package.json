@@ -1,5 +1,5 @@
 {
-    "name": "@onflow/frw-cadenceGen",
+    "name": "@onflow/frw-cadence-gen",
     "version": "0.0.1",
     "description": "Package for flow wallet cadence scripts",
     "type": "module",
