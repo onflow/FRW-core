@@ -1,5 +1,11 @@
 # @onflow/frw-shared
 
+## 0.2.6
+
+### Patch Changes
+
+- 64ba2fe: Updated readme and documentation
+
 ## 0.2.5
 
 ### Patch Changes

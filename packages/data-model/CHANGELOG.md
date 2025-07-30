@@ -1,5 +1,13 @@
 # @onflow/frw-data-model
 
+## 0.2.6
+
+### Patch Changes
+
+- 64ba2fe: Updated readme and documentation
+- Updated dependencies [64ba2fe]
+  - @onflow/frw-shared@0.2.6
+
 ## 0.2.5
 
 ### Patch Changes
