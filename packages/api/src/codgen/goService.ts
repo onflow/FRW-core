@@ -1,10 +1,6 @@
 /** Generate by swagger-axios-codegen */
 // @ts-nocheck
 /* eslint-disable */
-
-/** Generate by swagger-axios-codegen */
-/* eslint-disable */
-// @ts-nocheck
 import axiosStatic, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 
 export interface IRequestOptions extends AxiosRequestConfig {
@@ -43,7 +39,11 @@ export interface ServiceOptions {
 export const serviceOptions: ServiceOptions = {};
 
 // Instance selector
-export function axios(configs: IRequestConfig, resolve: (p: any) => void, reject: (p: any) => void): Promise<any> {
+export function axios(
+  configs: IRequestConfig,
+  resolve: (p: any) => void,
+  reject: (p: any) => void
+): Promise<any> {
   if (serviceOptions.axios) {
     return serviceOptions.axios
       .request(configs)
@@ -58,17 +58,22 @@ export function axios(configs: IRequestConfig, resolve: (p: any) => void, reject
   }
 }
 
-export function getConfigs(method: string, contentType: string, url: string, options: any): IRequestConfig {
+export function getConfigs(
+  method: string,
+  contentType: string,
+  url: string,
+  options: any
+): IRequestConfig {
   const configs: IRequestConfig = {
     loading: serviceOptions.loading,
     showError: serviceOptions.showError,
     ...options,
     method,
-    url
+    url,
   };
   configs.headers = {
     ...options.headers,
-    'Content-Type': contentType
+    'Content-Type': contentType,
   };
   return configs;
 }
@@ -128,7 +133,7 @@ export class CryptoService {
         provider: params['provider'],
         pair: params['pair'],
         after: params['after'],
-        period: params['period']
+        period: params['period'],
       };
 
       axios(configs, resolve, reject);
@@ -158,7 +163,7 @@ export class CryptoService {
         provider: params['provider'],
         pair: params['pair'],
         after: params['after'],
-        period: params['period']
+        period: params['period'],
       };
 
       axios(configs, resolve, reject);
@@ -233,7 +238,7 @@ export class NftService {
         address: params['address'],
         contractName: params['contractName'],
         contractAddress: params['contractAddress'],
-        tokenId: params['tokenId']
+        tokenId: params['tokenId'],
       };
 
       axios(configs, resolve, reject);
@@ -257,7 +262,11 @@ export class NftService {
       let url = basePath + '/v1/nft/list';
 
       const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
-      configs.params = { address: params['address'], offset: params['offset'], limit: params['limit'] };
+      configs.params = {
+        address: params['address'],
+        offset: params['offset'],
+        limit: params['limit'],
+      };
 
       axios(configs, resolve, reject);
     });
@@ -299,7 +308,11 @@ export class NftService {
       let url = basePath + '/v2/nft/detail';
 
       const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
-      configs.params = { address: params['address'], contractName: params['contractName'], nftID: params['nftId'] };
+      configs.params = {
+        address: params['address'],
+        contractName: params['contractName'],
+        nftID: params['nftId'],
+      };
 
       axios(configs, resolve, reject);
     });
@@ -322,7 +335,11 @@ export class NftService {
       let url = basePath + '/v2/nft/detail/list';
 
       const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
-      configs.params = { address: params['address'], limit: params['limit'], offset: params['offset'] };
+      configs.params = {
+        address: params['address'],
+        limit: params['limit'],
+        offset: params['offset'],
+      };
 
       axios(configs, resolve, reject);
     });
@@ -412,7 +429,11 @@ export class NftService {
       let url = basePath + '/v2/nft/list';
 
       const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
-      configs.params = { address: params['address'], offset: params['offset'], limit: params['limit'] };
+      configs.params = {
+        address: params['address'],
+        offset: params['offset'],
+        limit: params['limit'],
+      };
 
       axios(configs, resolve, reject);
     });
@@ -441,7 +462,7 @@ export class NftService {
         address: params['address'],
         contractName: params['contractName'],
         contractAddress: params['contractAddress'],
-        tokenId: params['tokenId']
+        tokenId: params['tokenId'],
       };
 
       axios(configs, resolve, reject);
@@ -471,7 +492,7 @@ export class NftService {
         address: params['address'],
         contractName: params['contractName'],
         limit: params['limit'],
-        offset: params['offset']
+        offset: params['offset'],
       };
 
       axios(configs, resolve, reject);
@@ -580,7 +601,7 @@ export class AccountService {
         address: params['address'],
         token: params['token'],
         limit: params['limit'],
-        after: params['after']
+        after: params['after'],
       };
 
       axios(configs, resolve, reject);
@@ -604,7 +625,11 @@ export class AccountService {
       let url = basePath + '/v1/account/transaction';
 
       const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
-      configs.params = { address: params['address'], limit: params['limit'], offset: params['offset'] };
+      configs.params = {
+        address: params['address'],
+        limit: params['limit'],
+        offset: params['offset'],
+      };
 
       axios(configs, resolve, reject);
     });
@@ -648,7 +673,11 @@ export class AccountService {
       let url = basePath + '/v1/account/transfers';
 
       const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
-      configs.params = { address: params['address'], limit: params['limit'], after: params['after'] };
+      configs.params = {
+        address: params['address'],
+        limit: params['limit'],
+        after: params['after'],
+      };
 
       axios(configs, resolve, reject);
     });
@@ -671,7 +700,11 @@ export class AccountService {
       let url = basePath + '/v2/account/query';
 
       const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
-      configs.params = { address: params['address'], limit: params['limit'], after: params['after'] };
+      configs.params = {
+        address: params['address'],
+        limit: params['limit'],
+        after: params['after'],
+      };
 
       axios(configs, resolve, reject);
     });
@@ -700,7 +733,7 @@ export class AccountService {
         address: params['address'],
         token: params['token'],
         limit: params['limit'],
-        after: params['after']
+        after: params['after'],
       };
 
       axios(configs, resolve, reject);
@@ -724,7 +757,11 @@ export class AccountService {
       let url = basePath + '/v2/account/transfers';
 
       const configs: IRequestConfig = getConfigs('get', 'application/json', url, options);
-      configs.params = { address: params['address'], limit: params['limit'], after: params['after'] };
+      configs.params = {
+        address: params['address'],
+        limit: params['limit'],
+        after: params['after'],
+      };
 
       axios(configs, resolve, reject);
     });
@@ -797,7 +834,7 @@ export class AddressbookService {
         username: params['username'],
         address: params['address'],
         domain: params['domain'],
-        domain_type: params['domainType']
+        domain_type: params['domainType'],
       };
 
       configs.data = data;
@@ -833,7 +870,7 @@ export class AddressbookService {
         contact_name: params['contactName'],
         address: params['address'],
         domain: params['domain'],
-        domain_type: params['domainType']
+        domain_type: params['domainType'],
       };
 
       configs.data = data;
@@ -885,7 +922,7 @@ export class AddressbookService {
         contact_name: params['contactName'],
         address: params['address'],
         domain: params['domain'],
-        domain_type: params['domainType']
+        domain_type: params['domainType'],
       };
 
       configs.data = data;
@@ -1335,7 +1372,7 @@ export class DeviceService {
       let data = {
         device_info: params['deviceInfo'],
         wallet_id: params['walletId'],
-        wallettest_id: params['wallettestId']
+        wallettest_id: params['wallettestId'],
       };
 
       configs.data = data;
@@ -1418,7 +1455,7 @@ export class DeviceService {
       let data = {
         device_info: params['deviceInfo'],
         wallet_id: params['walletId'],
-        wallettest_id: params['wallettestId']
+        wallettest_id: params['wallettestId'],
       };
 
       configs.data = data;
@@ -1496,7 +1533,7 @@ export class Userv3Service {
       let data = {
         account_key: params['accountKey'],
         signatures: params['signatures'],
-        backup_info: params['backupInfo']
+        backup_info: params['backupInfo'],
       };
 
       configs.data = data;
@@ -1526,7 +1563,7 @@ export class Userv3Service {
       let data = {
         account_key: params['accountKey'],
         signatures: params['signatures'],
-        device_info: params['deviceInfo']
+        device_info: params['deviceInfo'],
       };
 
       configs.data = data;
@@ -1556,7 +1593,7 @@ export class Userv3Service {
       let data = {
         signature: params['signature'],
         account_key: params['accountKey'],
-        device_info: params['deviceInfo']
+        device_info: params['deviceInfo'],
       };
 
       configs.data = data;
@@ -1583,7 +1620,11 @@ export class Userv3Service {
 
       const configs: IRequestConfig = getConfigs('post', 'application/json', url, options);
 
-      let data = { username: params['username'], account_key: params['accountKey'], device_info: params['deviceInfo'] };
+      let data = {
+        username: params['username'],
+        account_key: params['accountKey'],
+        device_info: params['deviceInfo'],
+      };
 
       configs.data = data;
 
@@ -1612,7 +1653,7 @@ export class Userv3Service {
       let data = {
         account_key: params['accountKey'],
         signatures: params['signatures'],
-        backup_info: params['backupInfo']
+        backup_info: params['backupInfo'],
       };
 
       configs.data = data;
@@ -1642,7 +1683,7 @@ export class Userv3Service {
       let data = {
         account_key: params['accountKey'],
         device_info: params['deviceInfo'],
-        backup_info: params['backupInfo']
+        backup_info: params['backupInfo'],
       };
 
       configs.data = data;
