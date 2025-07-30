@@ -1,5 +1,29 @@
 # @onflow/frw-shared
 
+## 0.2.5
+
+### Patch Changes
+
+- a286c45: New unified transferNfts function
+
+## 0.2.4
+
+### Patch Changes
+
+- d950c81: Small type changes and fixes
+
+## 0.2.3
+
+### Patch Changes
+
+- 043dc56: refactored nft types and service
+
+## 0.2.2
+
+### Patch Changes
+
+- 64ba2fe: Updated readme and documentation
+
 ## 0.2.1
 
 ### Patch Changes

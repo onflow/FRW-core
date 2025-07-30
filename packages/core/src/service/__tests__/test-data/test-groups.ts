@@ -283,29 +283,35 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
     ],
     nft: [
       {
-        name: 'nftCatalogList',
+        name: 'fetchCadenceNftsAcrossCollections',
         params: {
+          network: commonParams.network,
           address: commonParams.address,
           limit: 10,
           offset: 0,
-          network: commonParams.network,
         },
       },
       {
-        name: 'nftCatalogCollections',
-        params: { address: commonParams.address, network: commonParams.network },
+        name: 'fetchFullCadenceNftCollectionList',
+        params: { network: commonParams.network },
       },
       {
-        name: 'nftCatalogCollectionList',
+        name: 'fetchCadenceNftCollectionsAndIds',
         params: {
+          network: commonParams.network,
+          address: commonParams.address,
+        },
+      },
+      {
+        name: 'fetchCadenceCollectionNfts',
+        params: {
+          network: commonParams.network,
           address: commonParams.address,
           contractName: 'cadenceExampleNFTCollection',
           limit: 10,
           offset: 0,
-          network: commonParams.network,
         },
       },
-      { name: 'nftCollectionList', params: {} },
       { name: 'evmFTList', params: {} },
       {
         name: 'getEvmFT',
@@ -316,28 +322,30 @@ export const createTestGroups = (commonParams: CommonParams): ApiTestGroups => {
         params: { address: commonParams.addressEvm, network: commonParams.network },
       },
       {
-        name: 'EvmNFTcollectionList',
+        name: 'fetchEvmNftCollectionsAndIds',
         params: {
+          network: commonParams.network,
+          address: commonParams.addressEvm,
+        },
+      },
+      {
+        name: 'fetchEvmCollectionNfts',
+        params: {
+          network: commonParams.network,
           address: commonParams.addressEvm,
           collectionIdentifier: 'cadenceExampleNFTCollection',
           limit: 24,
-          offset: 0,
+          offset: '0',
         },
       },
-      { name: 'EvmNFTID', params: { address: commonParams.addressEvm } },
-      { name: 'EvmNFTList', params: { address: commonParams.addressEvm, limit: 24, offset: 0 } },
       {
-        name: 'getNFTCadenceList',
+        name: 'fetchEvmNftsAcrossCollections',
         params: {
-          address: commonParams.address,
           network: commonParams.network,
-          offset: 0,
-          limit: 5,
+          address: commonParams.addressEvm,
+          limit: 24,
+          offset: '0',
         },
-      },
-      {
-        name: 'getNFTV2CollectionList',
-        params: { network: commonParams.network },
       },
     ],
     profile: [

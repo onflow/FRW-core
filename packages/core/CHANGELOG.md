@@ -1,5 +1,47 @@
 # @onflow/frw-core
 
+## 0.2.6
+
+### Patch Changes
+
+- e4a255b: Corrected transaction value error in evm
+
+## 0.2.5
+
+### Patch Changes
+
+- a286c45: New unified transferNfts function
+- Updated dependencies [a286c45]
+  - @onflow/frw-shared@0.2.5
+  - @onflow/frw-data-model@0.2.5
+
+## 0.2.4
+
+### Patch Changes
+
+- d950c81: Small type changes and fixes
+- Updated dependencies [d950c81]
+  - @onflow/frw-shared@0.2.4
+  - @onflow/frw-data-model@0.2.4
+
+## 0.2.3
+
+### Patch Changes
+
+- 043dc56: refactored nft types and service
+- Updated dependencies [043dc56]
+  - @onflow/frw-data-model@0.2.3
+  - @onflow/frw-shared@0.2.3
+
+## 0.2.2
+
+### Patch Changes
+
+- 64ba2fe: Updated readme and documentation
+- Updated dependencies [64ba2fe]
+  - @onflow/frw-data-model@0.2.2
+  - @onflow/frw-shared@0.2.2
+
 ## 0.2.1
 
 ### Patch Changes

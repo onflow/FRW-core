@@ -1,5 +1,38 @@
 # @onflow/frw-extension-shared
 
+## 0.2.6
+
+### Patch Changes
+
+- Updated dependencies [a286c45]
+  - @onflow/frw-shared@0.2.5
+  - @onflow/frw-data-model@0.2.5
+
+## 0.2.5
+
+### Patch Changes
+
+- Updated dependencies [d950c81]
+  - @onflow/frw-shared@0.2.4
+  - @onflow/frw-data-model@0.2.4
+
+## 0.2.4
+
+### Patch Changes
+
+- Updated dependencies [043dc56]
+  - @onflow/frw-data-model@0.2.3
+  - @onflow/frw-shared@0.2.3
+
+## 0.2.3
+
+### Patch Changes
+
+- 64ba2fe: Updated readme and documentation
+- Updated dependencies [64ba2fe]
+  - @onflow/frw-data-model@0.2.2
+  - @onflow/frw-shared@0.2.2
+
 ## 0.2.2
 
 ### Patch Changes

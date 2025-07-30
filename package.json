@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm -r --parallel build:watch",
+    "clean": "pnpm -r clean && rm -rf **/node_modules && pnpm i",
     "build": "pnpm -r build",
     "build:packages": "pnpm -F './packages/**' build",
     "build:parallel": "pnpm -r --parallel build",
