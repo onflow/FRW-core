@@ -1,6 +1,6 @@
 {
   "name": "@onflow/frw-core",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Core services for Flow Reference Wallet",
   "type": "module",
   "files": [

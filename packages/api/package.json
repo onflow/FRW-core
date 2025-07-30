@@ -1,6 +1,6 @@
 {
   "name": "@onflow/frw-api",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Package for flow wallet network layer with backend server api",
   "type": "module",
   "files": [

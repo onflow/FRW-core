@@ -1,6 +1,6 @@
 {
     "name": "@onflow/frw-types",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Package for flow wallet data types",
     "type": "module",
     "main": "./src/index.ts",
