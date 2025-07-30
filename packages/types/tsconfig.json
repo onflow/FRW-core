@@ -5,6 +5,7 @@
     "src/*.ts",
     "src/**/*.json",
     "tests/**/*.ts",
+    "__tests__/**/*.ts",
     "tsup.config.ts",
     "vitest.config.ts"
   ]
