@@ -74,6 +74,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@onflow/frw-api':
+        specifier: workspace:*
+        version: 'link:'
       axios:
         specifier: ^1.4.0
         version: 1.11.0
@@ -102,6 +105,9 @@ importers:
       '@onflow/fcl':
         specifier: ^1.13.1
         version: 1.19.0(@types/react@18.3.23)(google-protobuf@3.21.4)(jiti@2.4.2)(postcss@8.5.6)(react@18.3.1)(ts-node@10.9.2(@swc/core@1.12.14)(@types/node@22.16.4)(typescript@5.8.3))(tsx@4.20.3)(typescript@5.8.3)(zod@3.25.76)
+      '@onflow/frw-cadence':
+        specifier: workspace:*
+        version: 'link:'
     devDependencies:
       '@types/node':
         specifier: ^22.10.2
@@ -303,6 +309,21 @@ importers:
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.16.4)(jiti@2.4.2)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+
+  packages/stores:
+    dependencies:
+      '@onflow/frw-api':
+        specifier: workspace:*
+        version: link:../api
+      '@onflow/frw-types':
+        specifier: workspace:*
+        version: link:../types
+      '@onflow/frw-workflow':
+        specifier: workspace:*
+        version: link:../workflow
+      zustand:
+        specifier: ^5.0.6
+        version: 5.0.6(@types/react@18.3.23)(react@18.3.1)(use-sync-external-store@1.2.0(react@18.3.1))
 
   packages/types:
     dependencies:
@@ -3996,6 +4017,7 @@ packages:
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
+    deprecated: The work that was done in this beta branch won't be included in future versions
 
   spawndamnit@3.0.1:
     resolution: {integrity: sha512-MmnduQUuHCoFckZoWnXsTg7JaiLBJrKFj9UI2MbRPGaJeVpsLcVBu6P/IGZovziM/YBsellCmsprgNA+w0CzVg==}
@@ -4741,6 +4763,24 @@ packages:
 
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
+  zustand@5.0.6:
+    resolution: {integrity: sha512-ihAqNeUVhe0MAD+X8M5UzqyZ9k3FFZLBTtqo6JLPwV53cbRB/mJwBI0PxcIgqhBBHlEs8G45OTDTMq3gNcLq3A==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
 
 snapshots:
 
@@ -10214,3 +10254,9 @@ snapshots:
   yocto-queue@1.2.1: {}
 
   zod@3.25.76: {}
+
+  zustand@5.0.6(@types/react@18.3.23)(react@18.3.1)(use-sync-external-store@1.2.0(react@18.3.1)):
+    optionalDependencies:
+      '@types/react': 18.3.23
+      react: 18.3.1
+      use-sync-external-store: 1.2.0(react@18.3.1)

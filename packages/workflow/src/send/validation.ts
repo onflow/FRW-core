@@ -1,4 +1,5 @@
 import type { SendPayload } from './types';
+import { isFlowToken } from './utils';
 
 /**
  * Validates Flow blockchain addresses (0x + 16 hex characters)
@@ -44,7 +45,6 @@ export const validateNftPayload = (payload: SendPayload): void => {
     throw new Error('invalid send nft transaction payload');
   }
 };
-
 /**
  * Validates the complete send transaction payload
  * Performs comprehensive validation including address formats, required fields,
@@ -63,20 +63,15 @@ export const isValidSendTransactionPayload = (payload: SendPayload): boolean => 
   }
 
   // Validate all required fields are present
-  if (
-    !proposer ||
-    !receiver ||
-    !flowIdentifier ||
-    !sender ||
-    !type ||
-    !assetType ||
-    !tokenContractAddr
-  ) {
+  if (!proposer || !receiver || !flowIdentifier || !sender || !type || !assetType) {
     throw new Error('invalid send transaction payload');
   }
 
   // Validate asset-specific requirements
   if (type === 'token') {
+    if (!isFlowToken(flowIdentifier) && !tokenContractAddr) {
+      throw new Error('invalid send token transaction payload');
+    }
     validateTokenPayload(payload);
   }
 
@@ -89,8 +84,11 @@ export const isValidSendTransactionPayload = (payload: SendPayload): boolean => 
     throw new Error('invalid send flow transaction payload');
   }
 
-  if (assetType === 'evm' && !validateEvmAddress(tokenContractAddr)) {
-    throw new Error('invalid send evm transaction payload');
+  if (assetType === 'evm') {
+    // Skip validation if Flow token (tokenContractAddr can be null/undefined)
+    if (!isFlowToken(flowIdentifier) && !validateEvmAddress(tokenContractAddr)) {
+      throw new Error('invalid send evm transaction payload - invalid contract address');
+    }
   }
 
   return true;

@@ -38,8 +38,8 @@
     "access": "public"
   },
   "dependencies": {
-    "swagger-axios-codegen": "^0.17.4",
-    "axios": "^1.4.0"
+    "axios": "^1.4.0",
+    "swagger-axios-codegen": "^0.17.4"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

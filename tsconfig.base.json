@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "moduleResolution": "bundler",
     "declaration": true,
     "declarationMap": true,
@@ -15,15 +17,36 @@
     "isolatedModules": true,
     "composite": true,
     "noImplicitAny": false,
-    "customConditions": ["@onflow/source"],
-
+    "customConditions": [
+      "@onflow/source"
+    ],
     "outDir": "${configDir}/dist",
     "paths": {
-      "@onflow/frw-shared/types": ["./packages/shared/src/types/index.ts"],
-      "@onflow/frw-shared/constant": ["./packages/shared/src/constant/index.ts"],
-      "@onflow/frw-shared/utils": ["./packages/shared/src/utils/index.ts"],
-      "@onflow/frw-data-model": ["./packages/data-model/src/index.ts"]
+      "@onflow/frw-shared/types": [
+        "./packages/shared/src/types/index.ts"
+      ],
+      "@onflow/frw-shared/constant": [
+        "./packages/shared/src/constant/index.ts"
+      ],
+      "@onflow/frw-shared/utils": [
+        "./packages/shared/src/utils/index.ts"
+      ],
+      "@onflow/frw-data-model": [
+        "./packages/data-model/src/index.ts"
+      ],
+      "@onflow/frw-api": [
+        "./packages/api/src/index.ts"
+      ],
+      "@onflow/frw-api/service": [
+        "./packages/api/src/codgen/service.ts"
+      ],
+      "@onflow/frw-api/goService": [
+        "./packages/api/src/codgen/goService.ts"
+      ],
     }
   },
-  "exclude": ["node_modules", "${configDir}/dist"]
+  "exclude": [
+    "node_modules",
+    "${configDir}/dist"
+  ]
 }

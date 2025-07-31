@@ -37,7 +37,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@onflow/fcl": "^1.13.1"
+    "@onflow/fcl": "^1.13.1",
+    "@onflow/frw-cadence": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

@@ -310,4 +310,24 @@ describe('Test send strategies', () => {
   //   const txid = await SendTransaction(payload);
   //   expect(txid.length).toBe(64);
   // });
+
+  // it('Test bridge Flow - Bridge from EVM to Flow', async () => {
+  //   const payload = {
+  //     type: 'token',
+  //     assetType: 'evm',
+  //     proposer: mainAccount.address,
+  //     receiver: mainAccount.address,
+  //     flowIdentifier: 'A.1654653399040a61.FlowToken.Vault',
+  //     sender: mainAccount.evmAddr,
+  //     amount: '0.001',
+  //     childAddrs: [child1Account.address, child2Account.address],
+  //     ids: [],
+  //     decimal: 6,
+  //     coaAddr: mainAccount.evmAddr,
+  //     tokenContractAddr: '0x0000000000000000000000000000000000000000',
+  //   };
+
+  //   const txid = await SendTransaction(payload);
+  //   expect(txid.length).toBe(64);
+  // });
 });
