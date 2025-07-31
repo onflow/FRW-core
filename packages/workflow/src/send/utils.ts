@@ -83,14 +83,13 @@ export const safeConvertToUFix64 = (
  */
 export const encodeEvmContractCallData = (payload: SendPayload): number[] => {
   const { type, amount = '', receiver, decimal, ids, sender } = payload;
-  const to = receiver.toLowerCase().replace(/^0x/, '');
-  if (to.length !== 40) throw new Error('Invalid Ethereum address');
+  // const to = receiver.toLowerCase().replace(/^0x/, '');
+  if (receiver.length !== 42) throw new Error('Invalid Ethereum address');
   let callData = '0x';
 
   if (type === 'token') {
-    // ERC20 token transfer - use validated UFix64 amount
-    const validatedAmount = convertToUFix64(amount);
-    const value = Number(validatedAmount) * 10 ** decimal;
+    // ERC20 token transfer
+    const value = Number(amount);
     // Convert value with proper decimal handling
     const valueBig = parseUnits(value.toString(), decimal);
     // ERC20 transfer function ABI
@@ -98,7 +97,7 @@ export const encodeEvmContractCallData = (payload: SendPayload): number[] => {
     const iface = new ethers.Interface(abi);
 
     // Encode function call data
-    callData = iface.encodeFunctionData('transfer', [to, valueBig]);
+    callData = iface.encodeFunctionData('transfer', [receiver, valueBig]);
   } else {
     // NFT transfer (ERC721 or ERC1155)
     if (ids.length === 1) {
@@ -111,11 +110,10 @@ export const encodeEvmContractCallData = (payload: SendPayload): number[] => {
         const iface = new ethers.Interface(abi);
 
         // Encode function call data
-        callData = iface.encodeFunctionData('transferFrom', [sender, to, tokenId]);
+        callData = iface.encodeFunctionData('safeTransferFrom', [sender, receiver, tokenId]);
       } else {
         // ERC1155 NFT transfer (with amount parameter)
         const tokenId = ids[0];
-        const validatedAmount = convertToUFix64(amount);
 
         // ERC1155 safeTransferFrom function ABI
         const abi = [
@@ -124,9 +122,9 @@ export const encodeEvmContractCallData = (payload: SendPayload): number[] => {
         const iface = new ethers.Interface(abi);
         callData = iface.encodeFunctionData('safeTransferFrom', [
           sender,
-          to,
+          receiver,
           tokenId,
-          validatedAmount,
+          amount,
           '0x', // Empty data parameter
         ]);
       }

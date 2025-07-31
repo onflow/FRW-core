@@ -183,8 +183,17 @@ export class EvmToEvmTokenStrategy implements TransferStrategy {
   }
 
   async execute(payload: SendPayload): Promise<any> {
-    const { tokenContractAddr, amount } = payload;
-    const data = encodeEvmContractCallData(payload);
-    return await cadenceService.callContract(tokenContractAddr, amount, data, 30000000);
+    const { tokenContractAddr, amount, flowIdentifier, decimal } = payload;
+    if (flowIdentifier.includes('FlowToken')) {
+      return await cadenceService.callContract(
+        '0x0000000000000000000000000000000000000000',
+        amount,
+        [],
+        30000000
+      );
+    } else {
+      const data = encodeEvmContractCallData(payload);
+      return await cadenceService.callContract(tokenContractAddr, '0.0', data, 30000000);
+    }
   }
 }
