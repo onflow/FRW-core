@@ -1,4 +1,5 @@
-import { type NFTModel, type TokenInfo } from '@onflow/frw-types';
+import { type NFTModel, type TokenInfo, addressType } from '@onflow/frw-types';
+import { type SendPayload, isFlowToken } from '@onflow/frw-workflow';
 import { create } from 'zustand';
 
 import { FlowService } from '../service';
@@ -9,6 +10,13 @@ import {
   type WalletAccount,
   type BalanceData,
 } from './types';
+
+// Helper function to format amount
+function formatAmount(val: string | number | undefined | null): string {
+  if (val === null || val === undefined || val === '') return '0';
+  const num = typeof val === 'string' ? parseFloat(val) : val;
+  return isNaN(num) ? '0' : num.toString();
+}
 
 // Default form data
 const defaultFormData: SendFormData = {
@@ -263,6 +271,76 @@ export const useSendStore = create<SendState>((set, get) => ({
       currentStep: 'select-tokens',
       error: null,
     }),
+
+  // Create send payload for transaction execution
+  createSendPayload: async (): Promise<SendPayload | null> => {
+    const state = get();
+    const { fromAccount, toAccount, selectedToken, selectedNFTs, formData, transactionType } =
+      state;
+
+    if (!fromAccount || !toAccount) {
+      console.error('[SendStore] Missing fromAccount or toAccount');
+      return null;
+    }
+
+    const isTokenTransaction = transactionType === 'tokens';
+    const isNFTTransaction = ['single-nft', 'multiple-nfts'].includes(transactionType);
+
+    if (isTokenTransaction && !selectedToken) {
+      console.error('[SendStore] Missing selectedToken for token transaction');
+      return null;
+    }
+
+    if (isNFTTransaction && selectedNFTs.length === 0) {
+      console.error('[SendStore] Missing selectedNFTs for NFT transaction');
+      return null;
+    }
+
+    try {
+      // Get wallet accounts for child addresses and COA
+      const flowService = FlowService.getInstance();
+      const { accounts } = await flowService.getWalletAccounts();
+      const coaAddr = accounts.filter((account) => account.type === 'evm')[0]?.address || '';
+      const childAddrs = accounts
+        .filter((account) => account.type === 'child')
+        .map((account) => account.address);
+      const mainAccount = accounts.filter((account) => account.type === 'main')[0];
+
+      if (!mainAccount) {
+        console.error('[SendStore] No main account found');
+        return null;
+      }
+
+      const payload: SendPayload = {
+        type: isTokenTransaction ? 'token' : 'nft',
+        assetType: addressType(fromAccount.address),
+        proposer: mainAccount.address,
+        receiver: toAccount.address,
+        flowIdentifier: selectedToken?.identifier || '',
+        sender: fromAccount.address,
+        childAddrs: childAddrs,
+        ids: isNFTTransaction
+          ? (selectedNFTs
+              .map((nft) => (nft.id !== null && nft.id !== undefined ? parseInt(nft.id as string) : undefined))
+              .filter((id) => typeof id === 'number' && !isNaN(id)) as number[])
+          : [],
+        amount: isTokenTransaction ? formatAmount(formData.tokenAmount) : '',
+        decimal: selectedToken?.decimal || 8,
+        coaAddr: coaAddr,
+        // For Flow tokens, contract address can be empty since they're identified by flowIdentifier
+        tokenContractAddr:
+          selectedToken && selectedToken.identifier && isFlowToken(selectedToken.identifier)
+            ? ''
+            : selectedToken?.contractAddress || '',
+      };
+
+      console.log('[SendStore] Created send payload:', payload);
+      return payload;
+    } catch (error) {
+      console.error('[SendStore] Error creating send payload:', error);
+      return null;
+    }
+  },
 }));
 
 // Selectors for better performance and easier usage

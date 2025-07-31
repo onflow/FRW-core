@@ -11,3 +11,6 @@ export {
   Userv3Service as Userv3GoService,
   AddressbookService,
 } from './codgen/goService';
+
+export { serviceOptions as goServiceOptions } from './codgen/goService';
+export { serviceOptions } from './codgen/service';
