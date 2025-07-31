@@ -33,16 +33,7 @@
       ],
       "@onflow/frw-data-model": [
         "./packages/data-model/src/index.ts"
-      ],
-      "@onflow/frw-api": [
-        "./packages/api/src/index.ts"
-      ],
-      "@onflow/frw-api/service": [
-        "./packages/api/src/codgen/service.ts"
-      ],
-      "@onflow/frw-api/goService": [
-        "./packages/api/src/codgen/goService.ts"
-      ],
+      ]
     }
   },
   "exclude": [
