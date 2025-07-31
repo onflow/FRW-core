@@ -9,6 +9,11 @@ This repository contains the core packages for the Flow Reference Wallet (FRW) e
 - **[@onflow/frw-reducers](./packages/reducers/README.md)** - State management reducers
 - **[@onflow/frw-data-model](./packages/data-model/README.md)** - Cache data model implementation
 - **[@onflow/frw-extension-shared](./packages/extension-shared/README.md)** - Extension-specific shared utilities
+- **[@onflow/frw-stores](./packages/stores/README.md)** - State management stores and service layer with Zustand integration
+- **[@onflow/frw-api](./packages/api/README.md)** - Network API services and client interfaces
+- **[@onflow/frw-cadence](./packages/cadence/README.md)** - Cadence scripts and transaction templates
+- **[@onflow/frw-types](./packages/types/README.md)** - TypeScript type definitions and interfaces
+- **[@onflow/frw-workflow](./packages/workflow/README.md)** - Transaction workflow and strategy patterns
 
 ## Installation
 
