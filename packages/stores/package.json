@@ -1,6 +1,6 @@
 {
     "name": "@onflow/frw-stores",
-    "version": "0.1.0",
+    "version": "0.0.4",
     "description": "Package for flow wallet stores",
     "type": "module",
     "main": "./src/index.ts",
@@ -32,9 +32,9 @@
         }
     },
     "dependencies": {
-        "@onflow/frw-api": "workspace:*",
-        "@onflow/frw-types": "workspace:*",
-        "@onflow/frw-workflow": "workspace:*",
+        "@onflow/frw-api": "0.0.3",
+        "@onflow/frw-types": "0.0.3",
+        "@onflow/frw-workflow": "0.0.4",
         "zustand": "^5.0.6"
     }
 }

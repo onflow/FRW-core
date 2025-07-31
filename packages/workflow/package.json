@@ -1,6 +1,6 @@
 {
     "name": "@onflow/frw-workflow",
-    "version": "0.1.0",
+    "version": "0.0.4",
     "description": "Package for flow wallet workflow",
     "type": "module",
     "main": "./src/index.ts",
@@ -33,7 +33,7 @@
     },
     "dependencies": {
         "@onflow/fcl": "^1.13.1",
-        "@onflow/frw-cadence": "workspace:*",
+        "@onflow/frw-cadence": "0.0.3",
         "@onflow/util-encode-key": "^1.2.4"
     },
     "devDependencies": {

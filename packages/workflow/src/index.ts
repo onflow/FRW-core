@@ -5,6 +5,7 @@ import { send as httpSend } from '@onflow/transport-http';
 import { authz } from './utils/authz';
 
 export * from './send';
+export * from './send/utils';
 
 export function configureFCL(network: 'mainnet' | 'testnet') {
   if (network === 'mainnet') {
