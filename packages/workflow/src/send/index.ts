@@ -1,9 +1,12 @@
 // Export types
 export type { SendPayload, TransferStrategy } from './types';
+
 // Export validation functions
 export { isValidSendTransactionPayload } from './validation';
+
 // Export utility functions
 export { encodeEvmContractCallData } from './utils';
+
 // Export context and main function
 export { createTransferContext, TransferContext } from './context';
 

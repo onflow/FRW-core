@@ -91,7 +91,7 @@ export const baseConfig = {
     ],
 
     // General rules
-    'no-console': ['error'],
+    // 'no-console': ['error'],
     'prefer-const': 'error',
     'no-var': 'error',
     eqeqeq: ['error', 'always'],

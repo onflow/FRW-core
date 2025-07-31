@@ -34,3 +34,5 @@ export { WalletType, addressType } from './Wallet';
 export type { NavigationProp, ExpandedNFTData, ConfirmationScreenProps } from './Send';
 
 export type * from './StoreTypes';
+
+export * from './utils/string';

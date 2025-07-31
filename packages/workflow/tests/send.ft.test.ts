@@ -176,15 +176,15 @@ describe('Test send strategies', () => {
   //     type: 'token',
   //     assetType: 'evm',
   //     proposer: mainAccount.address,
-  //     receiver: '0x3b44f144B97A0402C0e206522c28052C1025A8AA',
-  //     flowIdentifier: 'A.f1ab99c82dee3526.USDCFlow.Vault',
+  //     receiver: '0x3b44f144b97a0402c0e206522c28052c1025a8aa',
+  //     flowIdentifier: 'A.1654653399040a61.FlowToken.Vault',
   //     sender: mainAccount.evmAddr,
-  //     amount: '1.0',
+  //     amount: '0.00001',
   //     childAddrs: [],
   //     ids: [],
   //     decimal: 6,
   //     coaAddr: mainAccount.evmAddr,
-  //     tokenContractAddr: '0x7f27352d5f83db87a5a3e00f4b07cc2138d8ee52',
+  //     tokenContractAddr: '0x7f27352D5F83Db87a5A3E00f4B07Cc2138D8ee52',
   //   };
 
   //   const txid = await SendTransaction(payload);
@@ -305,6 +305,26 @@ describe('Test send strategies', () => {
   //     decimal: 6,
   //     coaAddr: mainAccount.evmAddr,
   //     tokenContractAddr: '0x7f27352d5f83db87a5a3e00f4b07cc2138d8ee52',
+  //   };
+
+  //   const txid = await SendTransaction(payload);
+  //   expect(txid.length).toBe(64);
+  // });
+
+  // it('Test bridge Flow - Bridge from EVM to Flow', async () => {
+  //   const payload = {
+  //     type: 'token',
+  //     assetType: 'evm',
+  //     proposer: mainAccount.address,
+  //     receiver: mainAccount.address,
+  //     flowIdentifier: 'A.1654653399040a61.FlowToken.Vault',
+  //     sender: mainAccount.evmAddr,
+  //     amount: '0.001',
+  //     childAddrs: [child1Account.address, child2Account.address],
+  //     ids: [],
+  //     decimal: 6,
+  //     coaAddr: mainAccount.evmAddr,
+  //     tokenContractAddr: '0x0000000000000000000000000000000000000000',
   //   };
 
   //   const txid = await SendTransaction(payload);

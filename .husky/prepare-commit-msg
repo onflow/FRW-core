@@ -6,7 +6,7 @@ fi
 # Get the current branch name
 BRANCH_NAME=$(git symbolic-ref --short HEAD)
 
-# Skip if branch name starts with "cursor" or "changeset-release". 
+# Skip if branch name starts with "cursor" or "changeset-release".
 # cursor branches are created by background agents
 # changeset-release branches are created by changesets for automated releases
 case "$BRANCH_NAME" in
