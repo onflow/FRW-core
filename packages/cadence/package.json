@@ -1,6 +1,6 @@
 {
   "name": "@onflow/frw-cadence",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Package for flow wallet cadence scripts",
   "type": "module",
   "files": [

@@ -1,4 +1,4 @@
-# @onflow/frw-cadence
+# @onflow/frw-stores
 
 ## 0.1.0
 
@@ -9,10 +9,6 @@
 ### Patch Changes
 
 - Updated dependencies [556039a]
-  - @onflow/frw-cadence@0.1.0
-
-## 0.0.2
-
-### Patch Changes
-
-- 64ba2fe: Updated readme and documentation
+  - @onflow/frw-api@0.1.0
+  - @onflow/frw-types@0.1.0
+  - @onflow/frw-workflow@0.1.0
