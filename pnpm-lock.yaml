@@ -102,9 +102,6 @@ importers:
       '@onflow/fcl':
         specifier: ^1.13.1
         version: 1.19.0(@types/react@18.3.23)(google-protobuf@3.21.4)(jiti@2.4.2)(postcss@8.5.6)(react@18.3.1)(ts-node@10.9.2(@swc/core@1.12.14)(@types/node@22.16.4)(typescript@5.8.3))(tsx@4.20.3)(typescript@5.8.3)(zod@3.25.76)
-      '@onflow/frw-cadence':
-        specifier: workspace:*
-        version: 'link:'
     devDependencies:
       '@types/node':
         specifier: ^22.10.2
@@ -310,14 +307,14 @@ importers:
   packages/stores:
     dependencies:
       '@onflow/frw-api':
-        specifier: workspace:*
-        version: link:../api
+        specifier: 0.0.3
+        version: 0.0.3
       '@onflow/frw-types':
-        specifier: workspace:*
-        version: link:../types
+        specifier: 0.0.3
+        version: 0.0.3
       '@onflow/frw-workflow':
-        specifier: workspace:*
-        version: link:../workflow
+        specifier: 0.0.4
+        version: 0.0.4(@types/react@18.3.23)(jiti@2.4.2)(react@18.3.1)(typescript@5.8.3)
       zustand:
         specifier: ^5.0.6
         version: 5.0.6(@types/react@18.3.23)(react@18.3.1)(use-sync-external-store@1.2.0(react@18.3.1))
@@ -325,8 +322,8 @@ importers:
   packages/types:
     dependencies:
       '@onflow/frw-api':
-        specifier: workspace:*
-        version: link:../api
+        specifier: 0.0.3
+        version: 0.0.3
 
   packages/workflow:
     dependencies:
@@ -334,8 +331,8 @@ importers:
         specifier: ^1.13.1
         version: 1.19.0(@types/react@18.3.23)(google-protobuf@3.21.4)(jiti@2.4.2)(postcss@8.5.6)(react@18.3.1)(ts-node@10.9.2(@swc/core@1.12.14)(@types/node@22.16.4)(typescript@5.8.3))(tsx@4.20.3)(typescript@5.8.3)(zod@3.25.76)
       '@onflow/frw-cadence':
-        specifier: workspace:*
-        version: link:../cadence
+        specifier: 0.0.3
+        version: 0.0.3(@types/react@18.3.23)(google-protobuf@3.21.4)(jiti@2.4.2)(postcss@8.5.6)(react@18.3.1)(ts-node@10.9.2(@swc/core@1.12.14)(@types/node@22.16.4)(typescript@5.8.3))(tsx@4.20.3)(typescript@5.8.3)(zod@3.25.76)
       '@onflow/util-encode-key':
         specifier: ^1.2.4
         version: 1.2.4
@@ -1105,6 +1102,20 @@ packages:
 
   '@onflow/fcl@1.19.0':
     resolution: {integrity: sha512-PtABHza3oSVFIQRd8knOM+jqEcWsqRNIwNtWmElnLY7kuBRJJuoOT84Kxua0dWcE567IiDOPtjRoFpfqqnosyQ==}
+
+  '@onflow/frw-api@0.0.3':
+    resolution: {integrity: sha512-xurEkOBAzWHz9l4oNB+RzEysYVuQ/+/I/UJB2EvOEeNSlXCf278zFUMQ/ucqpLNBwx9HwtMjtO9OTavoWxaOoA==}
+    engines: {node: '>=22.11.0'}
+
+  '@onflow/frw-cadence@0.0.3':
+    resolution: {integrity: sha512-m53XZjUKNgOsi2zQogFxcHwEctqeqZShnVUiMPFOVZ0bexXSgdOkh2dnseBkhbJGyDMmBueJf3lSMtO26JM4Kw==}
+    engines: {node: '>=22.11.0'}
+
+  '@onflow/frw-types@0.0.3':
+    resolution: {integrity: sha512-4T4bQj7Xm8BTpQ+/nngcO3bxupwlyxZTkzD6jz3wiRcB0Ysec6Qw8sZDNgmSlv+zNgB21Bw0pIAwlm9jh7gJrQ==}
+
+  '@onflow/frw-workflow@0.0.4':
+    resolution: {integrity: sha512-bBTvsOeVwWETWzmu7CVaUoT7DdCd9022AhY+pcJv7pft3lUHFlKZLAjsHAdMqw7/yBRA2Ccyln1mIS+rkREUuw==}
 
   '@onflow/interaction@0.0.11':
     resolution: {integrity: sha512-Xuq1Mmx6Wyba/F/L+QLQs0yJeQDsIDwy5SKk5vrCuVgIj0yD8k506g5L8ODrbM1LWll8i0tQsoOi0F85vNl5sA==}
@@ -5844,6 +5855,93 @@ snapshots:
       cross-fetch: 4.1.0
       events: 3.3.0
       sha3: 2.1.4
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@netlify/blobs'
+      - '@onflow/util-config'
+      - '@planetscale/database'
+      - '@react-native-async-storage/async-storage'
+      - '@types/react'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/kv'
+      - aws4fetch
+      - bufferutil
+      - db0
+      - encoding
+      - google-protobuf
+      - ioredis
+      - jiti
+      - postcss
+      - react
+      - ts-node
+      - tsx
+      - typescript
+      - uploadthing
+      - utf-8-validate
+      - zod
+
+  '@onflow/frw-api@0.0.3':
+    dependencies:
+      axios: 1.11.0
+      swagger-axios-codegen: 0.17.4
+    transitivePeerDependencies:
+      - debug
+
+  '@onflow/frw-cadence@0.0.3(@types/react@18.3.23)(google-protobuf@3.21.4)(jiti@2.4.2)(postcss@8.5.6)(react@18.3.1)(ts-node@10.9.2(@swc/core@1.12.14)(@types/node@22.16.4)(typescript@5.8.3))(tsx@4.20.3)(typescript@5.8.3)(zod@3.25.76)':
+    dependencies:
+      '@onflow/fcl': 1.19.0(@types/react@18.3.23)(google-protobuf@3.21.4)(jiti@2.4.2)(postcss@8.5.6)(react@18.3.1)(ts-node@10.9.2(@swc/core@1.12.14)(@types/node@22.16.4)(typescript@5.8.3))(tsx@4.20.3)(typescript@5.8.3)(zod@3.25.76)
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@netlify/blobs'
+      - '@onflow/util-config'
+      - '@planetscale/database'
+      - '@react-native-async-storage/async-storage'
+      - '@types/react'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/kv'
+      - aws4fetch
+      - bufferutil
+      - db0
+      - encoding
+      - google-protobuf
+      - ioredis
+      - jiti
+      - postcss
+      - react
+      - ts-node
+      - tsx
+      - typescript
+      - uploadthing
+      - utf-8-validate
+      - zod
+
+  '@onflow/frw-types@0.0.3':
+    dependencies:
+      '@onflow/frw-api': 0.0.3
+    transitivePeerDependencies:
+      - debug
+
+  '@onflow/frw-workflow@0.0.4(@types/react@18.3.23)(jiti@2.4.2)(react@18.3.1)(typescript@5.8.3)':
+    dependencies:
+      '@onflow/fcl': 1.19.0(@types/react@18.3.23)(google-protobuf@3.21.4)(jiti@2.4.2)(postcss@8.5.6)(react@18.3.1)(ts-node@10.9.2(@swc/core@1.12.14)(@types/node@22.16.4)(typescript@5.8.3))(tsx@4.20.3)(typescript@5.8.3)(zod@3.25.76)
+      '@onflow/frw-cadence': 0.0.3(@types/react@18.3.23)(google-protobuf@3.21.4)(jiti@2.4.2)(postcss@8.5.6)(react@18.3.1)(ts-node@10.9.2(@swc/core@1.12.14)(@types/node@22.16.4)(typescript@5.8.3))(tsx@4.20.3)(typescript@5.8.3)(zod@3.25.76)
+      '@onflow/util-encode-key': 1.2.4
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
