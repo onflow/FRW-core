@@ -485,9 +485,16 @@ export class TransactionService {
       type: 'evm',
     });
 
+    if (!evmAddress) {
+      throw new Error('EVM address is required but not provided');
+    }
     let processedEvmAddress: string = evmAddress;
     if (processedEvmAddress.startsWith('0x')) {
       processedEvmAddress = processedEvmAddress.substring(2);
+    }
+    // Validate hex string after processing
+    if (!/^[0-9a-fA-F]+$/.test(processedEvmAddress)) {
+      throw new Error('Invalid EVM address format');
     }
 
     const addressNonce = await this.getNonce(processedEvmAddress);
@@ -510,7 +517,7 @@ export class TransactionService {
       transactionValue, // Value
       Buffer.from(dataArray), // Call Data
       directCallTxType, // Fixed value
-      BigInt('0x' + evmAddress), // From Account
+      BigInt('0x' + processedEvmAddress), // From Account
       contractCallSubType, // SubType
     ];
     const encodedData = encode(transaction);
