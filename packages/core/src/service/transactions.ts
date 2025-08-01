@@ -485,10 +485,10 @@ export class TransactionService {
       type: 'evm',
     });
 
-    let processedEvmAddress: string = evmAddress;
-    if (!processedEvmAddress) {
+    if (!evmAddress) {
       throw new Error('EVM address is required but not provided');
     }
+    let processedEvmAddress: string = evmAddress;
     if (processedEvmAddress.startsWith('0x')) {
       processedEvmAddress = processedEvmAddress.substring(2);
     }
