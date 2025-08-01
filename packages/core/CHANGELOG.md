@@ -1,5 +1,11 @@
 # @onflow/frw-core
 
+## 0.3.0
+
+### Minor Changes
+
+- c6d6522: fix dapp bug
+
 ## 0.2.7
 
 ### Patch Changes
