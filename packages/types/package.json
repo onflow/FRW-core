@@ -32,6 +32,6 @@
         }
     },
     "dependencies": {
-        "@onflow/frw-api": "0.0.3"
+        "@onflow/frw-api": "workspace:*"
     }
 }

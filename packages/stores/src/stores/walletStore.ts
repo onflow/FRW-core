@@ -1,20 +1,11 @@
 import { create } from 'zustand';
 
 import { FlowService } from '../service';
+import type { WalletAccount } from './types';
 
 // import NativeFRWBridge from '@/bridge/NativeFRWBridge'; // TODO: Update import path when bridge is available
 
 // Simple wallet account - only account identity, no financial data
-interface WalletAccount {
-  id: string;
-  name: string;
-  emoji: string;
-  avatar?: string;
-  address: string;
-  type: 'main' | 'child' | 'evm';
-  isActive: boolean;
-}
-
 interface WalletStoreState {
   accounts: WalletAccount[];
   activeAccount: WalletAccount | null;
@@ -57,7 +48,8 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
       const accounts: WalletAccount[] = walletAccountsData.accounts.map((account: any) => ({
         id: account.id,
         name: account.name,
-        emoji: account.emoji,
+        emojiInfo: account.emojiInfo,
+        parentEmoji: account.parentEmoji,
         avatar: account.avatar,
         address: account.address,
         type: account.type,

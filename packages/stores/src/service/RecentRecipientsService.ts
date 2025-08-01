@@ -51,7 +51,9 @@ export class RecentRecipientsService {
       return merged.map((recent) => ({
         id: recent.id,
         name: recent.name,
-        emoji: recent.emoji || '👤', // Use emoji if available, fallback to default
+        emojiInfo: recent.emoji
+          ? { emoji: recent.emoji, name: '', color: '' }
+          : { emoji: '👤', name: '', color: '' }, // Use emoji if available, fallback to default
         avatar: recent.avatar, // Keep avatar separate
         address: recent.address,
         isActive: false,

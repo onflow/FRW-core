@@ -33,7 +33,7 @@
     },
     "dependencies": {
         "@onflow/fcl": "^1.13.1",
-        "@onflow/frw-cadence": "0.0.3",
+        "@onflow/frw-cadence": "workspace:*",
         "@onflow/util-encode-key": "^1.2.4"
     },
     "devDependencies": {

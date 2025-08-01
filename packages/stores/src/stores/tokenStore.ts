@@ -63,12 +63,15 @@ interface TokenStoreActions {
     network?: string
   ) => Promise<void>;
 
+  // Batch balance fetching
+  fetchBatchFlowBalances: (addressList: string[]) => Promise<Array<[string, string]>>;
   // Public API for wallet integration
   getAccountBalance: (
     address: string,
     accountType?: string,
     network?: string
   ) => Promise<BalanceData>;
+
   getBalance: (
     address: string,
     accountType?: string,
@@ -505,6 +508,35 @@ export const useTokenStore = create<TokenStore>((set, get) => ({
         ...state,
         addressCache: {},
       }));
+    }
+  },
+  // Batch fetch Flow balances for multiple addresses
+  fetchBatchFlowBalances: async (addressList: string[]) => {
+    if (!addressList || addressList.length === 0) {
+      return [];
+    }
+
+    try {
+      // Call cadence service to get balances for all addresses
+      const balanceResults = await cadenceService.getFlowBalanceForAnyAccounts(addressList);
+
+      // Convert to array of [address, displayBalance] tuples
+      const resultArray: Array<[string, string]> = [];
+
+      for (const address of addressList) {
+        const balance = balanceResults[address] || '0';
+        const balanceNumber = parseFloat(balance);
+        const formattedBalance = formatCurrencyStringForDisplay({ value: balanceNumber });
+        const displayBalance = `${formattedBalance} FLOW`;
+
+        resultArray.push([address, displayBalance]);
+      }
+
+      return resultArray;
+    } catch (error) {
+      console.error('[TokenStore] Failed to fetch batch Flow balances:', error);
+      // Return default values for all addresses on error
+      return addressList.map((address) => [address, '0 FLOW'] as [string, string]);
     }
   },
 

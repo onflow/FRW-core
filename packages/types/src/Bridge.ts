@@ -22,7 +22,8 @@ export interface WalletAccount {
   id: string;
   name: string;
   address: string;
-  emoji: string;
+  emojiInfo?: EmojiInfo;
+  parentEmoji?: EmojiInfo;
   avatar?: string;
   isActive: boolean;
   type?: 'main' | 'child' | 'evm';
@@ -38,4 +39,10 @@ export interface WalletAccountsResponse {
 
 export interface AddressBookResponse {
   contacts: AddressBookContact[];
+}
+
+export interface EmojiInfo {
+  emoji: string;
+  name: string;
+  color: string;
 }
