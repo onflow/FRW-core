@@ -486,8 +486,15 @@ export class TransactionService {
     });
 
     let processedEvmAddress: string = evmAddress;
+    if (!processedEvmAddress) {
+      throw new Error('EVM address is required but not provided');
+    }
     if (processedEvmAddress.startsWith('0x')) {
       processedEvmAddress = processedEvmAddress.substring(2);
+    }
+    // Validate hex string after processing
+    if (!/^[0-9a-fA-F]+$/.test(processedEvmAddress)) {
+      throw new Error('Invalid EVM address format');
     }
 
     const addressNonce = await this.getNonce(processedEvmAddress);
