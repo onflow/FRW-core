@@ -510,7 +510,7 @@ export class TransactionService {
       transactionValue, // Value
       Buffer.from(dataArray), // Call Data
       directCallTxType, // Fixed value
-      BigInt('0x' + evmAddress), // From Account
+      BigInt('0x' + processedEvmAddress), // From Account
       contractCallSubType, // SubType
     ];
     const encodedData = encode(transaction);
