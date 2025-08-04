@@ -1,4 +1,3 @@
-import './codgen/axios';
 export * from './codgen/service';
 export {
   AccountService as AccountGoService,
