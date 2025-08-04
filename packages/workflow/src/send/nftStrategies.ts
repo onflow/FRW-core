@@ -171,14 +171,17 @@ export class EvmToEvmNftStrategy implements TransferStrategy {
     const { tokenContractAddr, ids, amount } = payload;
     const data = encodeEvmContractCallData(payload);
     const value = '0.0';
-
-    const multicallAddr = '0xE1ca7632404234003b1B02cbc04653C06A6cB7cE';
-
-    return await cadenceService.callContract(
-      ids.length > 1 ? multicallAddr : tokenContractAddr,
-      value,
-      data,
-      30_000_000
-    );
+    if (ids.length > 1) {
+      const contracts: string[] = [];
+      const datas: number[][] = [];
+      const values: string[] = [];
+      for (const id of ids) {
+        contracts.push(tokenContractAddr);
+        datas.push(encodeEvmContractCallData({ ...payload, ids: [id] }));
+        values.push('0.0');
+      }
+      return await cadenceService.batchCallContract(contracts, values, datas, 30_000_000);
+    }
+    return await cadenceService.callContract(tokenContractAddr, value, data, 30_000_000);
   }
 }
