@@ -114,6 +114,7 @@ export const encodeEvmContractCallData = (payload: SendPayload): number[] => {
       } else {
         // ERC1155 NFT transfer (with amount parameter)
         const tokenId = ids[0];
+        const nftAmount = Number(amount);
 
         // ERC1155 safeTransferFrom function ABI
         const abi = [
@@ -124,7 +125,7 @@ export const encodeEvmContractCallData = (payload: SendPayload): number[] => {
           sender,
           receiver,
           tokenId,
-          amount,
+          nftAmount,
           '0x', // Empty data parameter
         ]);
       }
