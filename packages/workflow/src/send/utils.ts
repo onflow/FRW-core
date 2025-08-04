@@ -82,7 +82,7 @@ export const safeConvertToUFix64 = (
  * @throws Error if receiver address is invalid
  */
 export const encodeEvmContractCallData = (payload: SendPayload): number[] => {
-  const { type, amount = '', receiver, decimal, ids, sender } = payload;
+  const { type, amount = '', receiver, decimal, ids, sender, tokenContractAddr } = payload;
   // const to = receiver.toLowerCase().replace(/^0x/, '');
   if (receiver.length !== 42) throw new Error('Invalid Ethereum address');
   let callData = '0x';
@@ -129,6 +129,26 @@ export const encodeEvmContractCallData = (payload: SendPayload): number[] => {
           '0x', // Empty data parameter
         ]);
       }
+    } else {
+      // multicall
+      const multiCallAbi = [
+        'function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) payable returns (tuple(bool success, bytes returnData)[] returnData)',
+        'function aggregate(tuple(address target, bytes callData)[] calls) payable returns (uint256 blockNumber, bytes[] returnData)',
+      ];
+      const multiCallIface = new ethers.Interface(multiCallAbi);
+
+      const datas: any[] = [];
+      const abi = ['function safeTransferFrom(address from, address to, uint256 tokenId)'];
+      const iface = new ethers.Interface(abi);
+
+      for (const id of ids) {
+        datas.push({
+          target: tokenContractAddr,
+          callData: iface.encodeFunctionData('safeTransferFrom', [sender, receiver, id]),
+        });
+      }
+
+      callData = multiCallIface.encodeFunctionData('aggregate', [datas]);
     }
   }
 

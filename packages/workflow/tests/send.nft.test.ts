@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 import {
   configureFCL,
-  // SendTransaction,
+  //  SendTransaction,
   cadenceService,
 } from '../src';
 // import { getTrx } from '../src/utils';
@@ -22,6 +22,7 @@ describe('Test NFT send strategies', () => {
 
   it('Test query coa', async () => {
     const coaAddr = await cadenceService.getAddr(mainAccount.address);
+    console.log(coaAddr);
     expect(`0x${coaAddr}`).toBe(mainAccount.evmAddr);
   });
 
@@ -45,6 +46,7 @@ describe('Test NFT send strategies', () => {
   //   expect(txid.length).toBe(64);
   // });
 
+  // todo
   // it('Test TopShotNftStrategy - TopShot NFT transfer', async () => {
   //   const payload = {
   //     type: 'nft',
@@ -82,7 +84,28 @@ describe('Test NFT send strategies', () => {
   //   };
 
   //   const txid = await SendTransaction(payload);
-  //   expect(txid.length).toBe(64);
+  //   // expect(txid.length).toBe(64);
+  // });
+
+  // it('Test FlowToEvmNftBridgeStrategy - Bridge NFT to EVM address', async () => {
+  //   // coa
+  //   const payload = {
+  //     type: 'nft',
+  //     assetType: 'flow',
+  //     proposer: mainAccount.address,
+  //     receiver: mainAccount.evmAddr,
+  //     flowIdentifier: 'A.2d4c3caffbeab845.FLOAT.NFT',
+  //     sender: mainAccount.address,
+  //     amount: '0',
+  //     childAddrs: [],
+  //     ids: [91259466020066],
+  //     decimal: 0,
+  //     coaAddr: mainAccount.evmAddr,
+  //     tokenContractAddr: '',
+  //   };
+
+  //   const txid = await SendTransaction(payload);
+  //   // expect(txid.length).toBe(64);
   // });
 
   // it('Test EvmToFlowNftBridgeStrategy - Bridge NFT from EVM to Flow', async () => {
@@ -91,18 +114,18 @@ describe('Test NFT send strategies', () => {
   //     assetType: 'evm',
   //     proposer: mainAccount.address,
   //     receiver: mainAccount.address,
-  //     flowIdentifier: 'A.0b2a3299cc857e29.TopShot.NFT',
+  //     flowIdentifier: 'A.2d4c3caffbeab845.FLOAT.NFT',
   //     sender: mainAccount.evmAddr,
   //     amount: '0',
   //     childAddrs: [],
-  //     ids: [67890],
+  //     ids: [239693535195987],
   //     decimal: 0,
   //     coaAddr: mainAccount.evmAddr,
   //     tokenContractAddr: '0x50ab3a827ad268e9d5a24d340108fad5c25dad5f',
   //   };
 
   //   const txid = await SendTransaction(payload);
-  //   expect(txid.length).toBe(64);
+  //   // expect(txid.length).toBe(64);
   // });
 
   // it('Test EvmToEvmNftStrategy - EVM to EVM NFT transfer', async () => {
@@ -111,14 +134,14 @@ describe('Test NFT send strategies', () => {
   //     assetType: 'evm',
   //     proposer: mainAccount.address,
   //     receiver: '0x3b44f144B97A0402C0e206522c28052C1025A8AA',
-  //     flowIdentifier: 'A.0b2a3299cc857e29.TopShot.NFT',
+  //     flowIdentifier: 'A.2d4c3caffbeab845.FLOAT.NFT',
   //     sender: mainAccount.evmAddr,
   //     amount: '',
   //     childAddrs: [],
-  //     ids: [36786962],
+  //     ids: [239693535195987, 91259466020066],
   //     decimal: 0,
   //     coaAddr: mainAccount.evmAddr,
-  //     tokenContractAddr: '0x50ab3a827ad268e9d5a24d340108fad5c25dad5f',
+  //     tokenContractAddr: '0x2B7CfE0f24c18690a4E34a154e313859B7c6e342',
   //   };
 
   //   const txid = await SendTransaction(payload);

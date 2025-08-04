@@ -54,7 +54,7 @@ cadenceService.useRequestInterceptor(async (config) => {
   return config;
 });
 
-cadenceService.useResponseInterceptor(async (response) => {
+cadenceService.useResponseInterceptor(async (config, response) => {
   console.log('cadenceService response', response);
   return response;
 });
