@@ -103,7 +103,7 @@ export class TopShotNftStrategy implements TransferStrategy {
 
   async execute(payload: SendPayload): Promise<any> {
     const { flowIdentifier, receiver, ids } = payload;
-    return await cadenceService.sendNbaNftV3(flowIdentifier, receiver, ids[0]);
+    return await cadenceService.batchSendNbaNftV3(flowIdentifier, receiver, ids);
   }
 }
 
@@ -114,13 +114,13 @@ export class FlowToFlowNftStrategy implements TransferStrategy {
   canHandle(payload: SendPayload): boolean {
     const { assetType, receiver, ids, type } = payload;
     return (
-      type === 'nft' && assetType === 'flow' && validateFlowAddress(receiver) && ids.length === 1
+      type === 'nft' && assetType === 'flow' && validateFlowAddress(receiver) && ids.length >= 1
     );
   }
 
   async execute(payload: SendPayload): Promise<any> {
     const { flowIdentifier, receiver, ids } = payload;
-    return await cadenceService.sendNft(flowIdentifier, receiver, ids[0]);
+    return await cadenceService.batchSendNftV3(flowIdentifier, receiver, ids);
   }
 }
 
