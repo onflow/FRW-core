@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 import { describe, it, expect, beforeEach } from 'vitest';
 
 import {
@@ -9,7 +9,7 @@ import {
 // import { getTrx } from '../src/utils';
 import { accounts } from '../src/utils/accounts';
 
-dotenv.config();
+// dotenv.config();
 
 const mainAccount = accounts.main;
 const child1Account = accounts.child1;

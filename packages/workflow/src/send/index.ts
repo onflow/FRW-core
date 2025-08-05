@@ -14,6 +14,8 @@ export { createTransferContext, TransferContext } from './context';
 export * from './nftStrategies';
 export * from './tokenStrategies';
 
+export * from './validation';
+
 // Main entry point
 import { createTransferContext } from './context';
 import type { SendPayload } from './types';

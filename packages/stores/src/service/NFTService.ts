@@ -374,3 +374,23 @@ export class NFTService {
     }
   }
 }
+
+export function getNFTCover(nft: NFTModel): string {
+  if (nft.thumbnail) {
+    return nft.thumbnail;
+  }
+  if (nft.postMedia?.image) {
+    return nft.postMedia.image;
+  }
+  return '';
+}
+
+export function getNFTId(nft: NFTModel): string {
+  return nft.id ?? nft.address ?? '';
+}
+
+export function getNFTSearchText(nft: NFTModel): string {
+  return (
+    (nft.name ?? '') + ' ' + (nft.description ?? '') + ' ' + (nft.postMedia?.description ?? '')
+  );
+}

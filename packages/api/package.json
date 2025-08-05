@@ -3,6 +3,7 @@
   "version": "0.0.3",
   "description": "Package for flow wallet network layer with backend server api",
   "type": "module",
+  "main": "dist/index.js",
   "files": [
     "src",
     "dist",
