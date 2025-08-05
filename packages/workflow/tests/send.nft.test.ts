@@ -129,6 +129,7 @@ describe('Test NFT send strategies', () => {
   // });
 
   // it('Test EvmToEvmNftStrategy - EVM to EVM NFT transfer', async () => {
+  //   // batch float
   //   const payload = {
   //     type: 'nft',
   //     assetType: 'evm',
@@ -142,6 +143,69 @@ describe('Test NFT send strategies', () => {
   //     decimal: 0,
   //     coaAddr: mainAccount.evmAddr,
   //     tokenContractAddr: '0x2B7CfE0f24c18690a4E34a154e313859B7c6e342',
+  //   };
+
+  //   const txid = await SendTransaction(payload);
+  //   expect(txid.length).toBe(64);
+  // });
+
+  // it('Test EvmToEvmNftStrategy - EVM to EVM Flovatar NFT transfer', async () => {
+  //   // batch flovatar
+  //   const payload = {
+  //     type: 'nft',
+  //     assetType: 'evm',
+  //     proposer: mainAccount.address,
+  //     receiver: '0x3b44f144B97A0402C0e206522c28052C1025A8AA',
+  //     flowIdentifier: 'A.2d4c3caffbeab845.FLOAT.NFT',
+  //     sender: mainAccount.evmAddr,
+  //     amount: '',
+  //     childAddrs: [],
+  //     ids: [127190, 109019, 73667],
+  //     decimal: 0,
+  //     coaAddr: mainAccount.evmAddr,
+  //     tokenContractAddr: '0x478b816CFCB33BF16396c8dAe59AE1DD20B15786',
+  //   };
+
+  //   const txid = await SendTransaction(payload);
+  //   expect(txid.length).toBe(64);
+  // });
+
+  // it('Test EvmToEvmNftStrategy - EVM to EVM NBA NFT transfer', async () => {
+  //   // batch NBA
+  //   const payload = {
+  //     type: 'nft',
+  //     assetType: 'evm',
+  //     proposer: mainAccount.address,
+  //     receiver: '0x3b44f144B97A0402C0e206522c28052C1025A8AA',
+  //     flowIdentifier: 'A.2d4c3caffbeab845.FLOAT.NFT',
+  //     sender: mainAccount.evmAddr,
+  //     amount: '',
+  //     childAddrs: [],
+  //     ids: [23445625, 17884712],
+  //     decimal: 0,
+  //     coaAddr: mainAccount.evmAddr,
+  //     tokenContractAddr: '0x84c6a2e6765E88427c41bB38C82a78b570e24709',
+  //   };
+
+  //   const txid = await SendTransaction(payload);
+  //   expect(txid.length).toBe(64);
+  // });
+
+  // it('Test EvmToEvmNftStrategy - EVM to EVM 1155 NFT transfer', async () => {
+  //   // 1155
+  //   const payload = {
+  //     type: 'nft',
+  //     assetType: 'evm',
+  //     proposer: mainAccount.address,
+  //     receiver: '0x3b44f144B97A0402C0e206522c28052C1025A8AA',
+  //     flowIdentifier: 'A.2d4c3caffbeab845.FLOAT.NFT',
+  //     sender: mainAccount.evmAddr,
+  //     amount: '4.0',
+  //     childAddrs: [],
+  //     ids: [1],
+  //     decimal: 0,
+  //     coaAddr: mainAccount.evmAddr,
+  //     tokenContractAddr: '0x3E00930ED9DB5b78D2c1B470cF9dC635BB405f39',
   //   };
 
   //   const txid = await SendTransaction(payload);
